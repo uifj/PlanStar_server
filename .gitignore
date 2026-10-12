@@ -18,6 +18,8 @@ src/generated/
 .env
 .env.production
 
+_archvie/
+
 # logs
 logs/
 *.log

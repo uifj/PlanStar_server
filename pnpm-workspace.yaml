@@ -1,6 +1,16 @@
 allowBuilds:
+  # postinstall only acts when FIREBASE_WEBAPP_CONFIG is set; unused here
+  '@firebase/util': false
   '@prisma/engines': true
   esbuild: true
+  # postinstall is a no-op unless a dependent uses protobufjs's legacy version scheme
+  protobufjs: false
   prisma: true
 minimumReleaseAgeExclude:
   - '@hono/node-server@2.0.10'
+# genkit pins zod ^3.23.8 while its own zod-to-json-schema needs ^3.25.28;
+# the app's own zod stays v4 (pnpm keeps the two copies separate).
+overrides:
+  '@genkit-ai/core>zod': ^3.25.28
+  '@genkit-ai/telemetry-server>zod': ^3.25.28
+  '@genkit-ai/tools-common>zod': ^3.25.28
