@@ -1,7 +1,8 @@
 import { cors } from "hono/cors";
-import { env } from "../config/env.js";
+import { TRUSTED_ORIGINS } from "../config/constants.js";
 
 export const corsMiddleware = cors({
-	origin: env.CLIENT_URL,
+	origin: (origin) =>
+		origin && TRUSTED_ORIGINS.includes(origin) ? origin : undefined,
 	credentials: true,
 });
