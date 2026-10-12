@@ -19,6 +19,16 @@ const envSchema = z.object({
 	APP_URL: z.url(),
 
 	CLIENT_URL: z.url(),
+
+	/**
+	 * Optional so the API still boots (and the agent simply fails a turn) when
+	 * no model provider is configured for a given environment.
+	 */
+	GEMINI_API_KEY: z.string().min(1).optional(),
+
+	DEEPSEEK_API_KEY: z.string().min(1).optional(),
+
+	AGENT_MODEL: z.string().min(1).default("googleai/gemini-flash-latest"),
 });
 
 const result = envSchema.safeParse(process.env);

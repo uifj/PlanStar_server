@@ -4,10 +4,10 @@ import {
 	type Van,
 } from "../../generated/prisma/client.js";
 import { prisma } from "../../lib/prisma.js";
+import { ACTIVE_BOOKING_STATUSES } from "./constants.js";
 import { buildWhere } from "./filters.js";
 import type { BookingListQuery } from "./schema.js";
 
-const activeBookingStatuses = [BookingStatus.pending, BookingStatus.confirmed];
 const MAX_CREATE_BOOKING_ATTEMPTS = 3;
 
 async function findManyByUser(
@@ -102,7 +102,7 @@ async function createPendingIfAvailable(input: {
 						where: {
 							vanId: input.van.id,
 							status: {
-								in: activeBookingStatuses,
+								in: ACTIVE_BOOKING_STATUSES,
 							},
 							startDate: {
 								lt: input.endDate,

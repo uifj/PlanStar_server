@@ -29,6 +29,13 @@ export const prismaMock = {
 	session: createModelMock(),
 	account: createModelMock(),
 	verification: createModelMock(),
+
+	// VanLife domain
+	van: createModelMock(),
+	booking: createModelMock(),
+	review: createModelMock(),
+	agentChat: createModelMock(),
+	agentSnapshot: createModelMock(),
 };
 
 export function resetPrismaMocks() {

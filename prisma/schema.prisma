@@ -20,6 +20,7 @@ model User {
   hostedVans    Van[]     @relation("HostVans")
   bookings      Booking[]
   reviews       Review[]
+  agentChats    AgentChat[]
 
   role       String?
   banned     Boolean?  @default(false)
@@ -155,4 +156,30 @@ model Review {
 
   @@index([userId])
   @@index([vanId])
+}
+
+model AgentChat {
+  id        String   @id
+  userId    String
+  agentName String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  snapshots AgentSnapshot[]
+
+  @@index([userId])
+}
+
+model AgentSnapshot {
+  id       String   @id
+  chatId   String
+  parentId String?
+  status   String
+  data     Json
+  createdAt DateTime @default(now())
+
+  chat AgentChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId, createdAt])
 }

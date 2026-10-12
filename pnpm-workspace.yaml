@@ -14,3 +14,8 @@ overrides:
   '@genkit-ai/core>zod': ^3.25.28
   '@genkit-ai/telemetry-server>zod': ^3.25.28
   '@genkit-ai/tools-common>zod': ^3.25.28
+peerDependencyRules:
+  allowedVersions:
+    # openai declares a zod v3 peer for its zodResponseFormat helpers, which
+    # @genkit-ai/compat-oai never imports; the app's zod stays v4.
+    'openai>zod': '^3.23.8 || ^4'

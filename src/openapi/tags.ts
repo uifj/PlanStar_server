@@ -6,4 +6,5 @@ export const OPENAPI_TAGS = {
 	BOOKINGS: "Bookings",
 	REVIEWS: "Reviews",
 	HOST: "Host",
+	AGENT: "Agent",
 } as const;
