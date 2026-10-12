@@ -1,0 +1,22 @@
+# dependencies / build output (regenerated inside the image)
+node_modules
+dist
+src/generated
+
+# the image ships the API only; the React client is served separately
+front_web
+
+# never bake local config or VCS/scratch data into the image
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+_archvie
+.agent
+docs
+tests
+*.log
+.DS_Store
+dev.db
+test.db
