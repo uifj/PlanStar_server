@@ -11,6 +11,9 @@
 # deps
 node_modules/
 
+# generated prisma client (pnpm db:generate)
+src/generated/
+
 # env
 .env
 .env.production

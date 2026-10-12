@@ -1,0 +1,54 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap");
+
+@import "tailwindcss";
+
+@theme {
+	--font-sans: "Outfit", sans-serif;
+
+	--color-canvas: #f8f3eb;
+	--color-surface: #fffaf3;
+	--color-panel: #efe6d8;
+	--color-line: #ded3c4;
+
+	--color-ink: #1e1b16;
+	--color-muted: #6f675c;
+	--color-soft: #a89d90;
+
+	--color-clay: #c86f45;
+	--color-clay-dark: #9f5534;
+	--color-sage: #4f6f64;
+	--color-forest: #263f38;
+
+	--color-status-pending: #a46320;
+	--color-status-confirmed: #2f6f7e;
+	--color-status-completed: #3f7352;
+	--color-status-cancelled: #9f4f45;
+}
+
+html {
+	scroll-behavior: smooth;
+	font-family: var(--font-sans);
+}
+
+body {
+	background-color: var(--color-canvas);
+	color: var(--color-ink);
+	text-rendering: optimizeLegibility;
+}
+
+::selection {
+	background-color: var(--color-clay);
+	color: var(--color-surface);
+}
+
+button,
+summary,
+select,
+label[for],
+input[type="checkbox"],
+input[type="radio"],
+input[type="submit"],
+input[type="button"],
+input[type="reset"] {
+	cursor: pointer;
+}

@@ -1,113 +1,215 @@
-# Hono Open API Starter
+# VanLife API
 
-A starter template for building fully documented type-safe JSON APIs with Hono and Open API.
+VanLife API is the backend for the VanLife application. It provides
+authentication, role-based access, van browsing, booking requests, host
+management, reviews, pagination, and OpenAPI documentation for the React
+frontend.
 
-> A new version of drizzle was released since the video showing this starter was made. See [this commit](https://github.com/w3cj/hono-open-api-starter/commit/92525ff84fb2a247c8245cc889b2320d7b3b6e2c) for the changes required to use drizzle v0.35+
+Frontend repository:
+[kangcommit/vanlife](https://github.com/kangcommit/vanlife)
 
-> A new version of zod was released since the video showing this starter was made. See [this commit](https://github.com/w3cj/hono-open-api-starter/commit/f7f88dfc40cb7bda53f8729983d8308c2d6c780b) for the changes required to use zod v4.
+## Tech Stack
 
-> For a cloudflare specific template, see the [cloudflare branch](https://github.com/w3cj/hono-open-api-starter/tree/cloudflare) on this repo
+| Area | Tools |
+| --- | --- |
+| Runtime | Node.js |
+| API | Hono |
+| Language | TypeScript |
+| Database | PostgreSQL |
+| ORM | Prisma |
+| Auth | Better Auth |
+| Validation | Zod |
+| API docs | OpenAPI, Scalar |
+| Quality | Biome, TypeScript |
 
-> For other deployment examples see the [hono-node-deployment-examples](https://github.com/w3cj/hono-node-deployment-examples) repo
+## Features
 
-- [Hono Open API Starter](#hono-open-api-starter)
-  - [Included](#included)
-  - [Setup](#setup)
-  - [Code Tour](#code-tour)
-  - [Endpoints](#endpoints)
-  - [References](#references)
+- Email/password authentication with Better Auth.
+- Cookie-backed sessions.
+- Renter and host roles.
+- Host-only route protection.
+- Public van listing and van detail endpoints.
+- Search, filter, sort, and pagination support for vans.
+- Booking request creation.
+- Renter booking history.
+- Host booking status management.
+- Host van CRUD.
+- Host dashboard, income, and review summaries.
+- Review creation for completed bookings.
+- Zod request validation.
+- OpenAPI documentation.
 
-## Included
+## Seed Accounts
 
-- Structured logging with [pino](https://getpino.io/) / [hono-pino](https://www.npmjs.com/package/hono-pino)
-- Documented / type-safe routes with [@hono/zod-openapi](https://github.com/honojs/middleware/tree/main/packages/zod-openapi)
-- Interactive API documentation with [scalar](https://scalar.com/#api-docs) / [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)
-- Convenience methods / helpers to reduce boilerplate with [stoker](https://www.npmjs.com/package/stoker)
-- Type-safe schemas and environment variables with [zod](https://zod.dev/)
-- Single source of truth database schemas with [drizzle](https://orm.drizzle.team/docs/overview) and [drizzle-zod](https://orm.drizzle.team/docs/zod)
-- Testing with [vitest](https://vitest.dev/)
-- Sensible editor, formatting and linting settings with [@antfu/eslint-config](https://github.com/antfu/eslint-config)
-
-## Setup
-
-Clone this template without git history
-
-```sh
-npx degit w3cj/hono-open-api-starter my-api
-cd my-api
+```text
+Host:          host@vanlife.test / password123
+Second host:   host.two@vanlife.test / password123
+Renter:        renter@vanlife.test / password123
+Second renter: renter.two@vanlife.test / password123
 ```
 
-Create `.env` file
+Seeded data includes:
 
-```sh
-cp .env.example .env
-```
+- multiple hosts and renters for ownership scenarios
+- public camper van listings across `simple`, `rugged`, and `luxury` types
+- van-focused listing images from Pexels
+- pending booking requests
+- confirmed bookings
+- completed bookings
+- cancelled bookings
+- an overlapping pending booking for conflict testing
+- a completed booking with a review
+- a completed booking available for review
+- an archived van visible to host-side flows
+- host vans, income, dashboard, and review data
 
-Install dependencies
+Pexels photos are used under the Pexels license. See:
+[Pexels license information](https://help.pexels.com/hc/en-us/articles/360042295174-What-is-the-license-of-the-photos-and-videos-on-Pexels)
 
-```sh
+## Getting Started
+
+Install dependencies:
+
+```bash
 pnpm install
 ```
 
-Create sqlite db / push schema
+Create and configure `.env`:
 
-```sh
-pnpm drizzle-kit push
+```bash
+cp .env.example .env
 ```
 
-Run
+Required environment variables:
 
-```sh
+```text
+NODE_ENV=development
+PORT=8000
+LOG_LEVEL=debug
+APP_URL=http://localhost:8000
+CLIENT_URL=http://localhost:3000
+DATABASE_URL=postgresql://...
+BETTER_AUTH_SECRET=...
+```
+
+Prepare the database:
+
+```bash
+pnpm db:generate
+pnpm db:migrate
+pnpm db:seed
+```
+
+Start the API:
+
+```bash
 pnpm dev
 ```
 
-Lint
+The API runs at:
 
-```sh
-pnpm lint
+```text
+http://localhost:8000
 ```
 
-Test
+The frontend should use:
 
-```sh
-pnpm test
+```text
+VITE_API_BASE_URL=http://localhost:8000/api
 ```
 
-## Code Tour
+## API Documentation
 
-Base hono app exported from [app.ts](./src/app.ts). Local development uses [@hono/node-server](https://hono.dev/docs/getting-started/nodejs) defined in [index.ts](./src/index.ts) - update this file or create a new entry point to use your preferred runtime.
+When the server is running:
 
-Typesafe env defined in [env.ts](./src/env.ts) - add any other required environment variables here. The application will not start if any required environment variables are missing
+| Resource | URL |
+| --- | --- |
+| Scalar UI | `http://localhost:8000/api/docs` |
+| OpenAPI JSON | `http://localhost:8000/api/openapi.json` |
+| Current user | `http://localhost:8000/api/me` |
 
-See [src/routes/tasks](./src/routes/tasks/) for an example Open API group. Copy this folder / use as an example for your route groups.
+## Main Endpoints
 
-- Router created in [tasks.index.ts](./src/routes/tasks/tasks.index.ts)
-- Route definitions defined in [tasks.routes.ts](./src/routes/tasks/tasks.routes.ts)
-- Hono request handlers defined in [tasks.handlers.ts](./src/routes/tasks/tasks.handlers.ts)
-- Group unit tests defined in [tasks.test.ts](./src/routes/tasks/tasks.test.ts)
+Public:
 
-All app routes are grouped together and exported into single type as `AppType` in [app.ts](./src/app.ts) for use in [RPC / hono/client](https://hono.dev/docs/guides/rpc).
+- `GET /api/vans`
+- `GET /api/vans/:id`
 
-## Endpoints
+Auth:
 
-| Path               | Description              |
-| ------------------ | ------------------------ |
-| GET /doc           | Open API Specification   |
-| GET /reference     | Scalar API Documentation |
-| GET /tasks         | List all tasks           |
-| POST /tasks        | Create a task            |
-| GET /tasks/{id}    | Get one task by id       |
-| PATCH /tasks/{id}  | Patch one task by id     |
-| DELETE /tasks/{id} | Delete one task by id    |
+- `POST /api/auth/sign-in/email`
+- `POST /api/auth/sign-up/email`
+- `POST /api/auth/sign-out`
+- `POST /api/auth/change-password`
+- `POST /api/register/host`
+- `GET /api/me`
 
-## References
+Renter:
 
-- [What is Open API?](https://swagger.io/docs/specification/v3_0/about/)
-- [Hono](https://hono.dev/)
-  - [Zod OpenAPI Example](https://hono.dev/examples/zod-openapi)
-  - [Testing](https://hono.dev/docs/guides/testing)
-  - [Testing Helper](https://hono.dev/docs/helpers/testing)
-- [@hono/zod-openapi](https://github.com/honojs/middleware/tree/main/packages/zod-openapi)
-- [Scalar Documentation](https://github.com/scalar/scalar/tree/main/?tab=readme-ov-file#documentation)
-  - [Themes / Layout](https://github.com/scalar/scalar/blob/main/documentation/themes.md)
-  - [Configuration](https://github.com/scalar/scalar/blob/main/documentation/configuration.md)
+- `POST /api/bookings`
+- `GET /api/bookings`
+- `POST /api/bookings/:id/cancel`
+- `POST /api/reviews`
+
+Host:
+
+- `GET /api/host/dashboard`
+- `GET /api/host/income`
+- `GET /api/host/reviews`
+- `GET /api/host/bookings`
+- `PATCH /api/host/bookings/:id/status`
+- `GET /api/host/vans`
+- `GET /api/host/vans/:id`
+- `POST /api/host/vans`
+- `PATCH /api/host/vans/:id`
+- `DELETE /api/host/vans/:id`
+
+## Booking Lifecycle
+
+New renter bookings start as `pending`.
+
+Renters may cancel their own `pending` or `confirmed` bookings.
+
+Host-controlled status flow:
+
+```text
+pending -> confirmed -> completed
+pending -> cancelled
+confirmed -> cancelled
+```
+
+Only completed bookings can be reviewed. Each booking can have one review.
+
+## Project Structure
+
+```text
+src/
+  auth/          Roles and auth helpers
+  config/        Environment config and constants
+  errors/        App and HTTP error classes
+  generated/     Generated Prisma client
+  lib/           Auth, logger, Prisma, and Prisma error helpers
+  middleware/    CORS, session, auth, logger, request id, error handling
+  modules/
+    auth/        Auth routes and schemas
+    bookings/    Booking routes, service, repository, filters
+    host/        Host dashboard, vans, bookings, income, reviews
+    me/          Current-user route
+    reviews/     Review creation
+    system/      Health/readiness endpoints
+    vans/        Public van browsing
+  openapi/       OpenAPI config, schemas, requests, responses
+  pagination/    Pagination and sorting helpers
+  response/      Response payload helpers
+  app.ts
+  index.ts
+```
+
+Domain modules keep route definitions, routers, services, repositories, DTOs,
+and schemas close together. Shared infrastructure lives outside `modules`.
+
+## Quality Checks
+
+```bash
+pnpm check
+```

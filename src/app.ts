@@ -1,21 +1,31 @@
-import configureOpenAPI from "@/lib/configure-open-api";
-import createApp from "@/lib/create-app";
-import index from "@/routes/index.route";
-import tasks from "@/routes/tasks/tasks.index";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { API_PREFIX } from "./config/constants.js";
+import { isDevelopment } from "./config/env.js";
+import { corsMiddleware } from "./middleware/cors.js";
+import { errorHandler } from "./middleware/error.js";
+import { loggerMiddleware } from "./middleware/logger.js";
+import { notFound } from "./middleware/not-found.js";
+import { requestIdMiddleware } from "./middleware/request-id.js";
+import { openApiDocument, scalarConfig } from "./openapi/config.js";
+import routes from "./routes/index.js";
 
-const app = createApp();
+const app = new OpenAPIHono().basePath(API_PREFIX);
 
-configureOpenAPI(app);
+app.use("*", corsMiddleware);
 
-const routes = [
-  index,
-  tasks,
-] as const;
+app.use("*", requestIdMiddleware);
 
-routes.forEach((route) => {
-  app.route("/", route);
-});
+app.use("*", loggerMiddleware);
 
-export type AppType = typeof routes[number];
+app.route("/", routes);
+
+if (isDevelopment) {
+	app.doc("/openapi.json", openApiDocument);
+	app.get("/docs", scalarConfig);
+}
+
+app.notFound(notFound);
+
+app.onError(errorHandler);
 
 export default app;
