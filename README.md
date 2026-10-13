@@ -1,12 +1,14 @@
 # VanLife API
 
+> 中文文档：[README.zh-CN.md](./README.zh-CN.md)
+
 VanLife API is the backend for the VanLife application. It provides
 authentication, role-based access, van browsing, booking requests, host
 management, reviews, pagination, and OpenAPI documentation for the React
 frontend.
 
-Frontend repository:
-[kangcommit/vanlife](https://github.com/kangcommit/vanlife)
+The React frontend lives in this repository under
+[`front_web/`](./front_web).
 
 ## Tech Stack
 
@@ -19,6 +21,7 @@ Frontend repository:
 | ORM | Prisma |
 | Auth | Better Auth |
 | Validation | Zod |
+| Agent | Genkit (DeepSeek or Google GenAI provider) |
 | API docs | OpenAPI, Scalar |
 | Quality | Biome, TypeScript |
 
@@ -38,6 +41,10 @@ Frontend repository:
 - Review creation for completed bookings.
 - Zod request validation.
 - OpenAPI documentation.
+- Trip planner agent built on Genkit, answering through van search,
+  availability, and upcoming-trip tools.
+- The agent is reachable over both a REST endpoint and Genkit's own protocol.
+- Agent conversations persisted per user in PostgreSQL.
 
 ## Seed Accounts
 
@@ -80,7 +87,7 @@ Create and configure `.env`:
 cp .env.example .env
 ```
 
-Required environment variables:
+Environment variables:
 
 ```text
 NODE_ENV=development
@@ -90,6 +97,12 @@ APP_URL=http://localhost:8000
 CLIENT_URL=http://localhost:3000
 DATABASE_URL=postgresql://...
 BETTER_AUTH_SECRET=...
+
+# Optional: provider for the trip planner agent. The API starts without a key
+# and the agent answers 503 until one is configured.
+AGENT_MODEL=deepseek/deepseek-chat
+DEEPSEEK_API_KEY=...
+GEMINI_API_KEY=...
 ```
 
 Prepare the database:
@@ -112,11 +125,36 @@ The API runs at:
 http://localhost:8000
 ```
 
-The frontend should use:
+## Frontend (`front_web`)
+
+`front_web` is a separate pnpm project and is not a member of the root pnpm
+workspace, so installing from the repository root leaves it untouched:
+
+```bash
+cd front_web
+pnpm install --ignore-workspace
+```
+
+Create `front_web/.env`. The client reads `VITE_API_BASE_URL` only and ships no
+default:
 
 ```text
 VITE_API_BASE_URL=http://localhost:8000/api
 ```
+
+Start the Vite server:
+
+```bash
+pnpm dev
+```
+
+The app runs at:
+
+```text
+http://localhost:3000
+```
+
+Frontend checks are `pnpm typecheck` and `pnpm check`, run from `front_web`.
 
 ## API Documentation
 
@@ -164,6 +202,11 @@ Host:
 - `PATCH /api/host/vans/:id`
 - `DELETE /api/host/vans/:id`
 
+Agent (any signed-in user):
+
+- `POST /api/agent/trip-planner/messages`
+- `/api/ai/tripPlanner` (all methods, Genkit protocol)
+
 ## Booking Lifecycle
 
 New renter bookings start as `pending`.
@@ -180,6 +223,41 @@ confirmed -> cancelled
 
 Only completed bookings can be reviewed. Each booking can have one review.
 
+## Trip Planner Agent
+
+`src/modules/agent` defines a Genkit agent named `tripPlanner` that plans van
+trips for the signed-in traveller. It answers from tool output rather than
+invention:
+
+| Tool | Purpose |
+| --- | --- |
+| `searchVans` | Search listed vans by location and nightly budget |
+| `checkAvailability` | Test a van against live bookings for a date range, and report the blocking dates |
+| `myUpcomingTrips` | Take no arguments; resolve the traveller from the conversation and list upcoming trips |
+
+Two transports are mounted for the same agent:
+
+- `POST /api/agent/trip-planner/messages` takes `{ "message": "...", "chatId": "..." }`
+  and returns `{ chatId, snapshotId, reply }`. Omit `chatId` to start a new
+  conversation.
+- `/api/ai/tripPlanner` speaks Genkit's own wire format, which the browser
+  `remoteAgent` client and the Genkit Dev UI use.
+
+Conversations persist as `AgentChat` and `AgentSnapshot` rows, and a `chatId`
+can only be continued by the user who started it.
+
+The provider plugin is chosen from the `AGENT_MODEL` prefix
+(`deepseek/deepseek-chat`, `deepseek/deepseek-reasoner`, or `googleai/<model>`)
+and only the matching plugin is loaded — registering a second provider makes
+agents resolve to that provider's default model instead. Without a key the API
+still starts and a turn returns `503`.
+
+To open the Genkit Dev UI against this server:
+
+```bash
+pnpm exec genkit start -- pnpm dev
+```
+
 ## Project Structure
 
 ```text
@@ -188,9 +266,10 @@ src/
   config/        Environment config and constants
   errors/        App and HTTP error classes
   generated/     Generated Prisma client
-  lib/           Auth, logger, Prisma, and Prisma error helpers
+  lib/           Auth, Genkit, logger, Prisma, and Prisma error helpers
   middleware/    CORS, session, auth, logger, request id, error handling
   modules/
+    agent/       Trip planner agent, tools, chat store, and both transports
     auth/        Auth routes and schemas
     bookings/    Booking routes, service, repository, filters
     host/        Host dashboard, vans, bookings, income, reviews
@@ -201,6 +280,7 @@ src/
   openapi/       OpenAPI config, schemas, requests, responses
   pagination/    Pagination and sorting helpers
   response/      Response payload helpers
+  routes/        Mounts every module router, including the agent transports
   app.ts
   index.ts
 ```
@@ -212,4 +292,22 @@ and schemas close together. Shared infrastructure lives outside `modules`.
 
 ```bash
 pnpm check
+```
+
+`pnpm check` runs Biome, `tsc --noEmit`, and both test suites. To run the steps
+individually:
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test:unit         # Vitest unit suite
+pnpm test:integration  # Vitest against the .env.test database
+pnpm test:all
+```
+
+Build and run the compiled API:
+
+```bash
+pnpm build
+pnpm start
 ```
