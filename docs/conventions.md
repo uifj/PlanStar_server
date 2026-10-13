@@ -138,6 +138,12 @@ Repositories are responsible for all Prisma interaction.
 
 Services should not execute Prisma queries directly.
 
+Raw SQL is allowed only inside a module's `repository.ts`, and only for queries
+Prisma cannot express — the object filters compile to `details` JSONB predicates
+(see `docs/adr/0007-registry-validated-query-compiler.md`). A compiled fragment may
+contain nothing but `$n` placeholders for client data: relation keys, values and sort
+directions are bound or come from a table the code owns, never from a client string.
+
 ---
 
 # Error Handling
