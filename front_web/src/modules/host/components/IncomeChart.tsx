@@ -7,6 +7,7 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
+import { LANGUAGE_LOCALES, useTranslation } from "@/shared/i18n";
 import type { Period } from "../types";
 import { formatPeriod, hasMultipleYears } from "../utils/formatStats";
 
@@ -15,13 +16,17 @@ interface IncomeChartProps {
 }
 
 export function IncomeChart({ periods }: IncomeChartProps) {
+	const { t, language } = useTranslation();
+
 	if (periods.length === 0) {
 		return (
-			<div className="mt-8 flex min-h-52 items-center justify-center rounded-lg border border-line border-dashed bg-canvas px-6 text-center">
+			<div className="mt-8 flex min-h-52 items-center justify-center rounded-lg border border-border border-dashed bg-background px-6 text-center">
 				<div>
-					<h3 className="font-black text-2xl text-ink">No income yet</h3>
-					<p className="mx-auto mt-3 max-w-md font-medium text-muted leading-7">
-						Completed trips will appear here once guests finish their stays.
+					<h3 className="font-black text-2xl text-foreground">
+						{t("host.incomeChart.emptyTitle")}
+					</h3>
+					<p className="mx-auto mt-3 max-w-md font-medium text-muted-foreground leading-7">
+						{t("host.incomeChart.emptyMessage")}
 					</p>
 				</div>
 			</div>
@@ -39,7 +44,9 @@ export function IncomeChart({ periods }: IncomeChartProps) {
 						dataKey="period"
 						axisLine={false}
 						tickLine={false}
-						tickFormatter={(period) => formatPeriod(period, showChartYears)}
+						tickFormatter={(period) =>
+							formatPeriod(period, showChartYears, LANGUAGE_LOCALES[language])
+						}
 						tick={{ fill: "#6f675c", fontSize: 12, fontWeight: 600 }}
 					/>
 					<YAxis
@@ -50,8 +57,10 @@ export function IncomeChart({ periods }: IncomeChartProps) {
 					/>
 					<Tooltip
 						cursor={{ fill: "#efe6d8" }}
-						formatter={(value) => [`$${value}`, "Income"]}
-						labelFormatter={(period) => formatPeriod(String(period), true)}
+						formatter={(value) => [`$${value}`, t("host.incomeChart.income")]}
+						labelFormatter={(period) =>
+							formatPeriod(String(period), true, LANGUAGE_LOCALES[language])
+						}
 						contentStyle={{
 							background: "#fffaf3",
 							border: "1px solid #ded3c4",

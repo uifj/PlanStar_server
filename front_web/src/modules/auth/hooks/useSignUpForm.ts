@@ -26,17 +26,16 @@ export function useSignUpForm() {
 	function handleChange(event: ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
 
-		if (name === "role") {
-			setFormData((previousFormData) => ({
-				...previousFormData,
-				role: value as AuthRole,
-			}));
-			return;
-		}
-
 		setFormData((previousFormData) => ({
 			...previousFormData,
 			[name]: value,
+		}));
+	}
+
+	function handleRoleChange(value: string) {
+		setFormData((previousFormData) => ({
+			...previousFormData,
+			role: value as AuthRole,
 		}));
 	}
 
@@ -64,6 +63,7 @@ export function useSignUpForm() {
 		error,
 		success,
 		handleChange,
+		handleRoleChange,
 		handleSubmit,
 	};
 }

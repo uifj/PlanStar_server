@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { Button } from "@/components/ui/button";
 import { Alert } from "@/shared/components/Alert";
+import { useTranslation } from "@/shared/i18n";
 import { useArchiveHostVan } from "../hooks/useArchiveHostVan";
 
 interface HostVanArchiveActionProps {
@@ -12,6 +14,7 @@ export function HostVanArchiveAction({
 	vanId,
 	vanName,
 }: HostVanArchiveActionProps) {
+	const { t } = useTranslation();
 	const [confirming, setConfirming] = useState(false);
 	const navigate = useNavigate();
 	const { archiveVan, loading, error } = useArchiveHostVan();
@@ -35,52 +38,59 @@ export function HostVanArchiveAction({
 	return (
 		<section
 			aria-labelledby="archive-van-title"
-			className="mt-8 rounded-xl border border-line bg-panel p-5"
+			className="mt-8 rounded-xl border border-border bg-secondary p-5"
 		>
 			<div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-start">
 				<div>
-					<h2 id="archive-van-title" className="font-black text-ink text-xl">
-						Archive this van
+					<h2
+						id="archive-van-title"
+						className="font-black text-foreground text-xl"
+					>
+						{t("host.archive.title")}
 					</h2>
-					<p className="mt-2 font-medium text-muted text-sm leading-6">
-						Archived vans leave public browsing and your active host inventory.
-						Existing records stay available for history.
+					<p className="mt-2 font-medium text-muted-foreground text-sm leading-6">
+						{t("host.archive.description")}
 					</p>
 				</div>
 
 				{confirming ? (
 					<div className="flex flex-col gap-2 sm:flex-row md:justify-end">
-						<button
+						<Button
 							type="button"
+							variant="outline"
 							onClick={handleCancelArchive}
 							disabled={loading}
-							className="w-full rounded-lg border border-line px-4 py-2 font-bold text-ink text-sm transition-colors hover:border-clay hover:text-clay active:scale-95 disabled:text-muted sm:w-fit"
+							className="w-full sm:w-fit"
 						>
-							Keep van
-						</button>
-						<button
+							{t("host.archive.keep")}
+						</Button>
+						<Button
 							type="button"
+							variant="destructive"
 							onClick={handleConfirmArchive}
 							disabled={loading}
-							className="w-full rounded-lg bg-status-cancelled px-4 py-2 font-bold text-sm text-surface transition-colors hover:bg-clay-dark active:scale-95 disabled:bg-line disabled:text-muted sm:w-fit"
+							className="w-full sm:w-fit"
 						>
-							{loading ? "Archiving..." : "Confirm archive"}
-						</button>
+							{loading
+								? t("host.archive.archiving")
+								: t("host.archive.confirm")}
+						</Button>
 					</div>
 				) : (
-					<button
+					<Button
 						type="button"
+						variant="outline"
 						onClick={handleStartArchive}
-						className="w-full rounded-lg border border-status-cancelled/30 px-4 py-2 font-bold text-sm text-status-cancelled transition-colors hover:bg-status-cancelled/10 active:scale-95 sm:w-fit"
+						className="w-full border-status-cancelled/30 text-status-cancelled hover:bg-status-cancelled/10 hover:text-status-cancelled sm:w-fit"
 					>
-						Archive van
-					</button>
+						{t("host.archive.archiveVan")}
+					</Button>
 				)}
 			</div>
 
 			{confirming ? (
-				<p className="mt-4 font-semibold text-muted text-sm">
-					Confirm archive for {vanName}.
+				<p className="mt-4 font-semibold text-muted-foreground text-sm">
+					{t("host.archive.confirmFor", { vanName })}
 				</p>
 			) : null}
 

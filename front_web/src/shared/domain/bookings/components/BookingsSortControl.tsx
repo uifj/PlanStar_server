@@ -1,5 +1,11 @@
-import type { ChangeEvent } from "react";
-import { FaChevronDown } from "react-icons/fa6";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { useTranslation } from "@/shared/i18n";
 import type { BookingSortChoice } from "../types";
 
 interface BookingsSortControlProps {
@@ -13,31 +19,43 @@ export function BookingsSortControl({
 	sortChoice,
 	onSortChoiceChange,
 }: BookingsSortControlProps) {
-	function handleSortChange(event: ChangeEvent<HTMLSelectElement>) {
-		onSortChoiceChange(event.target.value as BookingSortChoice);
-	}
+	const { t } = useTranslation();
 
 	return (
 		<div className="grid gap-2">
-			<label htmlFor={id} className="font-semibold text-ink text-sm">
-				Sort by
+			<label htmlFor={id} className="font-semibold text-foreground text-sm">
+				{t("bookings.sortLabel")}
 			</label>
-			<span className="relative">
-				<select
-					id={id}
-					value={sortChoice}
-					onChange={handleSortChange}
-					className="w-full appearance-none rounded-lg border border-line bg-canvas py-3 pr-11 pl-4 font-semibold text-base text-ink outline-none transition-colors focus:border-clay"
-				>
-					<option value="newest">Newest requests</option>
-					<option value="oldest">Oldest requests</option>
-					<option value="soonest-trip">Soonest trip</option>
-					<option value="latest-trip">Latest trip</option>
-					<option value="highest-total">Highest total</option>
-					<option value="lowest-total">Lowest total</option>
-				</select>
-				<FaChevronDown className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-soft" />
-			</span>
+			<Select
+				value={sortChoice}
+				onValueChange={(value) =>
+					onSortChoiceChange(value as BookingSortChoice)
+				}
+			>
+				<SelectTrigger id={id} className="w-full">
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent>
+					<SelectItem value="newest">
+						{t("bookings.sortOptions.newest")}
+					</SelectItem>
+					<SelectItem value="oldest">
+						{t("bookings.sortOptions.oldest")}
+					</SelectItem>
+					<SelectItem value="soonest-trip">
+						{t("bookings.sortOptions.soonestTrip")}
+					</SelectItem>
+					<SelectItem value="latest-trip">
+						{t("bookings.sortOptions.latestTrip")}
+					</SelectItem>
+					<SelectItem value="highest-total">
+						{t("bookings.sortOptions.highestTotal")}
+					</SelectItem>
+					<SelectItem value="lowest-total">
+						{t("bookings.sortOptions.lowestTotal")}
+					</SelectItem>
+				</SelectContent>
+			</Select>
 		</div>
 	);
 }

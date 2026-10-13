@@ -1,7 +1,11 @@
+import { useTranslation } from "@/shared/i18n";
+
 export default function Footer() {
+	const { t } = useTranslation();
+
 	return (
-		<footer className="bg-forest py-8 text-center font-medium text-panel text-sm">
-			&#169; 2026 VanLife
+		<footer className="bg-forest py-8 text-center font-medium text-secondary text-sm">
+			{t("footer.copyright")}
 		</footer>
 	);
 }

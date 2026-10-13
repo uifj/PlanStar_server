@@ -1,15 +1,13 @@
 import { Link } from "react-router";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Alert } from "@/shared/components/Alert";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { useTranslation } from "@/shared/i18n";
 import { AccountLoadingState } from "../components/AccountLoadingState";
 import { useSignOut } from "../hooks/useSignOut";
 import { useUser } from "../hooks/useUser";
 import { authRoutePaths } from "../routes";
-import type { AuthRole } from "../types";
-
-function getRoleLabel(role: AuthRole) {
-	return role === "host" ? "Host account" : "Renter account";
-}
 
 export default function AccountPage() {
 	const { user, loading: userLoading, error } = useUser();
@@ -18,6 +16,7 @@ export default function AccountPage() {
 		loading: signOutLoading,
 		error: signOutError,
 	} = useSignOut();
+	const { t } = useTranslation();
 
 	function handleSignOut() {
 		signOut();
@@ -26,70 +25,75 @@ export default function AccountPage() {
 	return (
 		<section className="mx-auto max-w-7xl px-6 py-16 md:py-20">
 			<PageHeader
-				eyebrow="Your account"
-				title="Manage your account and password."
+				eyebrow={t("auth.accountEyebrow")}
+				title={t("auth.accountTitle")}
 			/>
 
 			<div className="mx-auto max-w-3xl">
 				{userLoading ? <AccountLoadingState /> : null}
 
 				{error ? (
-					<Alert variant="error">
-						We could not load your account details. Please try again.
-					</Alert>
+					<Alert variant="error">{t("auth.accountLoadError")}</Alert>
 				) : null}
 
 				{user ? (
 					<div className="grid gap-6">
-						<header className="rounded-lg bg-panel p-6 md:p-8">
-							<p className="font-semibold text-clay text-sm">
-								{getRoleLabel(user.role)}
+						<header className="rounded-lg bg-secondary p-6 md:p-8">
+							<p className="font-semibold text-primary text-sm">
+								{user.role === "host"
+									? t("auth.hostAccount")
+									: t("auth.renterAccount")}
 							</p>
-							<h2 className="mt-2 text-balance font-black text-3xl text-ink md:text-4xl">
+							<h2 className="mt-2 text-balance font-black text-3xl text-foreground md:text-4xl">
 								{user.name}
 							</h2>
-							<p className="wrap-break-word mt-2 font-medium text-muted">
+							<p className="wrap-break-word mt-2 font-medium text-muted-foreground">
 								{user.email}
 							</p>
 						</header>
 
-						<div className="rounded-lg bg-surface p-6 shadow-sm md:p-8">
-							<h2 className="font-bold text-2xl text-ink">Security</h2>
-							<p className="mt-2 text-muted text-sm leading-6">
-								Keep your password fresh and sign out when you finish using a
-								shared device.
+						<div className="rounded-lg bg-card p-6 shadow-sm md:p-8">
+							<h2 className="font-bold text-2xl text-foreground">
+								{t("auth.security")}
+							</h2>
+							<p className="mt-2 text-muted-foreground text-sm leading-6">
+								{t("auth.securityHint")}
 							</p>
 
-							<dl className="mt-4 divide-y divide-line">
+							<dl className="mt-4 divide-y divide-border">
 								<div className="grid gap-3 py-4 sm:grid-cols-[9rem_1fr_auto] sm:items-center sm:gap-6">
-									<dt className="font-semibold text-muted text-sm">Password</dt>
-									<dd className="font-bold text-ink">••••••••</dd>
+									<dt className="font-semibold text-muted-foreground text-sm">
+										{t("auth.password")}
+									</dt>
+									<dd className="font-bold text-foreground">••••••••</dd>
 									<Link
 										to={authRoutePaths.changePassword}
-										className="w-fit rounded-lg bg-ink px-4 py-2 font-bold text-sm text-surface transition-colors hover:bg-forest active:scale-95"
+										className={cn(
+											buttonVariants({ size: "sm" }),
+											"bg-foreground text-card hover:bg-forest",
+										)}
 									>
-										Change
+										{t("auth.change")}
 									</Link>
 								</div>
 							</dl>
 
-							<div className="mt-2 border-line border-t pt-4">
+							<div className="mt-2 border-border border-t pt-4">
 								{signOutError ? (
 									<div className="mb-4">
-										<Alert variant="error">
-											We could not sign you out. Please try again.
-										</Alert>
+										<Alert variant="error">{t("auth.signOutError")}</Alert>
 									</div>
 								) : null}
 
-								<button
+								<Button
 									type="button"
+									variant="ghost"
 									onClick={handleSignOut}
 									disabled={signOutLoading}
-									className="font-bold text-clay text-sm transition-colors hover:text-clay-dark active:scale-95"
+									className="h-auto px-0 font-bold text-primary hover:bg-transparent hover:text-primary"
 								>
-									{signOutLoading ? "Signing out..." : "Sign out"}
-								</button>
+									{signOutLoading ? t("auth.signingOut") : t("auth.signOut")}
+								</Button>
 							</div>
 						</div>
 					</div>

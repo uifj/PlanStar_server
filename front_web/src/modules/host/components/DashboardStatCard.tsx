@@ -4,9 +4,9 @@ const dashboardStatCard = tv({
 	base: "rounded-xl p-6 shadow-sm",
 	variants: {
 		variant: {
-			light: "bg-surface",
-			panel: "bg-panel",
-			dark: "bg-ink",
+			light: "bg-card",
+			panel: "bg-secondary",
+			dark: "bg-foreground",
 		},
 	},
 	defaultVariants: {
@@ -18,9 +18,9 @@ const dashboardStatLabel = tv({
 	base: "font-semibold text-sm",
 	variants: {
 		variant: {
-			light: "text-muted",
-			panel: "text-muted",
-			dark: "text-panel",
+			light: "text-muted-foreground",
+			panel: "text-muted-foreground",
+			dark: "text-secondary",
 		},
 	},
 });
@@ -29,9 +29,9 @@ const dashboardStatValue = tv({
 	base: "mt-3 font-black text-4xl",
 	variants: {
 		variant: {
-			light: "text-ink",
-			panel: "text-ink",
-			dark: "text-surface",
+			light: "text-foreground",
+			panel: "text-foreground",
+			dark: "text-card",
 		},
 	},
 });
@@ -40,9 +40,9 @@ const dashboardStatDescription = tv({
 	base: "mt-2 font-medium text-sm",
 	variants: {
 		variant: {
-			light: "text-muted",
-			panel: "text-muted",
-			dark: "text-panel",
+			light: "text-muted-foreground",
+			panel: "text-muted-foreground",
+			dark: "text-secondary",
 		},
 	},
 });

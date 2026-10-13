@@ -1,3 +1,6 @@
+import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/shared/i18n";
+
 const dayOptions = [30, 90, 365] as const;
 
 interface DaysFilterProps {
@@ -6,22 +9,25 @@ interface DaysFilterProps {
 }
 
 export function DaysFilter({ value, onChange }: DaysFilterProps) {
+	const { t } = useTranslation();
+
 	return (
 		<fieldset className="flex flex-wrap items-center gap-2">
-			<legend className="sr-only">Date range</legend>
+			<legend className="sr-only">{t("host.daysFilter.label")}</legend>
 			{dayOptions.map((days) => (
-				<button
+				<Button
 					key={days}
 					type="button"
+					variant={days === value ? "default" : "secondary"}
 					onClick={() => onChange(days)}
 					className={
 						days === value
-							? "rounded-lg bg-ink px-4 py-2 font-bold text-sm text-surface transition-colors"
-							: "rounded-lg bg-panel px-4 py-2 font-bold text-ink text-sm transition-colors hover:bg-line"
+							? "bg-foreground text-card hover:bg-foreground/90"
+							: "font-bold text-foreground hover:bg-border"
 					}
 				>
-					{days} days
-				</button>
+					{t("host.daysFilter.days", { days })}
+				</Button>
 			))}
 		</fieldset>
 	);

@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router";
+import { agentRoutes } from "@/modules/agent/routes";
 import { authGuestRoutes, authProtectedRoutes } from "@/modules/auth/routes";
 import { bookingsRoutes } from "@/modules/bookings/routes";
 import { hostRoutes } from "@/modules/host/routes";
@@ -35,6 +36,7 @@ export function AppRoutes() {
 
 					{/* Regular user only */}
 					<Route element={<RoleRequired allowedRoles={["user"]} />}>
+						{agentRoutes}
 						{bookingsRoutes}
 					</Route>
 

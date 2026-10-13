@@ -1,28 +1,131 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap");
 
 @import "tailwindcss";
+@import "tw-animate-css";
 
-@theme {
+@custom-variant dark (&:is(.dark *));
+
+:root {
+	--radius: 0.625rem;
+
+	/* Brand-mapped shadcn tokens (light) */
+	--background: #f8f3eb;
+	--foreground: #1e1b16;
+	--card: #fffaf3;
+	--card-foreground: #1e1b16;
+	--popover: #fffaf3;
+	--popover-foreground: #1e1b16;
+	--primary: #c86f45;
+	--primary-foreground: #fffaf3;
+	--secondary: #efe6d8;
+	--secondary-foreground: #1e1b16;
+	--muted: #efe6d8;
+	--muted-foreground: #6f675c;
+	--accent: #e7dcc9;
+	--accent-foreground: #1e1b16;
+	--destructive: #9f4f45;
+	--destructive-foreground: #fffaf3;
+	--border: #ded3c4;
+	--input: #ded3c4;
+	--ring: #c86f45;
+
+	/* Booking status colors (light) */
+	--status-pending: #a46320;
+	--status-confirmed: #2f6f7e;
+	--status-completed: #3f7352;
+	--status-cancelled: #9f4f45;
+
+	/* Brand auxiliaries (light) */
+	--soft: #a89d90;
+	--clay-dark: #9f5534;
+	--sage: #4f6f64;
+	--forest: #263f38;
+}
+
+.dark {
+	--background: #1a1712;
+	--foreground: #f1eadf;
+	--card: #232019;
+	--card-foreground: #f1eadf;
+	--popover: #232019;
+	--popover-foreground: #f1eadf;
+	--primary: #d9825f;
+	--primary-foreground: #1a1712;
+	--secondary: #2b2620;
+	--secondary-foreground: #f1eadf;
+	--muted: #2b2620;
+	--muted-foreground: #b3a898;
+	--accent: #322c25;
+	--accent-foreground: #f1eadf;
+	--destructive: #e08a7e;
+	--destructive-foreground: #1a1712;
+	--border: #3a332a;
+	--input: #3a332a;
+	--ring: #d9825f;
+
+	--status-pending: #d99a45;
+	--status-confirmed: #63a8b5;
+	--status-completed: #72ac85;
+	--status-cancelled: #d98274;
+
+	/* Brand auxiliaries (dark) */
+	--soft: #8a7f71;
+	--clay-dark: #b5623e;
+	--sage: #6b8f83;
+	--forest: #2f4f44;
+}
+
+@theme inline {
 	--font-sans: "Outfit", sans-serif;
 
-	--color-canvas: #f8f3eb;
-	--color-surface: #fffaf3;
-	--color-panel: #efe6d8;
-	--color-line: #ded3c4;
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
 
-	--color-ink: #1e1b16;
-	--color-muted: #6f675c;
-	--color-soft: #a89d90;
+	/* shadcn semantic */
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
 
-	--color-clay: #c86f45;
-	--color-clay-dark: #9f5534;
-	--color-sage: #4f6f64;
-	--color-forest: #263f38;
+	/* Booking status */
+	--color-status-pending: var(--status-pending);
+	--color-status-confirmed: var(--status-confirmed);
+	--color-status-completed: var(--status-completed);
+	--color-status-cancelled: var(--status-cancelled);
 
-	--color-status-pending: #a46320;
-	--color-status-confirmed: #2f6f7e;
-	--color-status-completed: #3f7352;
-	--color-status-cancelled: #9f4f45;
+	/*
+	 * Legacy brand aliases — kept so existing call sites keep working while the
+	 * codebase migrates to the shadcn semantic tokens above. `muted` is
+	 * intentionally absent: its old meaning (secondary text) now lives at
+	 * `--color-muted-foreground`.
+	 */
+	--color-canvas: var(--background);
+	--color-surface: var(--card);
+	--color-panel: var(--secondary);
+	--color-line: var(--border);
+	--color-ink: var(--foreground);
+	--color-soft: var(--soft);
+	--color-clay: var(--primary);
+	--color-clay-dark: var(--clay-dark);
+	--color-sage: var(--sage);
+	--color-forest: var(--forest);
 }
 
 html {
@@ -31,14 +134,14 @@ html {
 }
 
 body {
-	background-color: var(--color-canvas);
-	color: var(--color-ink);
+	background-color: var(--background);
+	color: var(--foreground);
 	text-rendering: optimizeLegibility;
 }
 
 ::selection {
-	background-color: var(--color-clay);
-	color: var(--color-surface);
+	background-color: var(--primary);
+	color: var(--primary-foreground);
 }
 
 button,

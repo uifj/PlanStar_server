@@ -1,5 +1,7 @@
 import { FaStar } from "react-icons/fa6";
 import { cn } from "tailwind-variants";
+import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/shared/i18n";
 
 interface RatingButtonProps {
 	option: number;
@@ -14,23 +16,29 @@ export function RatingButton({
 	disabled,
 	onChange,
 }: RatingButtonProps) {
-	const label = `${option} ${option === 1 ? "star" : "stars"}`;
-	const starClassName = cn(option <= rating ? "text-clay" : "text-line");
+	const { t } = useTranslation();
+	const label = t(
+		option === 1 ? "bookings.starSingular" : "bookings.starPlural",
+		{ count: option },
+	);
+	const starClassName = cn(option <= rating ? "text-primary" : "text-border");
 
 	function handleClick() {
 		onChange(option);
 	}
 
 	return (
-		<button
+		<Button
 			type="button"
+			variant="ghost"
+			size="icon"
 			aria-pressed={option === rating}
 			onClick={handleClick}
 			disabled={disabled}
 			aria-label={label}
-			className="rounded-md p-1 text-clay transition-colors hover:bg-clay/10 focus:outline-none focus:ring-2 focus:ring-clay disabled:text-line"
+			className="rounded-md text-primary hover:bg-primary/10 hover:text-primary disabled:text-border"
 		>
 			<FaStar aria-hidden="true" className={starClassName} />
-		</button>
+		</Button>
 	);
 }

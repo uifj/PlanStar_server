@@ -1,26 +1,41 @@
 import type { DateRange } from "@daypicker/react";
+import type { TranslateParams } from "@/shared/i18n";
 
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-	month: "short",
-	day: "numeric",
-	year: "numeric",
-});
+type Translate = (key: string, params?: TranslateParams) => string;
 
-export function formatBookingDate(date: Date | string) {
-	return dateFormatter.format(new Date(date));
+function createDateFormatter(locale: string) {
+	return new Intl.DateTimeFormat(locale, {
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+	});
 }
 
-export function getDateRangeLabel(dateRange?: DateRange) {
+const enUsDateFormatter = createDateFormatter("en-US");
+
+export function formatBookingDate(date: Date | string, locale = "en-US") {
+	const formatter =
+		locale === "en-US" ? enUsDateFormatter : createDateFormatter(locale);
+
+	return formatter.format(new Date(date));
+}
+
+export function getDateRangeLabel(
+	dateRange?: DateRange,
+	t?: Translate,
+	locale = "en-US",
+) {
 	if (!dateRange?.from) {
-		return "Select dates";
+		return t ? t("bookings.selectDates") : "Select dates";
 	}
 
 	if (!dateRange.to) {
-		return formatBookingDate(dateRange.from);
+		return formatBookingDate(dateRange.from, locale);
 	}
 
-	return `${formatBookingDate(dateRange.from)} - ${formatBookingDate(
+	return `${formatBookingDate(dateRange.from, locale)} - ${formatBookingDate(
 		dateRange.to,
+		locale,
 	)}`;
 }
 

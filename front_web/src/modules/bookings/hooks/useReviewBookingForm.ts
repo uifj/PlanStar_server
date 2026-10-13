@@ -1,4 +1,5 @@
 import { type ChangeEvent, type SubmitEvent, useState } from "react";
+import { useTranslation } from "@/shared/i18n";
 import { useCreateReview } from "./useCreateReview";
 
 export function useReviewBookingForm(bookingId: string) {
@@ -6,12 +7,15 @@ export function useReviewBookingForm(bookingId: string) {
 	const [text, setText] = useState("");
 	const [formError, setFormError] = useState("");
 	const { createReview, loading, error, success } = useCreateReview();
+	const { t } = useTranslation();
 
-	const buttonText = loading ? "Sending review..." : "Submit review";
+	const buttonText = loading
+		? t("bookings.sendingReview")
+		: t("bookings.submitReview");
 	const statusMessage =
 		formError ||
 		error?.message ||
-		(success ? "Thanks. Your review has been submitted." : "");
+		(success ? t("bookings.reviewSubmitted") : "");
 
 	function handleRatingChange(nextRating: number) {
 		setRating(nextRating);
@@ -25,7 +29,7 @@ export function useReviewBookingForm(bookingId: string) {
 		event.preventDefault();
 
 		if (!text.trim()) {
-			setFormError("Write a short review before submitting.");
+			setFormError(t("bookings.reviewEmptyError"));
 			return;
 		}
 

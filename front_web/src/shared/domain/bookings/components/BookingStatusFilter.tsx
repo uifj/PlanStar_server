@@ -1,16 +1,8 @@
-import { tv } from "tailwind-variants";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "@/shared/i18n";
 import { bookingStatusFilters } from "../queryControls";
 import type { BookingStatus } from "../types";
-
-const statusButton = tv({
-	base: "rounded-lg bg-panel px-4 py-2 font-semibold text-sm capitalize transition-colors active:scale-95",
-	variants: {
-		selected: {
-			true: "bg-ink text-surface",
-			false: "text-muted hover:bg-sage hover:text-surface",
-		},
-	},
-});
 
 interface BookingStatusFilterProps {
 	selectedStatus: BookingStatus | null;
@@ -21,21 +13,29 @@ export function BookingStatusFilter({
 	selectedStatus,
 	onSelect,
 }: BookingStatusFilterProps) {
+	const { t } = useTranslation();
+
 	return (
 		<div className="flex flex-wrap gap-3">
 			{bookingStatusFilters.map((status) => {
 				const selected = selectedStatus === status;
 
 				return (
-					<button
+					<Button
 						key={status}
 						type="button"
+						variant="secondary"
 						aria-pressed={selected}
 						onClick={() => onSelect(status)}
-						className={statusButton({ selected })}
+						className={cn(
+							"h-auto px-4 py-2 font-semibold text-sm capitalize",
+							selected
+								? "bg-foreground text-card hover:bg-foreground"
+								: "text-muted-foreground hover:bg-sage hover:text-card",
+						)}
 					>
-						{status}
-					</button>
+						{t(`bookings.statuses.${status}`)}
+					</Button>
 				);
 			})}
 		</div>

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/shared/components/EmptyState";
 import ErrorMessage from "@/shared/components/ErrorMessage";
 import LoadingSpinner from "@/shared/components/LoadingSpinner";
@@ -6,12 +7,14 @@ import { PaginationControls } from "@/shared/components/PaginationControls";
 import VanCard from "@/shared/domain/vans/components/VanCard";
 import { useVans } from "@/shared/domain/vans/hooks/useVans";
 import { vanTypes } from "@/shared/domain/vans/types";
+import { useTranslation } from "@/shared/i18n";
 import VansBrowseControls from "../components/VansBrowseControls";
 import VanTypeFilter from "../components/VanTypeFilter";
 import { useVansSearchParams } from "../hooks/useVansSearchParams";
 
 export default function VansPage() {
 	const vansSearch = useVansSearchParams();
+	const { t } = useTranslation();
 	const { vans, meta, loading, error, refetch } = useVans({
 		params: vansSearch.queryParams,
 	});
@@ -26,10 +29,7 @@ export default function VansPage() {
 
 	return (
 		<section className="mx-auto max-w-7xl px-6 py-16 md:py-20">
-			<PageHeader
-				eyebrow="Choose your route"
-				title="Explore vans ready for weekends, long stays, and detours."
-			/>
+			<PageHeader eyebrow={t("vans.eyebrow")} title={t("vans.title")} />
 
 			<div className="mb-8 grid gap-5">
 				<VansBrowseControls
@@ -48,13 +48,15 @@ export default function VansPage() {
 				/>
 
 				{vansSearch.hasActiveControls && (
-					<button
+					<Button
 						type="button"
+						variant="ghost"
+						size="sm"
 						onClick={vansSearch.handleClearFilter}
-						className="font-semibold text-muted transition-colors hover:text-clay"
+						className="font-semibold text-muted-foreground hover:bg-transparent hover:text-primary"
 					>
-						Clear filters
-					</button>
+						{t("vans.clearFilters")}
+					</Button>
 				)}
 			</div>
 
@@ -74,22 +76,22 @@ export default function VansPage() {
 				</div>
 			) : (
 				<EmptyState
-					title="No vans found"
+					title={t("vans.noVans")}
 					message={
 						vansSearch.hasActiveControls
-							? "There are no vans matching these filters. Clear the filters to browse all available vans."
-							: "There are no vans available right now. Please check back soon."
+							? t("vans.noVansFiltered")
+							: t("vans.noVansEmpty")
 					}
 				/>
 			)}
 
 			{meta && (
 				<PaginationControls
-					ariaLabel="Van pages"
+					ariaLabel={t("vans.paginationAria")}
 					page={meta.page}
 					totalPages={meta.totalPages}
 					total={meta.total}
-					totalLabel="vans"
+					totalLabel={t("vans.totalLabel")}
 					onPageChange={vansSearch.handlePageChange}
 				/>
 			)}

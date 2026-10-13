@@ -1,5 +1,7 @@
+import { Button } from "@/components/ui/button";
 import { Alert } from "@/shared/components/Alert";
 import type { BookingStatus } from "@/shared/domain/bookings/types";
+import { useTranslation } from "@/shared/i18n";
 import { useUpdateHostBookingStatus } from "../hooks/useUpdateHostBookingStatus";
 import {
 	getHostBookingActionHelpText,
@@ -18,9 +20,10 @@ export function HostBookingActions({
 	status,
 	endDate,
 }: HostBookingActionsProps) {
+	const { t } = useTranslation();
 	const { updateStatus, loading, error } = useUpdateHostBookingStatus();
 	const actions = getHostBookingActions(status, endDate);
-	const helpText = getHostBookingActionHelpText(actions, endDate);
+	const helpText = getHostBookingActionHelpText(actions);
 
 	function handleSelectStatus(nextStatus: HostBookingActionStatus) {
 		updateStatus({ id: bookingId, status: nextStatus });
@@ -31,23 +34,25 @@ export function HostBookingActions({
 	}
 
 	return (
-		<div className="mt-5 grid gap-3 border-line border-t pt-4">
+		<div className="mt-5 grid gap-3 border-border border-t pt-4">
 			<div className="flex flex-wrap gap-3">
 				{actions.map((action) => (
-					<button
+					<Button
 						key={action.status}
 						type="button"
+						variant="outline"
 						onClick={() => handleSelectStatus(action.status)}
 						disabled={loading || action.disabled}
-						className="rounded-lg border border-line px-4 py-2 font-bold text-ink text-sm transition-colors hover:border-clay hover:text-clay active:scale-95 disabled:text-muted disabled:hover:border-line"
 					>
-						{loading ? "Updating..." : action.label}
-					</button>
+						{loading ? t("host.booking.updating") : t(action.label)}
+					</Button>
 				))}
 			</div>
 
 			{helpText ? (
-				<p className="font-medium text-muted text-sm">{helpText}</p>
+				<p className="font-medium text-muted-foreground text-sm">
+					{t(helpText, { endDate })}
+				</p>
 			) : null}
 
 			{error ? <Alert variant="error">{error.message}</Alert> : null}

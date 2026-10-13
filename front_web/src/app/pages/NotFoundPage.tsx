@@ -1,25 +1,27 @@
 import { Link } from "react-router";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { useTranslation } from "@/shared/i18n";
 import { paths } from "../routes/paths";
 
 export default function NotFoundPage() {
+	const { t } = useTranslation();
+
 	return (
 		<section className="mx-auto flex min-h-96 max-w-7xl flex-col items-center justify-center px-6 py-20 text-center">
 			<PageHeader
-				eyebrow="Page not found"
-				title="This road does not lead anywhere."
+				eyebrow={t("notFound.eyebrow")}
+				title={t("notFound.title")}
 				className="mb-0 items-center"
 				titleClassName="max-w-2xl"
 			/>
-			<p className="mt-6 max-w-lg font-medium text-lg text-muted leading-8">
-				The page may have moved, or the address may need another look.
+			<p className="mt-6 max-w-lg font-medium text-lg text-muted-foreground leading-8">
+				{t("notFound.message")}
 			</p>
 
-			<Link
-				to={paths.home}
-				className="mt-10 inline-flex rounded-lg bg-clay px-6 py-3 font-bold text-surface transition-colors hover:bg-clay-dark active:scale-95"
-			>
-				Return to home
+			<Link to={paths.home} className={cn(buttonVariants(), "mt-10")}>
+				{t("notFound.backHome")}
 			</Link>
 		</section>
 	);

@@ -5,11 +5,13 @@ import ErrorMessage from "@/shared/components/ErrorMessage";
 import LoadingSpinner from "@/shared/components/LoadingSpinner";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { useVan } from "@/shared/domain/vans/hooks/useVan";
+import { useTranslation } from "@/shared/i18n";
 import { HostVanForm } from "../components/HostVanForm";
 import { useUpdateHostVan } from "../hooks/useUpdateHostVan";
 import type { CreateHostVanRequest } from "../types";
 
 export default function EditHostVanPage() {
+	const { t } = useTranslation();
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const { van, loading, error, refetch } = useVan(id, { isHost: true });
@@ -49,35 +51,37 @@ export default function EditHostVanPage() {
 	if (!van) {
 		return (
 			<EmptyState
-				title="Van not found"
-				message="This van may not exist, or it may not belong to your host account."
+				title={t("host.van.notFoundTitle")}
+				message={t("host.van.notFoundMessage")}
 			/>
 		);
 	}
 
 	return (
 		<section>
-			<BackButton to=".." className="mb-8 text-muted hover:text-clay" />
+			<BackButton
+				to=".."
+				className="mb-8 text-muted-foreground hover:text-primary"
+			/>
 
 			<div className="mx-auto max-w-4xl">
 				<PageHeader
-					eyebrow="Edit van"
-					title={`Update ${van.name}.`}
+					eyebrow={t("host.van.edit")}
+					title={t("host.edit.title", { name: van.name })}
 					className="mb-8"
 				/>
 
-				<div className="rounded-xl bg-surface p-5 shadow-sm md:p-8">
-					<p className="mb-6 max-w-2xl font-medium text-muted leading-7">
-						Keep this listing accurate for guests. Changes update the active van
-						details used across browsing and host inventory.
+				<div className="rounded-xl bg-card p-5 shadow-sm md:p-8">
+					<p className="mb-6 max-w-2xl font-medium text-muted-foreground leading-7">
+						{t("host.edit.description")}
 					</p>
 
 					<HostVanForm
 						initialVan={van}
-						submitLabel="Save changes"
+						submitLabel={t("host.edit.submit")}
 						loading={updateLoading}
 						error={updateError}
-						successMessage={success ? "Van updated." : ""}
+						successMessage={success ? t("host.edit.success") : ""}
 						onSubmit={handleSubmit}
 					/>
 				</div>

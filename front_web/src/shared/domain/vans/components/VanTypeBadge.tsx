@@ -1,16 +1,13 @@
-import { tv } from "tailwind-variants";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "@/shared/i18n";
 import type { VanType } from "../types";
 
-const vanTypeBadge = tv({
-	base: "shrink-0 rounded-md px-3 py-1 font-semibold text-sm text-surface capitalize",
-	variants: {
-		type: {
-			simple: "bg-clay",
-			luxury: "bg-ink",
-			rugged: "bg-sage",
-		},
-	},
-});
+const typeStyles: Record<VanType, string> = {
+	simple: "bg-primary text-card hover:bg-primary",
+	luxury: "bg-foreground text-card hover:bg-foreground",
+	rugged: "bg-sage text-card hover:bg-sage",
+};
 
 interface VanTypeBadgeProps {
 	type: VanType;
@@ -18,14 +15,17 @@ interface VanTypeBadgeProps {
 }
 
 export default function VanTypeBadge({ type, className }: VanTypeBadgeProps) {
+	const { t } = useTranslation();
+
 	return (
-		<span
-			className={vanTypeBadge({
-				type,
+		<Badge
+			className={cn(
+				"shrink-0 rounded-md px-3 py-1 text-sm capitalize",
+				typeStyles[type],
 				className,
-			})}
+			)}
 		>
-			{type}
-		</span>
+			{t(`vans.type.${type}`)}
+		</Badge>
 	);
 }

@@ -74,15 +74,15 @@ function validateVan(van: CreateHostVanRequest) {
 		!van.location ||
 		van.amenities.length === 0
 	) {
-		return "Fill in every field before saving this van.";
+		return "host.form.fillAllFields";
 	}
 
 	if (!Number.isFinite(van.price) || van.price <= 0) {
-		return "Enter a daily price greater than 0.";
+		return "host.form.invalidPrice";
 	}
 
 	if (!Number.isInteger(van.sleeps) || van.sleeps <= 0) {
-		return "Enter how many guests this van sleeps.";
+		return "host.form.invalidSleeps";
 	}
 
 	return "";
@@ -110,6 +110,13 @@ export function useHostVanForm({
 		}));
 	}
 
+	function handleTypeChange(value: string) {
+		setFormData((previousFormData) => ({
+			...previousFormData,
+			type: value as CreateHostVanRequest["type"],
+		}));
+	}
+
 	function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
 
@@ -129,6 +136,7 @@ export function useHostVanForm({
 		formData,
 		formError,
 		handleChange,
+		handleTypeChange,
 		handleSubmit,
 	};
 }

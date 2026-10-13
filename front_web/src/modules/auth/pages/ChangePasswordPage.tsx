@@ -1,23 +1,29 @@
 import { Link } from "react-router";
-import { Input } from "@/shared/components/Input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { useTranslation } from "@/shared/i18n";
 import { AuthFormAlert } from "../components/AuthFormAlert";
 import { useChangePasswordForm } from "../hooks/useChangePasswordForm";
 
 export default function ChangePasswordPage() {
 	const { formData, loading, error, success, handleChange, handleSubmit } =
 		useChangePasswordForm();
+	const { t } = useTranslation();
 	const alertMessage =
-		error?.message || (success ? "Your password has been updated." : "");
+		error?.message || (success ? t("auth.changePasswordSuccess") : "");
 
 	return (
 		<section className="mx-auto flex max-w-7xl justify-center px-6 py-16 md:py-20">
 			<div className="w-full max-w-md">
-				<PageHeader eyebrow="Account security" title="Change your password." />
+				<PageHeader
+					eyebrow={t("auth.changePasswordEyebrow")}
+					title={t("auth.changePasswordTitle")}
+				/>
 
 				<form onSubmit={handleSubmit} className="flex flex-col gap-4">
 					<label htmlFor="currentPassword" className="sr-only">
-						Current password
+						{t("auth.currentPassword")}
 					</label>
 					<Input
 						id="currentPassword"
@@ -26,12 +32,12 @@ export default function ChangePasswordPage() {
 						value={formData.currentPassword}
 						onChange={handleChange}
 						autoComplete="current-password"
-						placeholder="Current password"
+						placeholder={t("auth.currentPassword")}
 						required
 					/>
 
 					<label htmlFor="newPassword" className="sr-only">
-						New password
+						{t("auth.newPassword")}
 					</label>
 					<Input
 						id="newPassword"
@@ -40,17 +46,13 @@ export default function ChangePasswordPage() {
 						value={formData.newPassword}
 						onChange={handleChange}
 						autoComplete="new-password"
-						placeholder="New password"
+						placeholder={t("auth.newPassword")}
 						required
 					/>
 
-					<button
-						type="submit"
-						disabled={loading}
-						className="mt-4 rounded-lg bg-clay py-4 font-bold text-base text-surface transition-colors hover:bg-clay-dark active:scale-95 disabled:bg-soft disabled:text-panel"
-					>
-						{loading ? "Updating password..." : "Update password"}
-					</button>
+					<Button type="submit" disabled={loading} className="mt-4 w-full">
+						{loading ? t("auth.updatingPassword") : t("auth.updatePassword")}
+					</Button>
 
 					<AuthFormAlert
 						message={alertMessage}
@@ -58,12 +60,12 @@ export default function ChangePasswordPage() {
 					/>
 				</form>
 
-				<p className="mt-6 text-center font-medium text-muted text-sm">
+				<p className="mt-6 text-center font-medium text-muted-foreground text-sm">
 					<Link
 						to=".."
-						className="font-bold text-clay transition-colors hover:text-clay-dark"
+						className="font-bold text-primary transition-colors hover:text-clay-dark"
 					>
-						Back to account
+						{t("auth.backToAccount")}
 					</Link>
 				</p>
 			</div>

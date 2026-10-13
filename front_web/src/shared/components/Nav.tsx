@@ -3,7 +3,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 import type { NavItem } from "../utils/types";
 
 const nav = tv({
-	base: "flex items-center text-muted",
+	base: "flex items-center text-muted-foreground",
 	variants: {
 		variant: {
 			primary: "gap-6 font-semibold text-base",
@@ -16,10 +16,10 @@ const nav = tv({
 });
 
 const navLink = tv({
-	base: "rounded-md px-1 py-1 transition-colors hover:text-ink",
+	base: "rounded-md px-1 py-1 transition-colors hover:text-foreground",
 	variants: {
 		active: {
-			true: "font-semibold text-ink",
+			true: "font-semibold text-foreground",
 		},
 	},
 });

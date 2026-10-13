@@ -1,28 +1,38 @@
 import { Link } from "react-router";
-import { Input } from "@/shared/components/Input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { useTranslation } from "@/shared/i18n";
 import { AuthFormAlert } from "../components/AuthFormAlert";
 import { useSignUpForm } from "../hooks/useSignUpForm";
 import { authRoutePaths } from "../routes";
 
 export default function SignUpPage() {
-	const { formData, loading, error, success, handleChange, handleSubmit } =
-		useSignUpForm();
+	const {
+		formData,
+		loading,
+		error,
+		success,
+		handleChange,
+		handleRoleChange,
+		handleSubmit,
+	} = useSignUpForm();
+	const { t } = useTranslation();
 	const alertMessage =
-		error?.message ||
-		(success ? "Account created. Taking you to your bookings." : "");
+		error?.message || (success ? t("auth.signUpSuccess") : "");
 
 	return (
 		<section className="mx-auto flex max-w-7xl justify-center px-6 py-16 md:py-20">
 			<div className="w-full max-w-md">
 				<PageHeader
-					eyebrow="Create account"
-					title="Start your VanLife trips."
+					eyebrow={t("auth.signUpEyebrow")}
+					title={t("auth.signUpTitle")}
 				/>
 
 				<form onSubmit={handleSubmit} className="flex flex-col gap-4">
 					<label htmlFor="name" className="sr-only">
-						Name
+						{t("auth.name")}
 					</label>
 					<Input
 						id="name"
@@ -30,12 +40,12 @@ export default function SignUpPage() {
 						value={formData.name}
 						onChange={handleChange}
 						autoComplete="name"
-						placeholder="Name"
+						placeholder={t("auth.name")}
 						required
 					/>
 
 					<label htmlFor="email" className="sr-only">
-						Email address
+						{t("auth.email")}
 					</label>
 					<Input
 						id="email"
@@ -44,12 +54,12 @@ export default function SignUpPage() {
 						value={formData.email}
 						onChange={handleChange}
 						autoComplete="email"
-						placeholder="Email address"
+						placeholder={t("auth.email")}
 						required
 					/>
 
 					<label htmlFor="password" className="sr-only">
-						Password
+						{t("auth.password")}
 					</label>
 					<Input
 						id="password"
@@ -58,77 +68,61 @@ export default function SignUpPage() {
 						value={formData.password}
 						onChange={handleChange}
 						autoComplete="new-password"
-						placeholder="Password"
+						placeholder={t("auth.password")}
 						required
 					/>
 
 					<fieldset>
-						<legend className="font-semibold text-muted text-sm">
-							Account type
+						<legend className="font-semibold text-muted-foreground text-sm">
+							{t("auth.accountType")}
 						</legend>
-						<div className="mt-3 overflow-hidden rounded-lg border border-line bg-surface">
+						<RadioGroup
+							value={formData.role}
+							onValueChange={handleRoleChange}
+							className="mt-3 grid overflow-hidden rounded-lg border border-border bg-card [&>label:first-child]:border-t-0 [&>label]:border-border [&>label]:border-t"
+						>
 							<label
 								htmlFor="role-user"
-								className="group flex gap-4 p-4 transition-colors has-checked:bg-panel has-focus-visible:ring-2 has-focus-visible:ring-clay"
+								className="group flex gap-4 p-4 transition-colors has-data-[state=checked]:bg-secondary has-focus-visible:ring-2 has-focus-visible:ring-ring"
 							>
-								<input
+								<RadioGroupItem
 									id="role-user"
-									name="role"
-									type="radio"
 									value="user"
-									checked={formData.role === "user"}
-									onChange={handleChange}
-									className="sr-only"
+									className="mt-0.5"
 								/>
-								<span
-									aria-hidden="true"
-									className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border border-line bg-surface group-has-checked:border-clay"
-								>
-									<span className="size-2.5 rounded-full bg-clay opacity-0 transition-opacity group-has-checked:opacity-100" />
-								</span>
 								<span>
-									<span className="block font-bold text-ink">Renter</span>
-									<span className="mt-1 block text-muted text-sm leading-6">
-										Book vans for your next trip.
+									<span className="block font-bold text-foreground">
+										{t("auth.renter")}
+									</span>
+									<span className="mt-1 block text-muted-foreground text-sm leading-6">
+										{t("auth.renterDescription")}
 									</span>
 								</span>
 							</label>
 							<label
 								htmlFor="role-host"
-								className="group flex gap-4 border-line border-t p-4 transition-colors has-checked:bg-panel has-focus-visible:ring-2 has-focus-visible:ring-clay"
+								className="group flex gap-4 p-4 transition-colors has-data-[state=checked]:bg-secondary has-focus-visible:ring-2 has-focus-visible:ring-ring"
 							>
-								<input
+								<RadioGroupItem
 									id="role-host"
-									name="role"
-									type="radio"
 									value="host"
-									checked={formData.role === "host"}
-									onChange={handleChange}
-									className="sr-only"
+									className="mt-0.5"
 								/>
-								<span
-									aria-hidden="true"
-									className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border border-line bg-surface group-has-checked:border-clay"
-								>
-									<span className="size-2.5 rounded-full bg-clay opacity-0 transition-opacity group-has-checked:opacity-100" />
-								</span>
 								<span>
-									<span className="block font-bold text-ink">Host</span>
-									<span className="mt-1 block text-muted text-sm leading-6">
-										Share your van and manage guests.
+									<span className="block font-bold text-foreground">
+										{t("auth.host")}
+									</span>
+									<span className="mt-1 block text-muted-foreground text-sm leading-6">
+										{t("auth.hostDescription")}
 									</span>
 								</span>
 							</label>
-						</div>
+						</RadioGroup>
 					</fieldset>
 
-					<button
-						type="submit"
-						disabled={loading}
-						className="mt-4 rounded-lg bg-clay py-4 font-bold text-base text-surface transition-colors hover:bg-clay-dark active:scale-95 disabled:bg-soft disabled:text-panel"
-					>
-						{loading ? "Creating account..." : "Create account"}
-					</button>
+					<Button type="submit" disabled={loading} className="mt-4 w-full">
+						{loading ? t("auth.creatingAccount") : t("auth.signUpEyebrow")}
+					</Button>
 
 					<AuthFormAlert
 						message={alertMessage}
@@ -136,13 +130,13 @@ export default function SignUpPage() {
 					/>
 				</form>
 
-				<p className="mt-6 text-center font-medium text-muted text-sm">
-					Already have an account?{" "}
+				<p className="mt-6 text-center font-medium text-muted-foreground text-sm">
+					{t("auth.alreadyHaveAccount")}{" "}
 					<Link
 						to={`/${authRoutePaths.signIn}`}
-						className="font-bold text-clay transition-colors hover:text-clay-dark"
+						className="font-bold text-primary transition-colors hover:text-clay-dark"
 					>
-						Sign in
+						{t("auth.signIn")}
 					</Link>
 				</p>
 			</div>

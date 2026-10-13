@@ -8,8 +8,8 @@ interface BookingStatusProps {
 export function BookingStatus({ message, variant }: BookingStatusProps) {
 	const statusClassName = cn(
 		"rounded-lg px-4 py-3 font-semibold text-sm",
-		variant === "success" && "bg-sage text-surface",
-		variant === "error" && "bg-clay/10 text-clay",
+		variant === "success" && "bg-sage text-card",
+		variant === "error" && "bg-primary/10 text-primary",
 		variant === "ready" && "bg-forest/10 text-forest",
 	);
 

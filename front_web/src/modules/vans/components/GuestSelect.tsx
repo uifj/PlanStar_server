@@ -1,4 +1,11 @@
-import { FaChevronDown } from "react-icons/fa6";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { useTranslation } from "@/shared/i18n";
 
 interface GuestSelectProps {
 	guestLimit: number;
@@ -11,38 +18,38 @@ export function GuestSelect({
 	guests,
 	onChange,
 }: GuestSelectProps) {
+	const { t } = useTranslation();
 	const guestOptions = Array.from(
 		{ length: guestLimit },
 		(_, index) => index + 1,
 	);
 
-	function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
-		onChange(Number(event.target.value));
-	}
-
 	return (
 		<div className="grid gap-2">
 			<label
 				htmlFor="booking-guests"
-				className="font-semibold text-ink text-sm"
+				className="font-semibold text-foreground text-sm"
 			>
-				Guests
+				{t("vans.guestsLabel")}
 			</label>
-			<div className="relative">
-				<select
-					id="booking-guests"
-					value={guests}
-					onChange={handleChange}
-					className="w-full appearance-none rounded-lg border border-line bg-surface py-3 pr-12 pl-4 font-medium text-ink outline-none ring-clay transition focus:ring-2"
-				>
+			<Select
+				value={String(guests)}
+				onValueChange={(value) => onChange(Number(value))}
+			>
+				<SelectTrigger id="booking-guests" className="w-full">
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent>
 					{guestOptions.map((guestCount) => (
-						<option key={guestCount} value={guestCount}>
-							{guestCount} {guestCount === 1 ? "guest" : "guests"}
-						</option>
+						<SelectItem key={guestCount} value={String(guestCount)}>
+							{guestCount}{" "}
+							{guestCount === 1
+								? t("vans.guestSingular")
+								: t("vans.guestPlural")}
+						</SelectItem>
 					))}
-				</select>
-				<FaChevronDown className="pointer-events-none absolute top-1/2 right-4 size-3 -translate-y-1/2 text-muted" />
-			</div>
+				</SelectContent>
+			</Select>
 		</div>
 	);
 }

@@ -1,5 +1,6 @@
 import { FaStar } from "react-icons/fa6";
 import { Link, type To } from "react-router";
+import { useTranslation } from "@/shared/i18n";
 import type { Van } from "../types";
 import VanTypeBadge from "./VanTypeBadge";
 
@@ -10,14 +11,19 @@ interface VanCardProps {
 }
 
 export default function VanCard({ van, to, state }: VanCardProps) {
+	const { t } = useTranslation();
+
 	return (
 		<Link
 			to={to}
 			state={state}
-			aria-label={`View details for ${van.name}, priced at $${van.price} per day`}
+			aria-label={t("vans.cardAriaLabel", {
+				name: van.name,
+				price: `$${van.price}`,
+			})}
 			className="group block h-full"
 		>
-			<div className="overflow-hidden rounded-xl bg-panel">
+			<div className="overflow-hidden rounded-xl bg-secondary">
 				<img
 					src={van.imageUrl}
 					alt={van.name}
@@ -28,19 +34,21 @@ export default function VanCard({ van, to, state }: VanCardProps) {
 
 			<div className="mt-4 flex items-start justify-between gap-4">
 				<div className="min-w-0">
-					<h2 className="font-bold text-2xl text-ink leading-tight">
+					<h2 className="font-bold text-2xl text-foreground leading-tight">
 						{van.name}
 					</h2>
-					<div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-medium text-muted text-sm">
+					<div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-medium text-muted-foreground text-sm">
 						<span>{van.location}</span>
-						<span className="inline-flex items-center gap-1 text-ink">
-							<FaStar className="text-clay" aria-hidden="true" />
+						<span className="inline-flex items-center gap-1 text-foreground">
+							<FaStar className="text-primary" aria-hidden="true" />
 							{van.rating.toFixed(1)}
 						</span>
 					</div>
-					<p className="mt-2 text-muted">
-						<span className="font-bold text-ink text-xl">${van.price}</span>
-						<span className="font-medium text-sm"> / day</span>
+					<p className="mt-2 text-muted-foreground">
+						<span className="font-bold text-foreground text-xl">
+							${van.price}
+						</span>
+						<span className="font-medium text-sm"> {t("vans.perDay")}</span>
 					</p>
 				</div>
 

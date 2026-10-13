@@ -1,6 +1,9 @@
-import { FaArrowLeft } from "react-icons/fa6";
+import { ArrowLeft } from "lucide-react";
 import { Link, type To } from "react-router";
-import { cn } from "tailwind-variants";
+
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "@/shared/i18n";
 
 interface BackButtonProps {
 	text?: string;
@@ -8,20 +11,17 @@ interface BackButtonProps {
 	className?: string;
 }
 
-export function BackButton({ text = "Back", to, className }: BackButtonProps) {
+export function BackButton({ text, to, className }: BackButtonProps) {
+	const { t } = useTranslation();
+
 	return (
 		<Link
 			to={to}
 			relative="path"
-			className={cn(
-				"inline-flex items-center gap-3",
-				"font-semibold text-base text-muted",
-				"transition-colors hover:text-clay",
-				className,
-			)}
+			className={cn(buttonVariants({ variant: "ghost" }), "px-0", className)}
 		>
-			<FaArrowLeft className="text-soft" />
-			{text}
+			<ArrowLeft aria-hidden="true" />
+			{text ?? t("common.back")}
 		</Link>
 	);
 }

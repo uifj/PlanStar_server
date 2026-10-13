@@ -1,9 +1,9 @@
 import type { NavItem } from "@/shared/utils/types";
 
 export const hostNavigation: NavItem[] = [
-	{ to: ".", label: "Dashboard", end: true },
-	{ to: "bookings", label: "Bookings" },
-	{ to: "income", label: "Income" },
-	{ to: "vans", label: "Vans" },
-	{ to: "reviews", label: "Reviews" },
+	{ to: ".", label: "host.nav.dashboard", end: true },
+	{ to: "bookings", label: "host.nav.bookings" },
+	{ to: "income", label: "host.nav.income" },
+	{ to: "vans", label: "host.nav.vans" },
+	{ to: "reviews", label: "host.nav.reviews" },
 ];

@@ -1,4 +1,7 @@
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/shared/i18n";
 
 interface PaginationControlsProps {
 	page: number;
@@ -17,20 +20,9 @@ export function PaginationControls({
 	ariaLabel,
 	onPageChange,
 }: PaginationControlsProps) {
+	const { t } = useTranslation();
 	const canGoBack = page > 1;
 	const canGoForward = page < totalPages;
-
-	function handlePreviousPage() {
-		if (canGoBack) {
-			onPageChange(page - 1);
-		}
-	}
-
-	function handleNextPage() {
-		if (canGoForward) {
-			onPageChange(page + 1);
-		}
-	}
 
 	if (totalPages <= 1) {
 		return null;
@@ -39,11 +31,10 @@ export function PaginationControls({
 	return (
 		<nav
 			aria-label={ariaLabel}
-			className="mt-10 flex flex-col gap-4 border-line border-t pt-6 sm:flex-row sm:items-center sm:justify-between"
+			className="mt-10 flex flex-col gap-4 border-border border-t pt-6 sm:flex-row sm:items-center sm:justify-between"
 		>
-			<p className="font-medium text-muted">
-				Page <span className="text-ink">{page}</span> of{" "}
-				<span className="text-ink">{totalPages}</span>
+			<p className="font-medium text-muted-foreground">
+				{t("pagination.pageOf", { page, totalPages })}
 				<span className="text-soft">
 					{" "}
 					· {total} {totalLabel}
@@ -51,25 +42,25 @@ export function PaginationControls({
 			</p>
 
 			<div className="flex gap-3">
-				<button
+				<Button
 					type="button"
-					onClick={handlePreviousPage}
+					variant="outline"
+					onClick={() => canGoBack && onPageChange(page - 1)}
 					disabled={!canGoBack}
-					className="inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-4 py-3 font-semibold text-ink transition-colors hover:border-clay hover:text-clay disabled:opacity-40 disabled:hover:border-line disabled:hover:text-ink"
 				>
-					<FaChevronLeft aria-hidden="true" />
-					Previous
-				</button>
+					<ChevronLeft aria-hidden="true" />
+					{t("pagination.previous")}
+				</Button>
 
-				<button
+				<Button
 					type="button"
-					onClick={handleNextPage}
+					variant="outline"
+					onClick={() => canGoForward && onPageChange(page + 1)}
 					disabled={!canGoForward}
-					className="inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-4 py-3 font-semibold text-ink transition-colors hover:border-clay hover:text-clay disabled:opacity-40 disabled:hover:border-line disabled:hover:text-ink"
 				>
-					Next
-					<FaChevronRight aria-hidden="true" />
-				</button>
+					{t("pagination.next")}
+					<ChevronRight aria-hidden="true" />
+				</Button>
 			</div>
 		</nav>
 	);

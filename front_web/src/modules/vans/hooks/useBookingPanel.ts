@@ -5,6 +5,7 @@ import {
 	getNightCount,
 } from "@/shared/domain/bookings/utils/bookingDates";
 import type { VanDetail } from "@/shared/domain/vans/types";
+import { useTranslation } from "@/shared/i18n";
 import { useCreateBooking } from "./useCreateBooking";
 
 type BookingPanelVan = Pick<VanDetail, "id" | "name" | "price">;
@@ -15,6 +16,7 @@ export function useBookingPanel(van: BookingPanelVan) {
 	const [guests, setGuests] = useState(1);
 	const { createBooking, booking, loading, error, success, reset } =
 		useCreateBooking();
+	const { t } = useTranslation();
 
 	const nights = getNightCount(dateRange?.from, dateRange?.to);
 	const estimatedTotal = nights * van.price;
@@ -24,17 +26,20 @@ export function useBookingPanel(van: BookingPanelVan) {
 	const statusMessage =
 		error?.message ||
 		(success && booking
-			? `Booking request sent for ${van.name}. Total: $${booking.totalPrice.toLocaleString()}.`
+			? t("vans.bookingSuccess", {
+					name: van.name,
+					total: `$${booking.totalPrice.toLocaleString()}`,
+				})
 			: canSubmit
-				? "Dates selected. Send a request to check availability."
+				? t("vans.datesSelected")
 				: "");
 	const statusVariant: BookingStatusVariant =
 		success && booking ? "success" : error ? "error" : "ready";
 	const submitButtonText = loading
-		? "Sending request..."
+		? t("vans.sendingRequest")
 		: success
-			? "Request sent"
-			: "Request booking";
+			? t("vans.requestSent")
+			: t("vans.requestBooking");
 
 	function handleDateSelect(range?: DateRange) {
 		if (success || error) {

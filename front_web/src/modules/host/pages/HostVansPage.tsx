@@ -1,13 +1,17 @@
 import { Link } from "react-router";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { EmptyState } from "@/shared/components/EmptyState";
 import ErrorMessage from "@/shared/components/ErrorMessage";
 import LoadingSpinner from "@/shared/components/LoadingSpinner";
 import { PageHeader } from "@/shared/components/PageHeader";
 import VanCard from "@/shared/domain/vans/components/VanCard";
 import { useVans } from "@/shared/domain/vans/hooks/useVans";
+import { useTranslation } from "@/shared/i18n";
 import { hostRoutePaths } from "../routes";
 
 export default function HostVansPage() {
+	const { t } = useTranslation();
 	const { vans, loading, error, refetch } = useVans({ isHost: true });
 
 	const vanElements = vans.map((van) => (
@@ -25,15 +29,15 @@ export default function HostVansPage() {
 	return (
 		<>
 			<PageHeader
-				eyebrow="Your fleet"
-				title="Your listed vans."
+				eyebrow={t("host.vans.eyebrow")}
+				title={t("host.vans.title")}
 				className="mb-8"
 				aside={
 					<Link
 						to={hostRoutePaths.vansCreate}
-						className="inline-flex w-full justify-center rounded-lg bg-clay px-5 py-3 font-bold text-surface transition-colors hover:bg-clay-dark active:scale-95 sm:w-fit"
+						className={cn(buttonVariants(), "w-full sm:w-fit")}
 					>
-						Add van
+						{t("host.vans.add")}
 					</Link>
 				}
 			/>
@@ -44,8 +48,8 @@ export default function HostVansPage() {
 				</div>
 			) : (
 				<EmptyState
-					title="No listed vans"
-					message="You do not have any vans listed yet. Add a van to start hosting."
+					title={t("host.vans.emptyTitle")}
+					message={t("host.vans.emptyMessage")}
 				/>
 			)}
 		</>

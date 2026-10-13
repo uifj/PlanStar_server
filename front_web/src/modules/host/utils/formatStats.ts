@@ -1,5 +1,5 @@
-export function formatShortDate(date: string) {
-	return new Intl.DateTimeFormat("en-US", {
+export function formatShortDate(date: string, locale = "en-US") {
+	return new Intl.DateTimeFormat(locale, {
 		month: "short",
 		day: "numeric",
 	}).format(new Date(`${date}T00:00:00`));
@@ -17,10 +17,14 @@ export function hasMultipleYears(periods: { period: string }[]) {
 	return years.size > 1;
 }
 
-export function formatPeriod(period: string, showYear: boolean) {
+export function formatPeriod(
+	period: string,
+	showYear: boolean,
+	locale = "en-US",
+) {
 	const date = parsePeriod(period);
 
-	return new Intl.DateTimeFormat("en-US", {
+	return new Intl.DateTimeFormat(locale, {
 		month: "short",
 		year: showYear ? "2-digit" : undefined,
 	}).format(date);

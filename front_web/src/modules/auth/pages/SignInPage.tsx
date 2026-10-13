@@ -1,6 +1,8 @@
 import { Link } from "react-router";
-import { Input } from "@/shared/components/Input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/shared/components/PageHeader";
+import { useTranslation } from "@/shared/i18n";
 import { AuthFormAlert } from "../components/AuthFormAlert";
 import { useSignInForm } from "../hooks/useSignInForm";
 import { authRoutePaths } from "../routes";
@@ -14,15 +16,19 @@ export default function SignInPage() {
 		handleChange,
 		handleSubmit,
 	} = useSignInForm();
+	const { t } = useTranslation();
 
 	return (
 		<section className="mx-auto flex max-w-7xl justify-center px-6 py-16 md:py-20">
 			<div className="w-full max-w-md">
-				<PageHeader eyebrow="Account access" title="Sign in to your account." />
+				<PageHeader
+					eyebrow={t("auth.signInEyebrow")}
+					title={t("auth.signInTitle")}
+				/>
 
 				<form onSubmit={handleSubmit} className="flex flex-col gap-4">
 					<label htmlFor="email" className="sr-only">
-						Email address
+						{t("auth.email")}
 					</label>
 					<Input
 						id="email"
@@ -30,31 +36,27 @@ export default function SignInPage() {
 						type="email"
 						onChange={handleChange}
 						autoComplete="email"
-						placeholder="Email address"
+						placeholder={t("auth.email")}
 						value={signInFormData.email}
 						required
 					/>
 
 					<label htmlFor="password" className="sr-only">
-						Password
+						{t("auth.password")}
 					</label>
 					<Input
 						id="password"
 						name="password"
 						type="password"
 						onChange={handleChange}
-						placeholder="Password"
+						placeholder={t("auth.password")}
 						value={signInFormData.password}
 						required
 					/>
 
-					<button
-						type="submit"
-						disabled={loading}
-						className="mt-4 rounded-lg bg-clay py-4 font-bold text-base text-surface transition-colors hover:bg-clay-dark active:scale-95 disabled:bg-soft disabled:text-panel"
-					>
-						{loading ? "Signing in..." : "Sign in"}
-					</button>
+					<Button type="submit" disabled={loading} className="mt-4 w-full">
+						{loading ? t("auth.signingIn") : t("auth.signIn")}
+					</Button>
 
 					<AuthFormAlert
 						message={error ?? message}
@@ -62,13 +64,13 @@ export default function SignInPage() {
 					/>
 				</form>
 
-				<p className="mt-6 text-center font-medium text-muted text-sm">
-					New to VanLife?{" "}
+				<p className="mt-6 text-center font-medium text-muted-foreground text-sm">
+					{t("auth.newToVanLife")}{" "}
 					<Link
 						to={`/${authRoutePaths.signUp}`}
-						className="font-bold text-clay transition-colors hover:text-clay-dark"
+						className="font-bold text-primary transition-colors hover:text-clay-dark"
 					>
-						Create an account
+						{t("auth.createAccount")}
 					</Link>
 				</p>
 			</div>

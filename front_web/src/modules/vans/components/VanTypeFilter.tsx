@@ -1,20 +1,19 @@
-import { tv } from "tailwind-variants";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { VanType } from "@/shared/domain/vans/types";
+import { useTranslation } from "@/shared/i18n";
 
-const vanTypeButton = tv({
-	base: "rounded-lg bg-panel px-5 py-2 font-semibold text-base capitalize transition-colors active:scale-95",
-	variants: {
-		selected: {
-			true: "text-surface",
-			false: "text-muted",
-		},
-		type: {
-			simple: "hover:bg-clay hover:text-surface aria-pressed:bg-clay",
-			luxury: "hover:bg-ink hover:text-surface aria-pressed:bg-ink",
-			rugged: "hover:bg-sage hover:text-surface aria-pressed:bg-sage",
-		},
-	},
-});
+const activeTypeStyle: Record<VanType, string> = {
+	simple: "bg-primary hover:bg-primary",
+	luxury: "bg-foreground hover:bg-foreground",
+	rugged: "bg-sage hover:bg-sage",
+};
+
+const hoverTypeStyle: Record<VanType, string> = {
+	simple: "hover:bg-primary",
+	luxury: "hover:bg-foreground",
+	rugged: "hover:bg-sage",
+};
 
 interface VanTypeFilterProps {
 	types: VanType[];
@@ -27,22 +26,32 @@ export default function VanTypeFilter({
 	selectedType,
 	onSelect,
 }: VanTypeFilterProps) {
+	const { t } = useTranslation();
+
 	return (
 		<div className="flex flex-wrap gap-3">
 			{types.map((type) => {
+				const selected = selectedType === type;
+
 				return (
-					<button
+					<Button
 						key={type}
 						type="button"
-						aria-pressed={selectedType === type}
+						variant="secondary"
+						aria-pressed={selected}
 						onClick={() => onSelect(type)}
-						className={vanTypeButton({
-							selected: selectedType === type,
-							type,
-						})}
+						className={cn(
+							"h-auto px-5 py-2 font-semibold text-base capitalize",
+							selected
+								? cn("text-card", activeTypeStyle[type])
+								: cn(
+										"text-muted-foreground hover:text-card",
+										hoverTypeStyle[type],
+									),
+						)}
 					>
-						{type}
-					</button>
+						{t(`vans.type.${type}`)}
+					</Button>
 				);
 			})}
 		</div>

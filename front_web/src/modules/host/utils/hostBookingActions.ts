@@ -21,8 +21,8 @@ function isBeforeEndDate(endDate: string) {
 export function getHostBookingActions(status: BookingStatus, endDate: string) {
 	if (status === "pending") {
 		return [
-			{ status: "confirmed", label: "Confirm", disabled: false },
-			{ status: "cancelled", label: "Cancel", disabled: false },
+			{ status: "confirmed", label: "host.booking.confirm", disabled: false },
+			{ status: "cancelled", label: "host.booking.cancel", disabled: false },
 		] satisfies HostBookingAction[];
 	}
 
@@ -30,20 +30,17 @@ export function getHostBookingActions(status: BookingStatus, endDate: string) {
 		return [
 			{
 				status: "completed",
-				label: "Complete",
+				label: "host.booking.complete",
 				disabled: isBeforeEndDate(endDate),
 			},
-			{ status: "cancelled", label: "Cancel", disabled: false },
+			{ status: "cancelled", label: "host.booking.cancel", disabled: false },
 		] satisfies HostBookingAction[];
 	}
 
 	return [];
 }
 
-export function getHostBookingActionHelpText(
-	actions: HostBookingAction[],
-	endDate: string,
-) {
+export function getHostBookingActionHelpText(actions: HostBookingAction[]) {
 	const completeAction = actions.find(
 		(action) => action.status === "completed",
 	);
@@ -52,5 +49,5 @@ export function getHostBookingActionHelpText(
 		return "";
 	}
 
-	return `This trip can be completed after ${endDate}.`;
+	return "host.booking.completeAfter";
 }

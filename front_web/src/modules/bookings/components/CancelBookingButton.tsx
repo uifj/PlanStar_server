@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/shared/i18n";
 import { useCancelBooking } from "../hooks/useCancelBooking";
 
 interface CancelBookingButtonProps {
@@ -6,7 +8,10 @@ interface CancelBookingButtonProps {
 
 export function CancelBookingButton({ bookingId }: CancelBookingButtonProps) {
 	const { cancelBooking, loading, error } = useCancelBooking();
-	const buttonText = loading ? "Cancelling..." : "Cancel booking";
+	const { t } = useTranslation();
+	const buttonText = loading
+		? t("bookings.cancelling")
+		: t("bookings.cancelBooking");
 
 	function handleCancel() {
 		cancelBooking(bookingId);
@@ -14,14 +19,15 @@ export function CancelBookingButton({ bookingId }: CancelBookingButtonProps) {
 
 	return (
 		<div>
-			<button
+			<Button
 				type="button"
+				variant="outline"
 				onClick={handleCancel}
 				disabled={loading}
-				className="rounded-lg border border-status-cancelled/30 px-4 py-2 font-bold text-sm text-status-cancelled transition-colors hover:bg-status-cancelled/10 active:scale-95 disabled:border-line disabled:text-muted"
+				className="border-status-cancelled/30 text-status-cancelled hover:bg-status-cancelled/10 hover:text-status-cancelled"
 			>
 				{buttonText}
-			</button>
+			</Button>
 
 			{error ? (
 				<p className="mt-2 font-semibold text-sm text-status-cancelled">

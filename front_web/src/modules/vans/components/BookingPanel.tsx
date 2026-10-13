@@ -1,4 +1,6 @@
+import { Button } from "@/components/ui/button";
 import type { VanDetail } from "@/shared/domain/vans/types";
+import { useTranslation } from "@/shared/i18n";
 import { useBookingPanel } from "../hooks/useBookingPanel";
 import { BookingCalendar } from "./BookingCalendar";
 import { BookingStatus } from "./BookingStatus";
@@ -11,21 +13,22 @@ interface BookingPanelProps {
 
 export function BookingPanel({ van }: BookingPanelProps) {
 	const bookingPanel = useBookingPanel(van);
+	const { t } = useTranslation();
 
 	return (
 		<section
 			aria-labelledby="booking-panel-title"
-			className="rounded-xl bg-surface p-5 shadow-sm"
+			className="rounded-xl bg-card p-5 shadow-sm"
 		>
 			<div className="mb-5">
-				<p className="font-semibold text-clay text-sm uppercase tracking-widest">
-					Book this van
+				<p className="font-semibold text-primary text-sm uppercase tracking-widest">
+					{t("vans.bookThisVan")}
 				</p>
 				<h2
 					id="booking-panel-title"
-					className="mt-2 font-black text-2xl text-ink"
+					className="mt-2 font-black text-2xl text-foreground"
 				>
-					Request your trip.
+					{t("vans.requestTripTitle")}
 				</h2>
 			</div>
 
@@ -48,13 +51,12 @@ export function BookingPanel({ van }: BookingPanelProps) {
 					estimatedTotal={bookingPanel.estimatedTotal}
 				/>
 
-				<button
+				<Button
 					type="submit"
 					disabled={!bookingPanel.canSubmit || bookingPanel.loading}
-					className="rounded-lg bg-clay px-6 py-3 font-bold text-surface transition-colors hover:bg-clay-dark active:scale-95 disabled:bg-line disabled:text-muted"
 				>
 					{bookingPanel.submitButtonText}
-				</button>
+				</Button>
 
 				<BookingStatus
 					message={bookingPanel.statusMessage}

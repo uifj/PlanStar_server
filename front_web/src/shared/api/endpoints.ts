@@ -19,6 +19,10 @@ export const apiPaths = {
 		reviews: "/reviews",
 	},
 
+	agent: {
+		tripPlanner: "/agent/trip-planner/messages",
+	},
+
 	host: {
 		dashboard: "/host/dashboard",
 		income: "/host/income",
