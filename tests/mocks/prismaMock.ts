@@ -36,6 +36,14 @@ export const prismaMock = {
 	review: createModelMock(),
 	agentChat: createModelMock(),
 	agentSnapshot: createModelMock(),
+
+	// Object core
+	space: createModelMock(),
+	spaceMember: createModelMock(),
+	relation: createModelMock(),
+	objectType: createModelMock(),
+	obj: createModelMock(),
+	link: createModelMock(),
 };
 
 export function resetPrismaMocks() {

@@ -7,4 +7,8 @@ export const OPENAPI_TAGS = {
 	REVIEWS: "Reviews",
 	HOST: "Host",
 	AGENT: "Agent",
+	SPACES: "Spaces",
+	OBJECTS: "Objects",
+	RELATIONS: "Relations",
+	TYPES: "Types",
 } as const;

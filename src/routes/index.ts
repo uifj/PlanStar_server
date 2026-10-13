@@ -4,7 +4,14 @@ import { authRouter } from "../modules/auth/router.js";
 import { bookingsRouter } from "../modules/bookings/router.js";
 import { hostRouter } from "../modules/host/router.js";
 import { meRouter } from "../modules/me/router.js";
+import { objectTypesRouter } from "../modules/object-types/router.js";
+import {
+	objectsRouter,
+	spaceObjectsRouter,
+} from "../modules/objects/router.js";
+import { relationsRouter } from "../modules/relations/router.js";
 import { reviewsRouter } from "../modules/reviews/router.js";
+import { spacesRouter } from "../modules/spaces/router.js";
 import { systemRouter } from "../modules/system/router.js";
 import { vansRouter } from "../modules/vans/router.js";
 
@@ -17,6 +24,11 @@ routes.route("/vans", vansRouter);
 routes.route("/bookings", bookingsRouter);
 routes.route("/reviews", reviewsRouter);
 routes.route("/host", hostRouter);
+routes.route("/spaces", spacesRouter);
+routes.route("/spaces", relationsRouter);
+routes.route("/spaces", objectTypesRouter);
+routes.route("/spaces", spaceObjectsRouter);
+routes.route("/objects", objectsRouter);
 routes.route("/agent", agentRouter);
 routes.route("/ai", agentProtocolRouter);
 
