@@ -23,6 +23,21 @@ export const apiPaths = {
 		tripPlanner: "/agent/trip-planner/messages",
 	},
 
+	spaces: {
+		list: "/spaces",
+
+		relations: (spaceId: string) => `/spaces/${spaceId}/relations`,
+		objectTypes: (spaceId: string) => `/spaces/${spaceId}/object-types`,
+		objects: (spaceId: string) => `/spaces/${spaceId}/objects`,
+		participants: (spaceId: string) => `/spaces/${spaceId}/participants`,
+		participant: (spaceId: string, participantId: string) =>
+			`/spaces/${spaceId}/participants/${participantId}`,
+	},
+
+	objects: {
+		detail: (objectId: string) => `/objects/${objectId}`,
+	},
+
 	host: {
 		dashboard: "/host/dashboard",
 		income: "/host/income",

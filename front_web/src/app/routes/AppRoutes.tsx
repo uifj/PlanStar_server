@@ -3,6 +3,7 @@ import { agentRoutes } from "@/modules/agent/routes";
 import { authGuestRoutes, authProtectedRoutes } from "@/modules/auth/routes";
 import { bookingsRoutes } from "@/modules/bookings/routes";
 import { hostRoutes } from "@/modules/host/routes";
+import { objectsRoutes } from "@/modules/objects/routes";
 import { vansRoutes } from "@/modules/vans/routes";
 import RootLayout from "../components/RootLayout";
 import AuthRequired from "../guards/AuthRequired";
@@ -33,6 +34,8 @@ export function AppRoutes() {
 				{/* Any authenticated user */}
 				<Route element={<AuthRequired />}>
 					{authProtectedRoutes}
+
+					{import.meta.env.DEV ? objectsRoutes : null}
 
 					{/* Regular user only */}
 					<Route element={<RoleRequired allowedRoles={["user"]} />}>
