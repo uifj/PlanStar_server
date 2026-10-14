@@ -166,16 +166,31 @@ async function seedVanLifeObjects(userIds: Map<UserKey, string>) {
 	return vanLifeService.backfillVanLife(host, spaceId);
 }
 
+/**
+ * Empties the VanLife space completely - rows, registry and mirrors - because the
+ * generator recreates all of it. Deleting only the objects would leave the registry
+ * rows pointing at mirrors that no longer exist, and a saved view's `setSource`
+ * edge would then fail on Link_toId.
+ */
+async function resetVanLifeSpace() {
+	await prisma.$transaction([
+		prisma.link.deleteMany({ where: { spaceId: VAN_LIFE_SPACE_ID } }),
+		prisma.obj.deleteMany({ where: { spaceId: VAN_LIFE_SPACE_ID } }),
+		prisma.relation.deleteMany({ where: { spaceId: VAN_LIFE_SPACE_ID } }),
+		prisma.objectType.deleteMany({ where: { spaceId: VAN_LIFE_SPACE_ID } }),
+		prisma.spaceMember.deleteMany({ where: { spaceId: VAN_LIFE_SPACE_ID } }),
+		prisma.space.deleteMany({ where: { id: VAN_LIFE_SPACE_ID } }),
+	]);
+}
+
 async function main() {
 	console.log("Seeding database...");
 
 	await prisma.review.deleteMany();
 	await prisma.booking.deleteMany();
 	await prisma.van.deleteMany();
-	// The mirrored objects of the previous run would otherwise outlive the rows
-	// they were projected from.
-	await prisma.obj.deleteMany({ where: { spaceId: VAN_LIFE_SPACE_ID } });
-	console.log("Existing vans, bookings, and reviews cleared");
+	await resetVanLifeSpace();
+	console.log("Existing vans, bookings, reviews and VanLife objects cleared");
 
 	const userIds = await seedUsers();
 	console.log("Users seeded");
