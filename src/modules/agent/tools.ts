@@ -1,14 +1,12 @@
 import { UserFacingError, z } from "genkit";
 import type { GenkitBeta } from "genkit/beta";
-import type { Van } from "../../generated/prisma/client.js";
-import { prisma } from "../../lib/prisma.js";
-import { ACTIVE_BOOKING_STATUSES } from "../bookings/constants.js";
+import type { AuthUser } from "../../lib/auth.js";
+import { bookingService } from "../bookings/service.js";
+import type { CatalogVan } from "../vanlife/catalog.js";
+import { vanLifeService } from "../vanlife/service.js";
+import { agentSessionService } from "./actor.js";
 
-function toDateOnly(date: Date) {
-	return date.toISOString().slice(0, 10);
-}
-
-function toToolVan(van: Van) {
+function toToolVan(van: CatalogVan) {
 	return {
 		id: van.id,
 		name: van.name,
@@ -18,6 +16,28 @@ function toToolVan(van: Van) {
 		type: van.type,
 		rating: van.rating,
 	};
+}
+
+interface Conversation {
+	actor: AuthUser;
+	spaceId: string;
+}
+
+// ADR-0011: a tool learns who is speaking from the conversation row through a
+// service, never from the table and never from whatever the model asks for.
+async function currentConversation(ai: GenkitBeta): Promise<Conversation> {
+	const session = await agentSessionService.findSession(
+		ai.currentSession().sessionId,
+	);
+
+	if (!session) {
+		throw new UserFacingError(
+			"UNAUTHENTICATED",
+			"This conversation is not linked to a traveller.",
+		);
+	}
+
+	return session;
 }
 
 export function createAgentTools(ai: GenkitBeta) {
@@ -60,16 +80,11 @@ export function createAgentTools(ai: GenkitBeta) {
 			}),
 		},
 		async ({ location, maxPrice, limit }) => {
-			const vans = await prisma.van.findMany({
-				where: {
-					archivedAt: null,
-					...(location
-						? { location: { contains: location, mode: "insensitive" } }
-						: {}),
-					...(maxPrice ? { price: { lte: maxPrice } } : {}),
-				},
-				orderBy: { createdAt: "desc" },
-				take: limit,
+			const { actor, spaceId } = await currentConversation(ai);
+			const vans = await vanLifeService.searchListedVans(actor, spaceId, {
+				location,
+				maxPrice,
+				limit,
 			});
 
 			return { vans: vans.map(toToolVan) };
@@ -104,13 +119,8 @@ export function createAgentTools(ai: GenkitBeta) {
 			}),
 		},
 		async ({ vanId, startDate, endDate }) => {
-			const van = await prisma.van.findFirst({
-				where: {
-					id: vanId,
-					archivedAt: null,
-				},
-				select: { id: true },
-			});
+			const { actor, spaceId } = await currentConversation(ai);
+			const van = await vanLifeService.findListedVan(actor, spaceId, vanId);
 
 			if (!van) {
 				return {
@@ -120,17 +130,11 @@ export function createAgentTools(ai: GenkitBeta) {
 				};
 			}
 
-			const conflict = await prisma.booking.findFirst({
-				where: {
-					vanId,
-					status: {
-						in: ACTIVE_BOOKING_STATUSES,
-					},
-					startDate: { lt: new Date(endDate) },
-					endDate: { gt: new Date(startDate) },
-				},
-				select: { startDate: true, endDate: true },
-			});
+			const conflict = await bookingService.findConflictingBooking(
+				vanId,
+				new Date(startDate),
+				new Date(endDate),
+			);
 
 			if (!conflict) {
 				return {
@@ -143,10 +147,7 @@ export function createAgentTools(ai: GenkitBeta) {
 			return {
 				available: false,
 				reason: "date_taken" as const,
-				conflict: {
-					startDate: toDateOnly(conflict.startDate),
-					endDate: toDateOnly(conflict.endDate),
-				},
+				conflict,
 			};
 		},
 	);
@@ -170,36 +171,15 @@ export function createAgentTools(ai: GenkitBeta) {
 			}),
 		},
 		async () => {
-			const chat = await prisma.agentChat.findUnique({
-				where: { id: ai.currentSession().sessionId },
-			});
-
-			if (!chat) {
-				throw new UserFacingError(
-					"UNAUTHENTICATED",
-					"This conversation is not linked to a traveller.",
-				);
-			}
-
-			const bookings = await prisma.booking.findMany({
-				where: {
-					userId: chat.userId,
-					startDate: { gte: new Date() },
-				},
-				orderBy: { startDate: "asc" },
-				include: {
-					van: {
-						select: { name: true },
-					},
-				},
-			});
+			const { actor } = await currentConversation(ai);
+			const bookings = await bookingService.findUpcoming(actor);
 
 			return {
 				trips: bookings.map((booking) => ({
 					id: booking.id,
 					vanName: booking.van.name,
-					startDate: toDateOnly(booking.startDate),
-					endDate: toDateOnly(booking.endDate),
+					startDate: booking.startDate,
+					endDate: booking.endDate,
 					status: booking.status,
 				})),
 			};

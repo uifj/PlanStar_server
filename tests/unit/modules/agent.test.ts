@@ -1,9 +1,32 @@
 import { genkit } from "genkit/beta";
 import { mockModel } from "genkit/testing";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import type { AuthUser } from "../../../src/lib/auth.js";
+import { agentSessionService } from "../../../src/modules/agent/actor.js";
 import { createTripPlannerAgent } from "../../../src/modules/agent/agent.js";
-import { vanFixture } from "../../helpers/fixtures/vans.js";
-import { prismaMock } from "../../mocks/prismaMock.js";
+import { vanLifeService } from "../../../src/modules/vanlife/service.js";
+
+vi.mock("../../../src/modules/agent/actor.js", () => ({
+	agentSessionService: {
+		findSession: vi.fn(),
+	},
+}));
+
+vi.mock("../../../src/modules/vanlife/service.js", () => ({
+	vanLifeService: {
+		searchListedVans: vi.fn(),
+		findListedVan: vi.fn(),
+	},
+}));
+
+const renter = {
+	id: "u-owner",
+	name: "Jamie Lee",
+	email: "renter@vanlife.test",
+	emailVerified: true,
+	image: null,
+	role: "user",
+} as AuthUser;
 
 describe("trip planner agent", () => {
 	it("answers using live listing data from the search tool", async () => {
@@ -26,7 +49,24 @@ describe("trip planner agent", () => {
 			],
 		});
 		const agent = createTripPlannerAgent(ai, { model });
-		prismaMock.van.findMany.mockResolvedValue([vanFixture()]);
+		vi.mocked(agentSessionService.findSession).mockResolvedValue({
+			actor: renter,
+			spaceId: "vanlife-space",
+		});
+		vi.mocked(vanLifeService.searchListedVans).mockResolvedValue([
+			{
+				id: "van-1",
+				name: "Moab Trailhouse",
+				price: 129,
+				description: "A trailhouse for two.",
+				imageUrl: "https://images.example.test/moab.jpg",
+				type: "rugged",
+				location: "Moab, UT",
+				sleeps: 2,
+				rating: 4.5,
+				amenities: ["heater"],
+			},
+		]);
 
 		// Act
 		const response = await agent.chat().send("something rugged near Moab");
