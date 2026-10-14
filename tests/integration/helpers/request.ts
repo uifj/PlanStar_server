@@ -25,6 +25,18 @@ export function post(path: string, body: unknown, options?: RequestOptions) {
 	});
 }
 
+// For requests whose body is not valid JSON, which the helper above cannot express.
+export function postRaw(path: string, body: string, options?: RequestOptions) {
+	return app.request(path, {
+		method: "POST",
+		headers: {
+			...jsonHeaders,
+			...options?.headers,
+		},
+		body,
+	});
+}
+
 export function patch(path: string, body: unknown, options?: RequestOptions) {
 	return app.request(path, {
 		method: "PATCH",
