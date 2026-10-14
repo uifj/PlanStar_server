@@ -52,6 +52,10 @@ Examples include:
 
 Integration tests use a real PostgreSQL database.
 
+Integration files run **one at a time** (`fileParallelism: false`). One database backs every file, and some routes list rows globally, so a second worker would change the counts another file asserts. Each file still creates its own rows under an id prefix and deletes them again.
+
+A fixture that publishes a VanLife row for a route reading the object core must publish it **through the route**: inserting into `Van` directly leaves no object behind, the same way an un-backfilled legacy row would.
+
 Run integration tests:
 
 ```bash
