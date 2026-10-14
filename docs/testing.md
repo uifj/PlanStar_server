@@ -86,6 +86,38 @@ Before running integration tests, ensure the PostgreSQL test database is availab
 
 ---
 
+# Performance Gate
+
+Object lists filter a JSONB column, so the storage decision in
+`docs/adr/0002-hybrid-object-storage.md` carries an explicit budget: a space with
+50,000 objects must answer a filtered, sorted, paginated list in under 20ms at p95.
+
+```bash
+pnpm perf:objects
+```
+
+The gate seeds its own space inside the test database and deletes it again
+(`afterAll`), so it never joins `pnpm test:all`: it takes seconds, and a slow
+storage decision should be visible rather than flaking the suite. Measured on
+2026-10-14 (Podman Postgres 16, macOS arm64, in-process requests):
+
+```text
+run 1: 50000 objects per space, p50=13ms p95=15ms, matched=39900
+run 2: 50000 objects per space, p50=14ms p95=17ms, matched=39900
+```
+
+The budget is met but not by a wide margin, so treat a p95 near 20ms as the signal
+to revisit indexing rather than as a pass.
+
+Two things the run does not cover: `@>` containment filters (select and
+multi-select relations) are the path that the GIN index serves, and range filters
+like the one above fall back to a scan over the space's rows. Re-run the gate with
+a select filter before changing either shape. The run also prints a `pg`
+deprecation warning about a client queried while busy, which comes from the
+adapter during the bulk `createMany` seeding and not from the request path.
+
+---
+
 # Test Helpers
 
 Shared test utilities are located in:
