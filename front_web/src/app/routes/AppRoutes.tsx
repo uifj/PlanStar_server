@@ -5,6 +5,7 @@ import { blocksRoutes } from "@/modules/blocks/routes";
 import { bookingsRoutes } from "@/modules/bookings/routes";
 import { hostRoutes } from "@/modules/host/routes";
 import { objectsRoutes } from "@/modules/objects/routes";
+import { spacesRoutes } from "@/modules/spaces/routes";
 import { vansRoutes } from "@/modules/vans/routes";
 import RootLayout from "../components/RootLayout";
 import AuthRequired from "../guards/AuthRequired";
@@ -39,6 +40,8 @@ export function AppRoutes() {
 					{import.meta.env.DEV ? objectsRoutes : null}
 
 					{import.meta.env.DEV ? blocksRoutes : null}
+
+					{import.meta.env.DEV ? spacesRoutes : null}
 
 					{/* Regular user only */}
 					<Route element={<RoleRequired allowedRoles={["user"]} />}>
