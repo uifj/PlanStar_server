@@ -61,6 +61,18 @@ async function findLegacyReviews() {
 	return prisma.review.findMany({ orderBy: { createdAt: "asc" } });
 }
 
+async function findLegacyVanById(id: string) {
+	return prisma.van.findUnique({ where: { id } });
+}
+
+async function findLegacyBookingById(id: string) {
+	return prisma.booking.findUnique({ where: { id } });
+}
+
+async function findLegacyReviewById(id: string) {
+	return prisma.review.findUnique({ where: { id } });
+}
+
 // A copied row keeps the legacy id, which is what lets the old routes answer for
 // objects they never wrote.
 async function upsertObject(object: CopiedObject) {
@@ -114,6 +126,9 @@ export const vanLifeRepository = {
 	findLegacyVans,
 	findLegacyBookings,
 	findLegacyReviews,
+	findLegacyVanById,
+	findLegacyBookingById,
+	findLegacyReviewById,
 	upsertObject,
 	upsertEdge,
 };

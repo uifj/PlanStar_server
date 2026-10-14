@@ -71,36 +71,37 @@ describe.skipIf(!databaseAvailable)("the shared VanLife space", () => {
 		);
 	});
 
-	it("lets a renter read the catalog but not publish into it", async () => {
+	it("enrols a renter, because a renter's own booking is an object", async () => {
 		// Arrange
 		const spaceId = await vanLifeService.ensureVanLifeSpace(renter);
 
 		// Act
-		const attempt = objectService.create(renter, spaceId, {
-			name: "Not allowed",
+		const booking = await objectService.create(renter, spaceId, {
+			name: "Three nights in Moab",
 		});
 
 		// Assert
-		await expect(attempt).rejects.toMatchObject({ statusCode: 403 });
+		expect(booking.spaceId).toBe(spaceId);
+		expect(booking.creatorId).toBe(renter.id);
 	});
 
-	it("raises a member when their role grows", async () => {
-		// Arrange — the same person first as a renter, then as a host
-		const plain = asAuthUser({ ...renter, role: "user" });
-		await vanLifeService.ensureVanLifeSpace(plain);
-		const spaceId = await vanLifeService.ensureVanLifeSpace(
-			asAuthUser({ ...renter, role: "host" }),
-		);
+	it("raises a member who already holds less than the use case needs", async () => {
+		// Arrange — someone was enrolled as a plain reader before this rule
+		const spaceId = await vanLifeService.ensureVanLifeSpace(renter);
+		await prisma.spaceMember.update({
+			where: { spaceId_userId: { spaceId, userId: renter.id } },
+			data: { permission: "reader" },
+		});
 
 		// Act
-		const object = await objectService.create(
-			asAuthUser({ ...renter, role: "host" }),
-			spaceId,
-			{ name: "Promoted listing" },
-		);
+		await vanLifeService.ensureVanLifeSpace(renter);
+		const member = await prisma.spaceMember.findUnique({
+			where: { spaceId_userId: { spaceId, userId: renter.id } },
+			select: { permission: true },
+		});
 
 		// Assert
-		expect(object.name).toBe("Promoted listing");
+		expect(member?.permission).toBe("writer");
 	});
 
 	it("never lowers a member who already holds more", async () => {

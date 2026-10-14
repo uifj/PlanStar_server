@@ -28,39 +28,6 @@ function hostReviewWhere(hostId: string): Prisma.ReviewWhereInput {
 	};
 }
 
-async function findVans(
-	hostId: string,
-	query: {
-		search?: string;
-	},
-	options: {
-		orderBy: Prisma.VanOrderByWithRelationInput;
-	},
-) {
-	return prisma.van.findMany({
-		where: {
-			...ownedVanWhere(hostId),
-			OR: query.search
-				? [
-						{ name: { contains: query.search, mode: "insensitive" } },
-						{ location: { contains: query.search, mode: "insensitive" } },
-						{ description: { contains: query.search, mode: "insensitive" } },
-					]
-				: undefined,
-		},
-		orderBy: options.orderBy,
-	});
-}
-
-async function findVanById(hostId: string, id: string) {
-	return prisma.van.findFirst({
-		where: {
-			...ownedVanWhere(hostId),
-			id,
-		},
-	});
-}
-
 async function createVan(data: Prisma.VanCreateInput) {
 	return prisma.van.create({
 		data,
@@ -354,8 +321,6 @@ async function getRatingCounts(hostId: string, since: Date) {
 }
 
 export const hostRepository = {
-	findVans,
-	findVanById,
 	createVan,
 	updateOwnedVan,
 	archiveOwnedVan,

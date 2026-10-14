@@ -4,7 +4,7 @@ import type {
 	User,
 	Van,
 } from "../../generated/prisma/client.js";
-import { toVan } from "../vans/dto.js";
+import { toVan, type VanColumns } from "../vans/dto.js";
 
 type HostReview = Review & {
 	user: Pick<User, "name">;
@@ -28,7 +28,7 @@ function toPeriod(date: Date) {
 	return date.toISOString().slice(0, 7);
 }
 
-export function toHostVan(van: Van) {
+export function toHostVan(van: VanColumns) {
 	return toVan(van);
 }
 

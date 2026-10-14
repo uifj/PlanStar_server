@@ -1,12 +1,15 @@
-import { isAdmin, isHost } from "../../auth/roles.js";
 import {
 	PERMISSION_RANK,
 	type SpacePermissionLevel,
 } from "../../auth/space-access.js";
+import { NotFoundError } from "../../errors/http-errors.js";
 import type { AuthUser } from "../../lib/auth.js";
 import { objectTypeService } from "../object-types/service.js";
+import type { ObjectFilterInput } from "../objects/filters.js";
+import { objectService } from "../objects/service.js";
 import { relationService } from "../relations/service.js";
 import { bookingObject, reviewObject, vanObject } from "./backfill.js";
+import { type CatalogVan, vanFromObject } from "./catalog.js";
 import { VAN_LIFE_SPACE_ID, VAN_LIFE_SPACE_NAME } from "./constants.js";
 import {
 	VAN_LIFE_RELATIONS,
@@ -17,12 +20,9 @@ import { vanLifeRepository } from "./repository.js";
 
 const REGISTRY_PAGE_SIZE = 100;
 
-function rankFor(user: AuthUser): SpacePermissionLevel {
-	return isHost(user) || isAdmin(user) ? "writer" : "reader";
-}
-
-// The legacy routes never named a space, so the use case owns exactly one and
-// enrols whoever knocks. An existing member is only ever raised, never lowered.
+// One shared space means the coarse rank cannot tell a host from a renter: a
+// renter writes their own bookings, and those are objects here. Which rows are
+// "yours" is decided per route by `creatorId`, not by this rank.
 async function ensureVanLifeSpace(user: AuthUser) {
 	const space = await vanLifeRepository.findOrCreateSpace(
 		VAN_LIFE_SPACE_ID,
@@ -30,7 +30,7 @@ async function ensureVanLifeSpace(user: AuthUser) {
 		user.id,
 	);
 
-	const wanted = rankFor(user);
+	const wanted: SpacePermissionLevel = "writer";
 	const member = await vanLifeRepository.findMembership(space.id, user.id);
 
 	if (!member || PERMISSION_RANK[member.permission] < PERMISSION_RANK[wanted]) {
@@ -119,6 +119,95 @@ async function ensureVanLifeTypes(
 	) as VanLifeTypeIds;
 }
 
+async function preparedRegistry(user: AuthUser) {
+	const spaceId = await ensureVanLifeSpace(user);
+
+	return { spaceId, types: await ensureVanLifeTypes(user, spaceId) };
+}
+
+async function mirrorVanRow(vanId: string, spaceId: string, typeId: string) {
+	const van = await vanLifeRepository.findLegacyVanById(vanId);
+
+	if (!van) {
+		return;
+	}
+
+	await vanLifeRepository.upsertObject({
+		...vanObject(van),
+		spaceId,
+		typeId,
+	});
+}
+
+async function mirrorBookingRow(
+	bookingId: string,
+	spaceId: string,
+	types: VanLifeTypeIds,
+) {
+	const booking = await vanLifeRepository.findLegacyBookingById(bookingId);
+
+	if (!booking) {
+		return;
+	}
+
+	// An edge points at an object, so whatever a row depends on is mirrored first.
+	await mirrorVanRow(booking.vanId, spaceId, types.van);
+	await vanLifeRepository.upsertObject({
+		...bookingObject(booking),
+		spaceId,
+		typeId: types.booking,
+	});
+	await vanLifeRepository.upsertEdge({
+		spaceId,
+		fromId: booking.id,
+		toId: booking.vanId,
+		relationKey: "van",
+	});
+}
+
+// The legacy tables stay the source of truth for a write - they hold the overlap
+// transaction and the one-review-per-booking index - and this projects the row
+// that write committed into the object core.
+async function mirrorVan(user: AuthUser, vanId: string) {
+	const { spaceId, types } = await preparedRegistry(user);
+
+	await mirrorVanRow(vanId, spaceId, types.van);
+}
+
+async function mirrorBooking(user: AuthUser, bookingId: string) {
+	const { spaceId, types } = await preparedRegistry(user);
+
+	await mirrorBookingRow(bookingId, spaceId, types);
+}
+
+async function mirrorReview(user: AuthUser, reviewId: string) {
+	const { spaceId, types } = await preparedRegistry(user);
+	const review = await vanLifeRepository.findLegacyReviewById(reviewId);
+
+	if (!review) {
+		return;
+	}
+
+	await mirrorBookingRow(review.bookingId, spaceId, types);
+	await vanLifeRepository.upsertObject({
+		...reviewObject(review),
+		spaceId,
+		typeId: types.review,
+	});
+	await vanLifeRepository.upsertEdge({
+		spaceId,
+		fromId: review.id,
+		toId: review.vanId,
+		relationKey: "van",
+	});
+	await vanLifeRepository.upsertEdge({
+		spaceId,
+		fromId: review.id,
+		toId: review.bookingId,
+		relationKey: "booking",
+	});
+}
+
 async function backfillVanLife(user: AuthUser, spaceId: string) {
 	const types = await ensureVanLifeTypes(user, spaceId);
 
@@ -135,22 +224,13 @@ async function backfillVanLife(user: AuthUser, spaceId: string) {
 	const bookings = await vanLifeRepository.findLegacyBookings();
 
 	for (const booking of bookings) {
-		await vanLifeRepository.upsertObject({
-			...bookingObject(booking),
-			spaceId,
-			typeId: types.booking,
-		});
-		await vanLifeRepository.upsertEdge({
-			spaceId,
-			fromId: booking.id,
-			toId: booking.vanId,
-			relationKey: "van",
-		});
+		await mirrorBookingRow(booking.id, spaceId, types);
 	}
 
 	const reviews = await vanLifeRepository.findLegacyReviews();
 
 	for (const review of reviews) {
+		await mirrorBookingRow(review.bookingId, spaceId, types);
 		await vanLifeRepository.upsertObject({
 			...reviewObject(review),
 			spaceId,
@@ -177,8 +257,69 @@ async function backfillVanLife(user: AuthUser, spaceId: string) {
 	};
 }
 
+// A host's own desk reads the object core. Every page is fetched because the
+// legacy route listed every van the host had, with no page size of its own.
+async function findHostVans(
+	user: AuthUser,
+	query: { key: string; order: "asc" | "desc"; search?: string },
+): Promise<CatalogVan[]> {
+	const { spaceId, types } = await preparedRegistry(user);
+	const filters: ObjectFilterInput[] = [
+		{ key: "typeId", operator: "equal", value: types.van },
+		{ key: "creatorId", operator: "equal", value: user.id },
+		{ key: "isArchived", operator: "equal", value: false },
+	];
+
+	if (query.search) {
+		const term = `%${query.search}%`;
+
+		filters.push({
+			conjunction: "or",
+			filters: [
+				{ key: "name", operator: "like", value: term },
+				{ key: "location", operator: "like", value: term },
+				{ key: "description", operator: "like", value: term },
+			],
+		});
+	}
+
+	const vans: CatalogVan[] = [];
+
+	for (let page = 1; ; page += 1) {
+		const listed = await objectService.list(user, spaceId, {
+			filters,
+			sorts: [{ key: query.key, order: query.order }],
+			layouts: [],
+			page,
+			limit: REGISTRY_PAGE_SIZE,
+		});
+
+		vans.push(...listed.data.map(vanFromObject));
+
+		if (page >= listed.meta.totalPages) {
+			return vans;
+		}
+	}
+}
+
+async function findHostVan(user: AuthUser, vanId: string): Promise<CatalogVan> {
+	await preparedRegistry(user);
+	const object = await objectService.findById(user, vanId);
+
+	if (object.creatorId !== user.id || object.isArchived) {
+		throw new NotFoundError("Van not found.");
+	}
+
+	return vanFromObject(object);
+}
+
 export const vanLifeService = {
 	ensureVanLifeSpace,
 	ensureVanLifeTypes,
 	backfillVanLife,
+	mirrorVan,
+	mirrorBooking,
+	mirrorReview,
+	findHostVans,
+	findHostVan,
 };

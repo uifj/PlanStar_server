@@ -42,6 +42,11 @@ export async function createVan(
 	});
 }
 
+/** The same fields, shaped for POST /host/vans so a fixture can publish through the route. */
+export function vanRequestBody(overrides: Record<string, unknown> = {}) {
+	return { ...DEFAULT_VAN, ...overrides };
+}
+
 type BookingFixture = Omit<
 	Prisma.BookingUncheckedCreateInput,
 	"userId" | "vanId"
@@ -93,10 +98,23 @@ export function isoDate(daysFromNow: number) {
 	return date.toISOString().slice(0, 10);
 }
 
+/**
+ * Empties the VanLife fixture completely: the legacy rows and the object core
+ * they are mirrored into, including the shared space and its registry. Route
+ * reads answer from the object core, so clearing only the tables would leave a
+ * previous test's objects visible.
+ */
 export async function clearVanLifeRows() {
 	await prisma.$transaction([
+		prisma.link.deleteMany(),
 		prisma.review.deleteMany(),
 		prisma.booking.deleteMany(),
 		prisma.van.deleteMany(),
+		prisma.block.deleteMany(),
+		prisma.obj.deleteMany(),
+		prisma.relation.deleteMany(),
+		prisma.objectType.deleteMany(),
+		prisma.spaceMember.deleteMany(),
+		prisma.space.deleteMany(),
 	]);
 }

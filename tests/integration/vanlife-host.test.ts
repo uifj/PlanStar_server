@@ -20,6 +20,7 @@ import {
 	createVan,
 	createVanLifeHost,
 	isoDate,
+	vanRequestBody,
 } from "./helpers/vanlife-data.js";
 
 vi.mock("../../src/lib/auth.js", () => ({
@@ -112,15 +113,28 @@ describe.skipIf(!databaseAvailable)("host desk", () => {
 		let mine: Json;
 		let theirs: Json;
 
+		async function publish(
+			hostId: string,
+			overrides: Record<string, unknown> = {},
+		) {
+			signInAs(hostId, { role: "host" });
+
+			const response = await post(
+				`${API_PREFIX}/host/vans`,
+				vanRequestBody(overrides),
+			);
+
+			expect(response.status).toBe(201);
+
+			return (await response.json()) as Json;
+		}
+
 		beforeEach(async () => {
 			await seed();
-			mine = (await createVan(firstHostId, {
-				name: "Sierra Weekender",
-				createdAt: new Date("2026-07-01"),
-			})) as unknown as Json;
-			theirs = (await createVan(secondHostId, {
-				name: "Other Cruiser",
-			})) as unknown as Json;
+			// The desk reads objects, so fixtures publish through the route that
+			// mirrors them rather than inserting rows behind its back.
+			mine = await publish(firstHostId);
+			theirs = await publish(secondHostId, { name: "Other Cruiser" });
 		});
 
 		it("asks a signed-in caller before opening the desk", async () => {
@@ -150,11 +164,9 @@ describe.skipIf(!databaseAvailable)("host desk", () => {
 
 		it("lists only the caller's vans and sends no page meta", async () => {
 			// Arrange
-			await createVan(firstHostId, {
-				name: "Retired",
-				archivedAt: new Date("2026-08-01"),
-			});
+			const retired = await publish(firstHostId, { name: "Retired" });
 			signInAs(firstHostId, { role: "host" });
+			await del(`${API_PREFIX}/host/vans/${retired.id}`);
 
 			// Act
 			const response = await get(`${API_PREFIX}/host/vans`);

@@ -12,6 +12,7 @@ import {
 	getPagination,
 	getSorting,
 } from "../../pagination/index.js";
+import { vanLifeService } from "../vanlife/service.js";
 import {
 	DEFAULT_BOOKING_SORT_FIELD,
 	DEFAULT_BOOKING_SORT_ORDER,
@@ -138,6 +139,8 @@ async function create(user: AuthUser, input: CreateBooking) {
 		throw new ConflictError("Requested dates overlap an existing booking.");
 	}
 
+	await vanLifeService.mirrorBooking(user, result.booking.id);
+
 	return toBooking(result.booking);
 }
 
@@ -157,6 +160,8 @@ async function cancel(user: AuthUser, id: string) {
 		id,
 		BookingStatus.cancelled,
 	);
+
+	await vanLifeService.mirrorBooking(user, updatedBooking.id);
 
 	return toBooking(updatedBooking);
 }

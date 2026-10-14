@@ -17,10 +17,7 @@ import {
 	DEFAULT_BOOKING_SORT_FIELD,
 	DEFAULT_BOOKING_SORT_ORDER,
 } from "../bookings/constants.js";
-import {
-	DEFAULT_VAN_SORT_FIELD,
-	DEFAULT_VAN_SORT_ORDER,
-} from "../vans/constants.js";
+import { vanLifeService } from "../vanlife/service.js";
 import { toVanSummary } from "../vans/dto.js";
 import {
 	toDashboard,
@@ -86,20 +83,11 @@ function assertAllowedBookingTransition(
 async function findVans(user: AuthUser, query: HostVanListQuery) {
 	ensureHost(user);
 
-	const { orderBy } = getSorting(query.sort, query.order, {
-		defaultField: DEFAULT_VAN_SORT_FIELD,
-		defaultOrder: DEFAULT_VAN_SORT_ORDER,
+	const vans = await vanLifeService.findHostVans(user, {
+		key: query.sort,
+		order: query.order,
+		search: query.search,
 	});
-
-	const vans = await hostRepository.findVans(
-		user.id,
-		{
-			search: query.search,
-		},
-		{
-			orderBy,
-		},
-	);
 
 	return vans.map(toVanSummary);
 }
@@ -107,13 +95,7 @@ async function findVans(user: AuthUser, query: HostVanListQuery) {
 async function findVanById(user: AuthUser, id: string) {
 	ensureHost(user);
 
-	const van = await hostRepository.findVanById(user.id, id);
-
-	if (!van) {
-		throw new NotFoundError("Van not found.");
-	}
-
-	return toHostVan(van);
+	return toHostVan(await vanLifeService.findHostVan(user, id));
 }
 
 async function createVan(user: AuthUser, input: CreateHostVan) {
@@ -135,6 +117,8 @@ async function createVan(user: AuthUser, input: CreateHostVan) {
 		amenities: input.amenities,
 	});
 
+	await vanLifeService.mirrorVan(user, van.id);
+
 	return toHostVan(van);
 }
 
@@ -143,6 +127,8 @@ async function updateVan(user: AuthUser, id: string, input: UpdateHostVan) {
 
 	try {
 		const van = await hostRepository.updateOwnedVan(user.id, id, input);
+
+		await vanLifeService.mirrorVan(user, van.id);
 
 		return toHostVan(van);
 	} catch (error) {
@@ -156,7 +142,9 @@ async function deleteVan(user: AuthUser, id: string) {
 	ensureHost(user);
 
 	try {
-		await hostRepository.archiveOwnedVan(user.id, id);
+		const van = await hostRepository.archiveOwnedVan(user.id, id);
+
+		await vanLifeService.mirrorVan(user, van.id);
 	} catch (error) {
 		translatePrismaError(error, {
 			notFound: "Van not found.",

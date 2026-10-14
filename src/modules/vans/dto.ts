@@ -1,6 +1,21 @@
 import type { Van } from "../../generated/prisma/client.js";
 
-export function toVanSummary(van: Van) {
+// Both a Van table row and an object read back through the kernel satisfy this.
+export type VanColumns = Pick<
+	Van,
+	| "id"
+	| "name"
+	| "price"
+	| "imageUrl"
+	| "type"
+	| "location"
+	| "sleeps"
+	| "rating"
+	| "description"
+	| "amenities"
+>;
+
+export function toVanSummary(van: VanColumns) {
 	return {
 		id: van.id,
 		name: van.name,
@@ -13,7 +28,7 @@ export function toVanSummary(van: Van) {
 	};
 }
 
-export function toVan(van: Van) {
+export function toVan(van: VanColumns) {
 	return {
 		...toVanSummary(van),
 		description: van.description,

@@ -7,6 +7,7 @@ import {
 import { BookingStatus } from "../../generated/prisma/client.js";
 import type { AuthUser } from "../../lib/auth.js";
 import { translatePrismaError } from "../../lib/prisma-error.js";
+import { vanLifeService } from "../vanlife/service.js";
 import { toReview } from "./dto.js";
 import { reviewRepository } from "./repository.js";
 import type { CreateReview } from "./schema.js";
@@ -56,6 +57,8 @@ async function create(user: AuthUser, input: CreateReview) {
 			rating: input.rating,
 			text: input.text,
 		});
+
+		await vanLifeService.mirrorReview(user, review.id);
 
 		return toReview(review);
 	} catch (error) {
