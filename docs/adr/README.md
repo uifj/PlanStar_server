@@ -17,6 +17,8 @@ file and gets a `superseded-by-NNNN` status line.
 | [0009](0009-object-cache-beside-query.md) | Run a normalised object cache beside TanStack Query | accepted |
 | [0010](0010-front-web-own-test-rig.md) | Give `front_web` its own test rig instead of joining the workspace | accepted |
 | [0011](0011-agent-tools-call-services.md) | Keep agent tools on services and scope chats to a space | accepted |
+| [0012](0012-saved-view-is-an-object.md) | A saved view is an object | accepted |
 
-The migration is scoped in seven phases; the plan lives outside the repo until it is
-executed, so each phase's follow-up decisions get numbers from 0012 onward.
+The port runs in seven phases. Phases 0 and 1 (spaces, registry, objects, filtered
+lists) and the object-relation edges of phase 2 are implemented; the dataview module
+follows 0012.
