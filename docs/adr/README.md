@@ -18,6 +18,7 @@ file and gets a `superseded-by-NNNN` status line.
 | [0010](0010-front-web-own-test-rig.md) | Give `front_web` its own test rig instead of joining the workspace | accepted |
 | [0011](0011-agent-tools-call-services.md) | Keep agent tools on services and scope chats to a space | accepted |
 | [0012](0012-saved-view-is-an-object.md) | A saved view is an object | accepted |
+| [0013](0013-documents-are-ordered-blocks.md) | Documents are ordered blocks | accepted |
 
 The port runs in seven phases. Phases 0 and 1 (spaces, registry, objects, filtered
 lists) and the object-relation edges of phase 2 are implemented; the dataview module
