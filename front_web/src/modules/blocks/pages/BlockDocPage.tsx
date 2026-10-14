@@ -8,6 +8,7 @@ import {
 } from "@dnd-kit/core";
 import {
 	SortableContext,
+	sortableKeyboardCoordinates,
 	useSortable,
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
@@ -79,7 +80,9 @@ export default function BlockDocPage() {
 	const objectId = searchParams.get("objectId");
 	const sensors = useSensors(
 		useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-		useSensor(KeyboardSensor),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		}),
 	);
 
 	const { loading, error, blocks, move, changeText, refetch } = useBlockEditor(
