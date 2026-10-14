@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router";
 import { agentRoutes } from "@/modules/agent/routes";
 import { authGuestRoutes, authProtectedRoutes } from "@/modules/auth/routes";
+import { blocksRoutes } from "@/modules/blocks/routes";
 import { bookingsRoutes } from "@/modules/bookings/routes";
 import { hostRoutes } from "@/modules/host/routes";
 import { objectsRoutes } from "@/modules/objects/routes";
@@ -36,6 +37,8 @@ export function AppRoutes() {
 					{authProtectedRoutes}
 
 					{import.meta.env.DEV ? objectsRoutes : null}
+
+					{import.meta.env.DEV ? blocksRoutes : null}
 
 					{/* Regular user only */}
 					<Route element={<RoleRequired allowedRoles={["user"]} />}>

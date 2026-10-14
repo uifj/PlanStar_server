@@ -36,6 +36,12 @@ export const apiPaths = {
 
 	objects: {
 		detail: (objectId: string) => `/objects/${objectId}`,
+		blocks: (objectId: string) => `/objects/${objectId}/blocks`,
+		backlinks: (objectId: string) => `/objects/${objectId}/backlinks`,
+	},
+
+	blocks: {
+		item: (blockId: string) => `/blocks/${blockId}`,
 	},
 
 	host: {

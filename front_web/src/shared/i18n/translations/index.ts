@@ -1,3 +1,4 @@
+import { en as blocksEn, zh as blocksZh } from "./blocks";
 import { en as bookingsEn, zh as bookingsZh } from "./bookings";
 import { en as commonEn, zh as commonZh } from "./common";
 import { en as hostEn, zh as hostZh } from "./host";
@@ -10,6 +11,7 @@ export const en = {
 	...bookingsEn,
 	...hostEn,
 	...objectsEn,
+	...blocksEn,
 };
 
 export const zh: typeof en = {
@@ -18,6 +20,7 @@ export const zh: typeof en = {
 	...bookingsZh,
 	...hostZh,
 	...objectsZh,
+	...blocksZh,
 };
 
 export type TranslationDict = typeof en;
