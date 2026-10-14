@@ -29,6 +29,9 @@ export const apiPaths = {
 		relations: (spaceId: string) => `/spaces/${spaceId}/relations`,
 		objectTypes: (spaceId: string) => `/spaces/${spaceId}/object-types`,
 		objects: (spaceId: string) => `/spaces/${spaceId}/objects`,
+		dataviews: (spaceId: string) => `/spaces/${spaceId}/dataviews`,
+		dataviewRecords: (spaceId: string, dataviewId: string) =>
+			`/spaces/${spaceId}/dataviews/${dataviewId}/records`,
 		participants: (spaceId: string) => `/spaces/${spaceId}/participants`,
 		participant: (spaceId: string, participantId: string) =>
 			`/spaces/${spaceId}/participants/${participantId}`,

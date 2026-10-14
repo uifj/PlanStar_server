@@ -1,6 +1,12 @@
 import { apiClient } from "@/shared/api/apiClient";
 import { apiPaths } from "@/shared/api/endpoints";
-import type { ObjectsQueryParams, ObjectsResponse } from "../types";
+import type {
+	CreateObjectInput,
+	ObjectDetail,
+	ObjectsQueryParams,
+	ObjectsResponse,
+	UpdateObjectInput,
+} from "../types";
 
 export async function getObjects(
 	spaceId: string,
@@ -17,4 +23,34 @@ export async function getObjects(
 	);
 
 	return response.data;
+}
+
+export async function createObject(
+	spaceId: string,
+	input: CreateObjectInput,
+): Promise<ObjectDetail> {
+	const response = await apiClient.post<ObjectDetail>(
+		apiPaths.spaces.objects(spaceId),
+		input,
+	);
+
+	return response.data;
+}
+
+// The kernel merges `details` and replaces `null` values, so a caller sends only
+// the keys it touched.
+export async function updateObject(
+	objectId: string,
+	input: UpdateObjectInput,
+): Promise<ObjectDetail> {
+	const response = await apiClient.patch<ObjectDetail>(
+		apiPaths.objects.detail(objectId),
+		input,
+	);
+
+	return response.data;
+}
+
+export async function archiveObject(objectId: string): Promise<void> {
+	await apiClient.delete(apiPaths.objects.detail(objectId));
 }

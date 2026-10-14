@@ -67,3 +67,16 @@ export interface ObjectsQueryParams {
 	typeId?: string;
 	filters?: ObjectFilter[];
 }
+
+export interface CreateObjectInput {
+	typeId?: string;
+	name: string;
+	description?: string;
+	details?: Record<string, unknown>;
+}
+
+export interface UpdateObjectInput {
+	name?: string;
+	description?: string | null;
+	details?: Record<string, unknown | null>;
+}
