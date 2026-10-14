@@ -12,4 +12,5 @@ export const OPENAPI_TAGS = {
 	RELATIONS: "Relations",
 	TYPES: "Types",
 	DATAVIEWS: "Dataviews",
+	BLOCKS: "Blocks",
 } as const;

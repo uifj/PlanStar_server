@@ -1,4 +1,8 @@
-import { ensureSpaceAccess } from "../../auth/space-access.js";
+import {
+	ensureSpaceAccess,
+	PERMISSION_RANK,
+	type SpacePermissionLevel,
+} from "../../auth/space-access.js";
 import {
 	ForbiddenError,
 	NotFoundError,
@@ -164,21 +168,30 @@ function dedupe(values: string[]) {
 	return [...new Set(values)];
 }
 
+function refuseOutsiders(error: unknown): never {
+	// ADR-0006: with no membership at all, the object does not exist for the caller.
+	if (error instanceof ForbiddenError) {
+		throw new NotFoundError("Object not found.");
+	}
+
+	throw error;
+}
+
 async function assertObjectAccess(
 	user: AuthUser,
 	spaceId: string,
-	minimum: "reader" | "writer",
+	minimum: SpacePermissionLevel,
 ) {
-	try {
-		return await ensureSpaceAccess(user.id, spaceId, minimum);
-	} catch (error) {
-		// ADR-0006: an object the caller cannot reach is simply not found.
-		if (error instanceof ForbiddenError) {
-			throw new NotFoundError("Object not found.");
-		}
+	const membership = await ensureSpaceAccess(user.id, spaceId, "reader").catch(
+		refuseOutsiders,
+	);
 
-		throw error;
+	// A member without the rank is told so, because they already know it exists.
+	if (PERMISSION_RANK[membership.permission] < PERMISSION_RANK[minimum]) {
+		throw new ForbiddenError();
 	}
+
+	return membership;
 }
 
 async function assertLinkTargets(
@@ -300,6 +313,24 @@ async function findById(user: AuthUser, objectId: string) {
 	const [detailed] = await withLinks([object]);
 
 	return detailed;
+}
+
+// Blocks, views and any other body writer asks here rather than repeating the
+// lookup, so the writer rule and the 404-not-403 rule stay in one place.
+async function assertEditable(user: AuthUser, objectId: string) {
+	const object = await objectRepository.findById(objectId);
+
+	if (!object) {
+		throw new NotFoundError("Object not found.");
+	}
+
+	await assertObjectAccess(user, object.spaceId, "writer");
+
+	return {
+		id: object.id,
+		spaceId: object.spaceId,
+		resolvedLayout: object.resolvedLayout,
+	};
 }
 
 async function create(
@@ -492,6 +523,7 @@ async function archive(user: AuthUser, objectId: string) {
 export const objectService = {
 	list,
 	validateQuery,
+	assertEditable,
 	findMany,
 	findById,
 	findBacklinks,

@@ -223,6 +223,23 @@ enum ObjectLayout {
   dataview
 }
 
+enum BlockType {
+  text
+  link
+}
+
+enum BlockStyle {
+  paragraph
+  heading1
+  heading2
+  heading3
+  quote
+  code
+  bulleted
+  numbered
+  toggle
+}
+
 model Space {
   id        String      @id @default(cuid())
   name      String
@@ -322,12 +339,35 @@ model Obj {
   creator   User?       @relation("ObjectCreator", fields: [creatorId], references: [id], onDelete: SetNull)
   linksFrom Link[]      @relation("LinkFrom")
   linksTo   Link[]      @relation("LinkTo")
+  blocks Block[] @relation("DocumentBlocks")
+  linkedByBlocks Block[] @relation("BlockLinkTargets")
 
   @@index([spaceId, resolvedLayout])
   @@index([spaceId, typeId])
   @@index([spaceId, isDeleted, isArchived])
   // obj_details_gin (GIN jsonb_path_ops over details) is created in the migration;
   // Prisma cannot express an operator class in @@index.
+}
+
+model Block {
+  id           String     @id @default(cuid())
+  objectId     String
+  parentId     String?
+  type         BlockType
+  style        BlockStyle @default(paragraph)
+  text         String     @default("")
+  linkTargetId String?
+  index        String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  document     Obj     @relation("DocumentBlocks", fields: [objectId], references: [id], onDelete: Cascade)
+  parent       Block?  @relation("BlockChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children     Block[] @relation("BlockChildren")
+  linkTarget   Obj?    @relation("BlockLinkTargets", fields: [linkTargetId], references: [id], onDelete: SetNull)
+
+  @@index([objectId, parentId, index])
+  @@index([linkTargetId])
 }
 
 model Link {

@@ -44,6 +44,7 @@ export const prismaMock = {
 	objectType: createModelMock(),
 	obj: createModelMock(),
 	link: createModelMock(),
+	block: createModelMock(),
 };
 
 export function resetPrismaMocks() {
