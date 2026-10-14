@@ -17,7 +17,7 @@ import {
 	DEFAULT_BOOKING_SORT_FIELD,
 	DEFAULT_BOOKING_SORT_ORDER,
 } from "./constants.js";
-import { toBooking, toBookingListItem } from "./dto.js";
+import { toBooking, toBookingListItem, toDateString } from "./dto.js";
 import { bookingRepository } from "./repository.js";
 import type { BookingListQuery, CreateBooking } from "./schema.js";
 
@@ -144,6 +144,42 @@ async function create(user: AuthUser, input: CreateBooking) {
 	return toBooking(result.booking);
 }
 
+// What the traveller has coming up, in the order it happens. The caller comes
+// from the session, never from a tool argument.
+async function findUpcoming(user: AuthUser) {
+	ensureRenter(user);
+
+	const bookings = await bookingRepository.findUpcomingByUser(
+		user.id,
+		new Date(),
+	);
+
+	return bookings.map(toBookingListItem);
+}
+
+// The planner asks this before it recommends dates. It runs the same predicate
+// the write enforces, so a "clear" answer cannot turn into a rejected booking.
+async function findConflictingBooking(
+	vanId: string,
+	startDate: Date,
+	endDate: Date,
+) {
+	const overlap = await bookingRepository.findActiveOverlap(
+		vanId,
+		startDate,
+		endDate,
+	);
+
+	if (!overlap) {
+		return null;
+	}
+
+	return {
+		startDate: toDateString(overlap.startDate),
+		endDate: toDateString(overlap.endDate),
+	};
+}
+
 async function cancel(user: AuthUser, id: string) {
 	ensureRenter(user);
 
@@ -168,6 +204,8 @@ async function cancel(user: AuthUser, id: string) {
 
 export const bookingService = {
 	findMany,
+	findUpcoming,
 	create,
 	cancel,
+	findConflictingBooking,
 };

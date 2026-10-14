@@ -313,10 +313,78 @@ async function findHostVan(user: AuthUser, vanId: string): Promise<CatalogVan> {
 	return vanFromObject(object);
 }
 
+// The planner's catalog question, answered against the object core: a place, a
+// nightly budget, and never a retired van. Cheapest first, because the budget is
+// what the traveller is negotiating.
+async function searchListedVans(
+	user: AuthUser,
+	spaceId: string,
+	query: { location?: string; maxPrice?: number; limit: number },
+): Promise<CatalogVan[]> {
+	const types = await ensureVanLifeTypes(user, spaceId);
+	const filters: ObjectFilterInput[] = [
+		{ key: "typeId", operator: "equal", value: types.van },
+		{ key: "isArchived", operator: "equal", value: false },
+	];
+
+	if (query.location) {
+		filters.push({
+			key: "location",
+			operator: "like",
+			value: `%${query.location}%`,
+		});
+	}
+
+	if (query.maxPrice !== undefined) {
+		filters.push({
+			key: "price",
+			operator: "lessOrEqual",
+			value: query.maxPrice,
+		});
+	}
+
+	const listed = await objectService.list(user, spaceId, {
+		filters,
+		sorts: [{ key: "price", order: "asc" }],
+		layouts: [],
+		page: 1,
+		limit: query.limit,
+	});
+
+	return listed.data.map(vanFromObject);
+}
+
+// A van the planner has in mind, but only while it is still on the books: an
+// unknown id, a non-van object or a retired van all answer as absent.
+async function findListedVan(
+	user: AuthUser,
+	spaceId: string,
+	vanId: string,
+): Promise<CatalogVan | undefined> {
+	const types = await ensureVanLifeTypes(user, spaceId);
+	const object = await objectService
+		.findById(user, vanId)
+		.catch((error: unknown) => {
+			if (error instanceof NotFoundError) {
+				return undefined;
+			}
+
+			throw error;
+		});
+
+	if (!object || object.typeId !== types.van || object.isArchived) {
+		return undefined;
+	}
+
+	return vanFromObject(object);
+}
+
 export const vanLifeService = {
 	ensureVanLifeSpace,
 	ensureVanLifeTypes,
 	backfillVanLife,
+	searchListedVans,
+	findListedVan,
 	mirrorVan,
 	mirrorBooking,
 	mirrorReview,

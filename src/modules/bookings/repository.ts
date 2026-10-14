@@ -4,11 +4,30 @@ import {
 	type Van,
 } from "../../generated/prisma/client.js";
 import { prisma } from "../../lib/prisma.js";
-import { ACTIVE_BOOKING_STATUSES } from "./constants.js";
-import { buildWhere } from "./filters.js";
+import { buildOverlapWhere, buildWhere } from "./filters.js";
 import type { BookingListQuery } from "./schema.js";
 
 const MAX_CREATE_BOOKING_ATTEMPTS = 3;
+
+const LIST_INCLUDE = {
+	review: {
+		select: {
+			id: true,
+			rating: true,
+			text: true,
+			createdAt: true,
+		},
+	},
+	van: {
+		select: {
+			id: true,
+			name: true,
+			imageUrl: true,
+			type: true,
+			location: true,
+		},
+	},
+} satisfies Prisma.BookingInclude;
 
 async function findManyByUser(
 	userId: string,
@@ -21,28 +40,26 @@ async function findManyByUser(
 ) {
 	return prisma.booking.findMany({
 		where: buildWhere(userId, query),
-		include: {
-			review: {
-				select: {
-					id: true,
-					rating: true,
-					text: true,
-					createdAt: true,
-				},
-			},
-			van: {
-				select: {
-					id: true,
-					name: true,
-					imageUrl: true,
-					type: true,
-					location: true,
-				},
-			},
-		},
+		include: LIST_INCLUDE,
 		orderBy: options.orderBy,
 		skip: options.skip,
 		take: options.take,
+	});
+}
+
+// Trips that have not started losing their future, in the order they happen.
+async function findUpcomingByUser(userId: string, from: Date) {
+	return prisma.booking.findMany({
+		where: {
+			userId,
+			startDate: {
+				gte: from,
+			},
+		},
+		include: LIST_INCLUDE,
+		orderBy: {
+			startDate: "asc",
+		},
 	});
 }
 
@@ -73,6 +90,20 @@ async function findOwnedById(userId: string, id: string) {
 	});
 }
 
+async function findActiveOverlap(
+	vanId: string,
+	startDate: Date,
+	endDate: Date,
+) {
+	return prisma.booking.findFirst({
+		where: buildOverlapWhere(vanId, startDate, endDate),
+		select: {
+			startDate: true,
+			endDate: true,
+		},
+	});
+}
+
 async function createPendingIfAvailable(input: {
 	userId: string;
 	van: Van;
@@ -99,18 +130,11 @@ async function createPendingIfAvailable(input: {
 					}
 
 					const overlappingBooking = await tx.booking.findFirst({
-						where: {
-							vanId: input.van.id,
-							status: {
-								in: ACTIVE_BOOKING_STATUSES,
-							},
-							startDate: {
-								lt: input.endDate,
-							},
-							endDate: {
-								gt: input.startDate,
-							},
-						},
+						where: buildOverlapWhere(
+							input.van.id,
+							input.startDate,
+							input.endDate,
+						),
 					});
 
 					if (overlappingBooking) {
@@ -182,9 +206,11 @@ async function updateOwnedStatus(
 
 export const bookingRepository = {
 	findManyByUser,
+	findUpcomingByUser,
 	countByUser,
 	findBookableVanById,
 	findOwnedById,
+	findActiveOverlap,
 	createPendingIfAvailable,
 	updateOwnedStatus,
 };

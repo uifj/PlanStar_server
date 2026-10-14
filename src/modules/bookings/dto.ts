@@ -5,7 +5,7 @@ type BookingWithVan = Booking & {
 	review: Pick<Review, "id" | "rating" | "text" | "createdAt"> | null;
 };
 
-function toDateString(date: Date) {
+export function toDateString(date: Date) {
 	return date.toISOString().slice(0, 10);
 }
 
