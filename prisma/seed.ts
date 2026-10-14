@@ -1,5 +1,7 @@
-import { auth } from "../src/lib/auth.js";
+import { type AuthUser, auth } from "../src/lib/auth.js";
 import { prisma } from "../src/lib/prisma.js";
+import { VAN_LIFE_SPACE_ID } from "../src/modules/vanlife/constants.js";
+import { vanLifeService } from "../src/modules/vanlife/service.js";
 import {
 	BOOKINGS,
 	DEFAULT_PASSWORD,
@@ -147,12 +149,32 @@ async function seedReviews(bookingIds: Map<BookingKey, string>) {
 	}
 }
 
+async function seedVanLifeObjects(userIds: Map<UserKey, string>) {
+	const asActor = (userId: string) =>
+		prisma.user
+			.findUniqueOrThrow({ where: { id: userId } })
+			.then((user) => user as unknown as AuthUser);
+
+	const host = await asActor(userIds.get("host") as string);
+	const spaceId = await vanLifeService.ensureVanLifeSpace(host);
+
+	// Everyone who owns seeded rows needs a membership to read them back.
+	for (const userId of userIds.values()) {
+		await vanLifeService.ensureVanLifeSpace(await asActor(userId));
+	}
+
+	return vanLifeService.backfillVanLife(host, spaceId);
+}
+
 async function main() {
 	console.log("Seeding database...");
 
 	await prisma.review.deleteMany();
 	await prisma.booking.deleteMany();
 	await prisma.van.deleteMany();
+	// The mirrored objects of the previous run would otherwise outlive the rows
+	// they were projected from.
+	await prisma.obj.deleteMany({ where: { spaceId: VAN_LIFE_SPACE_ID } });
 	console.log("Existing vans, bookings, and reviews cleared");
 
 	const userIds = await seedUsers();
@@ -166,6 +188,11 @@ async function main() {
 
 	await seedReviews(bookingIds);
 	console.log("Reviews seeded");
+
+	const copied = await seedVanLifeObjects(userIds);
+	console.log(
+		`VanLife objects seeded: ${copied.vans} vans, ${copied.bookings} bookings, ${copied.reviews} reviews`,
+	);
 
 	console.log("Database seeded successfully.");
 }
