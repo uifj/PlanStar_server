@@ -71,11 +71,7 @@ const SCALAR_CAST: Partial<Record<RelationFormat, string>> = {
 	checkbox: "boolean",
 };
 
-const ARRAY_FORMATS = new Set<RelationFormat>([
-	"select",
-	"multiSelect",
-	"object",
-]);
+const ARRAY_FORMATS = new Set<RelationFormat>(["select", "multiSelect"]);
 
 const ALLOWED_OPERATORS: Record<RelationFormat, FilterOperator[]> = {
 	shortText: ["equal", "notEqual", "like", "notLike", "empty", "notEmpty"],
@@ -103,7 +99,9 @@ const ALLOWED_OPERATORS: Record<RelationFormat, FilterOperator[]> = {
 	checkbox: ["equal", "notEqual"],
 	select: ["equal", "notEqual", "in", "allIn", "empty", "notEmpty"],
 	multiSelect: ["equal", "notEqual", "in", "allIn", "empty", "notEmpty"],
-	object: ["equal", "notEqual", "in", "allIn", "empty", "notEmpty"],
+	// ADR-0002: object values live in Link, so filtering them needs a join this
+	// compiler does not emit yet. Empty means "rejected visibly", not "unhandled".
+	object: [],
 };
 
 function bind(params: unknown[], value: unknown): number {
@@ -295,7 +293,9 @@ function compileSort(
 		return `${definition.column} ${direction}`;
 	}
 
-	if (ARRAY_FORMATS.has(definition.format)) {
+	const cast = SCALAR_CAST[definition.format];
+
+	if (!cast) {
 		throw new ValidationError(
 			`Sorting by ${sort.key} is not supported for its format.`,
 		);
@@ -303,7 +303,7 @@ function compileSort(
 
 	const keyIndex = bind(params, sort.key);
 
-	return `(o.details ->> $${keyIndex}::text)::${SCALAR_CAST[definition.format]} ${direction} NULLS LAST`;
+	return `(o.details ->> $${keyIndex}::text)::${cast} ${direction} NULLS LAST`;
 }
 
 export function compileObjectFilters(input: {

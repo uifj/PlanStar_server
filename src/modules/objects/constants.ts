@@ -1,6 +1,11 @@
 import type { RelationDefinition } from "./filters.js";
 
-export const OBJECT_LAYOUTS = ["basic", "relation", "objectType"] as const;
+export const OBJECT_LAYOUTS = [
+	"basic",
+	"relation",
+	"objectType",
+	"dataview",
+] as const;
 
 export const LISTABLE_OBJECT_LAYOUTS = ["basic"] as const;
 

@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { API_PREFIX } from "../../src/config/constants.js";
 import { prisma } from "../../src/lib/prisma.js";
+import { signInAs } from "./helpers/auth-session.js";
 import { isDatabaseAvailable } from "./helpers/database.js";
 
 vi.mock("../../src/lib/auth.js", () => ({
@@ -14,34 +15,7 @@ vi.mock("../../src/lib/auth.js", () => ({
 
 const databaseAvailable = await isDatabaseAvailable();
 
-const { auth } = await import("../../src/lib/auth.js");
 const { get, post } = await import("./helpers/request.js");
-
-function signInAs(userId: string) {
-	vi.mocked(auth.api.getSession).mockResolvedValue({
-		session: {
-			id: `session-${userId}`,
-			userId,
-			token: `token-${userId}`,
-			expiresAt: new Date("2099-01-01"),
-			createdAt: new Date("2026-01-01"),
-			updatedAt: new Date("2026-01-01"),
-			ipAddress: null,
-			userAgent: null,
-		},
-		user: {
-			id: userId,
-			name: userId,
-			email: `${userId}@vanlife.test`,
-			emailVerified: false,
-			image: null,
-			createdAt: new Date("2026-01-01"),
-			updatedAt: new Date("2026-01-01"),
-			banned: false,
-			role: null,
-		},
-	} as never);
-}
 
 async function createUser(id: string) {
 	return prisma.user.create({

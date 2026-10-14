@@ -125,6 +125,75 @@ export type RegisteredRelation = {
 	maxCount: number | null;
 };
 
+async function findLinksByFromIds(fromIds: string[]) {
+	if (fromIds.length === 0) {
+		return [];
+	}
+
+	return prisma.link.findMany({
+		where: { fromId: { in: fromIds } },
+		orderBy: [{ relationKey: "asc" }, { sortOrder: "asc" }],
+	});
+}
+
+// ADR-0002: object-valued relations are edges, so Link is their only store.
+async function writeLinks(input: {
+	spaceId: string;
+	fromId: string;
+	links: Record<string, string[]>;
+}) {
+	const relationKeys = Object.keys(input.links);
+
+	if (relationKeys.length === 0) {
+		return;
+	}
+
+	const rows = relationKeys.flatMap((relationKey) =>
+		input.links[relationKey].map((toId, index) => ({
+			spaceId: input.spaceId,
+			fromId: input.fromId,
+			relationKey,
+			toId,
+			sortOrder: String(index + 1).padStart(4, "0"),
+		})),
+	);
+
+	await prisma.$transaction([
+		prisma.link.deleteMany({
+			where: { fromId: input.fromId, relationKey: { in: relationKeys } },
+		}),
+		prisma.link.createMany({ data: rows }),
+	]);
+}
+
+// ADR-0002: the (toId, relationKey) index serves this reverse lookup.
+async function findBacklinkSourceIds(spaceId: string, toId: string) {
+	const links = await prisma.link.findMany({
+		where: { spaceId, toId },
+		select: { fromId: true },
+		orderBy: { sortOrder: "asc" },
+	});
+
+	return [...new Set(links.map((link) => link.fromId))];
+}
+
+async function findManyByIds(ids: string[]) {
+	if (ids.length === 0) {
+		return [];
+	}
+
+	return prisma.obj.findMany({ where: { id: { in: ids }, isDeleted: false } });
+}
+
+async function findIdsInSpace(spaceId: string, ids: string[]) {
+	const rows = await prisma.obj.findMany({
+		where: { spaceId, id: { in: ids } },
+		select: { id: true },
+	});
+
+	return new Set(rows.map((row) => row.id));
+}
+
 export const objectRepository = {
 	findRelations,
 	findTypeInSpace,
@@ -133,4 +202,9 @@ export const objectRepository = {
 	update,
 	findMany,
 	count,
+	findLinksByFromIds,
+	writeLinks,
+	findBacklinkSourceIds,
+	findManyByIds,
+	findIdsInSpace,
 };

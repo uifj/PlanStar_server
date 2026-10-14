@@ -220,6 +220,7 @@ enum ObjectLayout {
   basic
   relation
   objectType
+  dataview
 }
 
 model Space {
@@ -336,7 +337,6 @@ model Link {
   toId        String
   relationKey String
   sortOrder   String?
-  deletedAt   DateTime?
   createdAt   DateTime  @default(now())
 
   space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)

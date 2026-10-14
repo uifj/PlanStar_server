@@ -1,6 +1,18 @@
-import type { Obj } from "../../generated/prisma/client.js";
+import type { Obj, Prisma } from "../../generated/prisma/client.js";
 
-export function toObject(object: Obj) {
+function detailMap(details: Prisma.JsonValue | null) {
+	if (
+		details === null ||
+		typeof details !== "object" ||
+		Array.isArray(details)
+	) {
+		return {};
+	}
+
+	return details as Record<string, unknown>;
+}
+
+export function toObject(object: Obj, links: Record<string, string[]> = {}) {
 	return {
 		id: object.id,
 		spaceId: object.spaceId,
@@ -11,7 +23,9 @@ export function toObject(object: Obj) {
 		description: object.description,
 		snippet: object.snippet,
 		iconEmoji: object.iconEmoji,
-		details: object.details,
+		// ADR-0002: object relations read from Link, so the client still sees one
+		// array-valued map (ADR-0004).
+		details: { ...detailMap(object.details), ...links },
 		isArchived: object.isArchived,
 		isDeleted: object.isDeleted,
 		isHidden: object.isHidden,

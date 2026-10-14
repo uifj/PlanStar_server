@@ -5,6 +5,7 @@ import {
 	archiveObjectRoute,
 	createObjectRoute,
 	getObjectRoute,
+	listBacklinksRoute,
 	listObjectsRoute,
 	updateObjectRoute,
 } from "./routes.js";
@@ -40,6 +41,16 @@ objectsRouter.openapi(getObjectRoute, async (c) => {
 	const object = await objectService.findById(user, objectId);
 
 	return c.json(object);
+});
+
+objectsRouter.openapi(listBacklinksRoute, async (c) => {
+	const { objectId } = c.req.valid("param");
+	const query = c.req.valid("query");
+	const user = getCurrentUser(c);
+
+	const backlinks = await objectService.findBacklinks(user, objectId, query);
+
+	return c.json(paginated(backlinks.data, backlinks.meta));
 });
 
 objectsRouter.openapi(updateObjectRoute, async (c) => {

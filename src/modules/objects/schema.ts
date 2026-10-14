@@ -20,6 +20,13 @@ const FilterGroupSchema: z.ZodType<ObjectFilterGroup> = z.lazy(() =>
 	}),
 );
 
+export const ObjectSortSchema = z.object({
+	key: z.string().min(1),
+	order: SortOrderSchema,
+});
+
+export const SortsPayloadSchema = z.array(ObjectSortSchema).max(10);
+
 export const FiltersPayloadSchema = z.array(
 	z.union([FilterConditionSchema, FilterGroupSchema]),
 );
@@ -87,6 +94,13 @@ export const ObjectListQuerySchema = ListQuerySchema.extend({
 	order: SortOrderSchema.default(DEFAULT_OBJECT_SORT_ORDER),
 }).meta({ id: "ObjectListQuery" });
 
+// Backlinks are ordered by the link's own index, so only paging is configurable.
+export const BacklinkListQuerySchema = ListQuerySchema.pick({
+	page: true,
+	limit: true,
+}).meta({ id: "BacklinkListQuery" });
+
 export type CreateObjectInput = z.infer<typeof CreateObjectSchema>;
 export type UpdateObjectInput = z.infer<typeof UpdateObjectSchema>;
 export type ObjectListQuery = z.infer<typeof ObjectListQuerySchema>;
+export type BacklinkListQuery = z.infer<typeof BacklinkListQuerySchema>;

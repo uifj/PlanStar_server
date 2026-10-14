@@ -113,17 +113,31 @@ describe("object details", () => {
 		await expect(attempt).rejects.toMatchObject({ statusCode: 422 });
 	});
 
-	it("refuses object relation values until links are implemented", async () => {
+	it("writes object relations as edges instead of duplicating them into details", async () => {
 		// Arrange
 		ownerOfSpace();
 		register({ uniqueKey: "related", format: "object" });
+		captureCreated();
+		prismaMock.obj.findMany.mockResolvedValue([
+			{ id: "obj-a" },
+			{ id: "obj-b" },
+		]);
 
 		// Act
-		const attempt = objectService.create(user, "space-1", {
-			details: { related: "obj-2" },
+		await objectService.create(user, "space-1", {
+			details: { related: ["obj-a", "obj-b"] },
 		});
 
-		// Assert
-		await expect(attempt).rejects.toMatchObject({ statusCode: 422 });
+		// Assert — the JSONB map must not carry a second copy of the edge list
+		expect(prismaMock.obj.create.mock.calls[0][0].data.details).toEqual({});
+		expect(prismaMock.link.createMany.mock.calls[0][0].data).toEqual([
+			expect.objectContaining({
+				fromId: "obj-1",
+				relationKey: "related",
+				toId: "obj-a",
+				sortOrder: "0001",
+			}),
+			expect.objectContaining({ toId: "obj-b", sortOrder: "0002" }),
+		]);
 	});
 });

@@ -204,4 +204,34 @@ describe("compileObjectFilters", () => {
 		);
 		expect(compiled.params).toEqual(["budget", 100, "budget"]);
 	});
+
+	it("rejects a filter on an object relation until the link index is compiled", () => {
+		// Act
+		const error = captureError(() =>
+			compileObjectFilters({
+				registry: { companion: { format: "object" } },
+				filters: [{ key: "companion", operator: "equal", value: "obj-1" }],
+				sorts: [],
+			}),
+		);
+
+		// Assert — object values live in Link, so a JSONB predicate would be empty
+		expect(error).toMatchObject({ statusCode: 422 });
+		expect((error as Error).message).toContain("companion");
+	});
+
+	it("rejects sorting by a relation whose values are not in details", () => {
+		// Act
+		const error = captureError(() =>
+			compileObjectFilters({
+				registry: { status: { format: "select" } },
+				filters: [],
+				sorts: [{ key: "status", order: "asc" }],
+			}),
+		);
+
+		// Assert
+		expect(error).toMatchObject({ statusCode: 422 });
+		expect((error as Error).message).toContain("status");
+	});
 });

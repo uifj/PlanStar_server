@@ -12,6 +12,7 @@ import {
 import { OPENAPI_TAGS } from "../../openapi/tags.js";
 import { createPaginatedResponseSchema } from "../../pagination/response.js";
 import {
+	BacklinkListQuerySchema,
 	CreateObjectSchema,
 	ObjectListQuerySchema,
 	ObjectParamsSchema,
@@ -101,6 +102,27 @@ export const updateObjectRoute = createRoute({
 		...unauthorizedResponse,
 		...notFoundResponse("Object not found."),
 		...invalidFilters,
+	},
+});
+
+export const listBacklinksRoute = createRoute({
+	method: "get",
+	path: "/{objectId}/backlinks",
+	tags,
+	summary: "List backlinks",
+	description:
+		"Returns the objects in the same space that link to this object, ordered by the link index.",
+	request: {
+		params: ObjectParamsSchema,
+		query: BacklinkListQuerySchema,
+	},
+	responses: {
+		...okResponse(
+			"Backlinks retrieved successfully.",
+			createPaginatedResponseSchema(ObjectSchema),
+		),
+		...unauthorizedResponse,
+		...notFoundResponse("Object not found."),
 	},
 });
 
