@@ -7,5 +7,8 @@ export default defineConfig({
 		clearMocks: true,
 		restoreMocks: true,
 		testTimeout: 10_000,
+		// One Postgres backs every file, and the VanLife routes list rows globally,
+		// so a second worker changes the counts the first one asserts.
+		fileParallelism: false,
 	},
 });

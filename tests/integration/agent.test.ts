@@ -1,6 +1,6 @@
 import { genkit } from "genkit/beta";
 import { mockModel } from "genkit/testing";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 import { prisma } from "../../src/lib/prisma.js";
 import { createTripPlannerAgent } from "../../src/modules/agent/agent.js";
 import { createAgentService } from "../../src/modules/agent/service.js";
@@ -20,6 +20,12 @@ async function createUser(email: string) {
 }
 
 describe.skipIf(!databaseAvailable)("trip planner conversations", () => {
+	afterAll(async () => {
+		// These ids are this file's own namespace; leaving them behind makes the
+		// next run collide on the primary key.
+		await prisma.user.deleteMany({ where: { id: { startsWith: "user-" } } });
+	});
+
 	it("restores an earlier turn from the database in a later request", async () => {
 		// Arrange
 		const owner = await createUser("store.owner@vanlife.test");
