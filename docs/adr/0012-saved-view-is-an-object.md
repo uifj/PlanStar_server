@@ -31,3 +31,18 @@ second authoritative table here, so the Obj row is the truth and nothing can dri
 it. `ObjectLayout` grows a fourth value, which means an enum migration before any view
 can be written. Per-relation counters for the view sidebar are deferred, and the two
 numbers do not tell a client which values are missing from a filtered set.
+
+## Amendment, after phase 6
+
+The space browser renders a view as a table, gallery, board or calendar. The four
+renderings are a client concern: a saved view persists only its source type, filters
+and sorts, and which rendering shows them is URL state the user picks per visit. A view
+therefore stores no rendering key, and the server answers the same record list for all
+four.
+
+Grouping is client-side too. A board groups by a select relation's values and a calendar
+by a date relation's month, both computed from the page of objects the view already
+returns, so the page counts what the group headers show. `matched`/`total` still describe
+the whole set, so a board can read "3 of 9 simple" while only the first page's cards are
+visible. This keeps the kernel out of presentation, at the cost of group totals that are
+per page rather than per set (0007).
