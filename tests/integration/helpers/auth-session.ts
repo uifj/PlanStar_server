@@ -1,5 +1,25 @@
 import { vi } from "vitest";
-import { auth } from "../../../src/lib/auth.js";
+import { type AuthUser, auth } from "../../../src/lib/auth.js";
+
+/**
+ * A database user, shaped as the session user a service would receive. Fixtures
+ * sign in through the mocked session above, and call services with this.
+ */
+export function asAuthUser(user: {
+	id: string;
+	name: string;
+	email: string;
+	role?: string | null;
+}): AuthUser {
+	return {
+		id: user.id,
+		name: user.name,
+		email: user.email,
+		emailVerified: true,
+		image: null,
+		role: user.role ?? null,
+	} as AuthUser;
+}
 
 /**
  * Stubs the session lookup for an id that exists in the test database. Requests

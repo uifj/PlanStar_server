@@ -15,7 +15,7 @@ agentRouter.openapi(sendTripPlannerMessageRoute, async (c) => {
 	const { chatId, message } = c.req.valid("json");
 
 	const reply = await agentService.respond({
-		userId: user.id,
+		actor: user,
 		chatId,
 		message,
 	});

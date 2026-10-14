@@ -6,7 +6,9 @@ import {
 	NotFoundError,
 	ServiceUnavailableError,
 } from "../../errors/http-errors.js";
+import type { AuthUser } from "../../lib/auth.js";
 import { prisma } from "../../lib/prisma.js";
+import { vanLifeService } from "../vanlife/service.js";
 import { TRIP_PLANNER_AGENT_NAME } from "./constants.js";
 
 export type AgentReply = {
@@ -16,7 +18,7 @@ export type AgentReply = {
 };
 
 export type AgentRequest = {
-	userId: string;
+	actor: AuthUser;
 	chatId?: string;
 	message: string;
 };
@@ -24,31 +26,45 @@ export type AgentRequest = {
 export function createAgentService({ agent }: { agent: Agent<unknown> }): {
 	respond: (request: AgentRequest) => Promise<AgentReply>;
 } {
-	async function respond({ userId, chatId, message }: AgentRequest) {
+	async function respond({ actor, chatId, message }: AgentRequest) {
 		const id = chatId ?? randomUUID();
+		let startedInSpace: string | null = null;
 
 		if (chatId) {
-			const chat = await prisma.agentChat.findUnique({
+			const existing = await prisma.agentChat.findUnique({
 				where: { id },
 			});
 
-			if (!chat) {
+			if (!existing) {
 				throw new NotFoundError("Conversation not found.");
 			}
 
-			if (chat.userId !== userId) {
+			if (existing.userId !== actor.id) {
 				throw new ForbiddenError("You cannot continue this conversation.");
 			}
-		} else {
+
+			startedInSpace = existing.spaceId;
+		}
+
+		// A conversation keeps the space it started in. Rows from before ADR-0011,
+		// and every new conversation, take the caller's space - resolving it also
+		// enrols the caller, so the tools may read the kernel on their behalf.
+		const spaceId =
+			startedInSpace ?? (await vanLifeService.ensureVanLifeSpace(actor));
+
+		if (!chatId) {
 			await prisma.agentChat.create({
 				data: {
 					id,
-					userId,
+					userId: actor.id,
 					agentName: TRIP_PLANNER_AGENT_NAME,
+					spaceId,
 				},
 			});
 		}
 
+		// Genkit refuses client-supplied state on an agent with a store, so the
+		// conversation row - not the request - is what a tool reads the actor from.
 		const chat = agent.chat({ sessionId: id });
 
 		try {

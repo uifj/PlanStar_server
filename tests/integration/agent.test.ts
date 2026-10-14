@@ -5,6 +5,8 @@ import { prisma } from "../../src/lib/prisma.js";
 import { createTripPlannerAgent } from "../../src/modules/agent/agent.js";
 import { createAgentService } from "../../src/modules/agent/service.js";
 import { PrismaAgentChatStore } from "../../src/modules/agent/session-store.js";
+import { VAN_LIFE_SPACE_ID } from "../../src/modules/vanlife/constants.js";
+import { asAuthUser } from "./helpers/auth-session.js";
 import { isDatabaseAvailable } from "./helpers/database.js";
 
 const databaseAvailable = await isDatabaseAvailable();
@@ -15,7 +17,20 @@ async function createUser(email: string) {
 			id: `user-${email}`,
 			name: email.split("@")[0],
 			email,
+			role: "user",
 		},
+	});
+}
+
+function plannerService(ai: ReturnType<typeof genkit>, reply: string) {
+	return createAgentService({
+		agent: createTripPlannerAgent(ai, {
+			model: mockModel(ai, {
+				name: `model-${reply.length}`,
+				respond: [{ text: reply }],
+			}),
+			store: new PrismaAgentChatStore(),
+		}),
 	});
 }
 
@@ -24,6 +39,26 @@ describe.skipIf(!databaseAvailable)("trip planner conversations", () => {
 		// These ids are this file's own namespace; leaving them behind makes the
 		// next run collide on the primary key.
 		await prisma.user.deleteMany({ where: { id: { startsWith: "user-" } } });
+	});
+
+	it("records which space a conversation plans in", async () => {
+		// Arrange
+		const owner = await createUser("space.owner@vanlife.test");
+		const ai = genkit({});
+
+		// Act
+		const first = await plannerService(ai, "Noted.").respond({
+			actor: asAuthUser(owner),
+			message: "Find me a van for autumn",
+		});
+
+		// Assert — the chat knows its space, so its tools never have to guess
+		expect(
+			await prisma.agentChat.findUnique({
+				where: { id: first.chatId },
+				select: { userId: true, spaceId: true },
+			}),
+		).toEqual({ userId: owner.id, spaceId: VAN_LIFE_SPACE_ID });
 	});
 
 	it("restores an earlier turn from the database in a later request", async () => {
@@ -40,14 +75,15 @@ describe.skipIf(!databaseAvailable)("trip planner conversations", () => {
 				store: new PrismaAgentChatStore(),
 			}),
 		});
+		const actor = asAuthUser(owner);
 
 		// Act — two separate requests, as a client would make them
 		const first = await service.respond({
-			userId: owner.id,
+			actor,
 			message: "I want a rugged van in Moab",
 		});
 		const second = await service.respond({
-			userId: owner.id,
+			actor,
 			chatId: first.chatId,
 			message: "make it under $150",
 		});
@@ -70,23 +106,15 @@ describe.skipIf(!databaseAvailable)("trip planner conversations", () => {
 		const owner = await createUser("chat.owner@vanlife.test");
 		const intruder = await createUser("chat.intruder@vanlife.test");
 		const ai = genkit({});
-		const service = createAgentService({
-			agent: createTripPlannerAgent(ai, {
-				model: mockModel(ai, {
-					name: "intruderModel",
-					respond: [{ text: "hi" }],
-				}),
-				store: new PrismaAgentChatStore(),
-			}),
-		});
+		const service = plannerService(ai, "hi");
 		const chat = await service.respond({
-			userId: owner.id,
+			actor: asAuthUser(owner),
 			message: "planning",
 		});
 
 		// Act
 		const attempt = service.respond({
-			userId: intruder.id,
+			actor: asAuthUser(intruder),
 			chatId: chat.chatId,
 			message: "give me their history",
 		});

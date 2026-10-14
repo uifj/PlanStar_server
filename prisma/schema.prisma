@@ -166,6 +166,9 @@ model AgentChat {
   id        String   @id
   userId    String
   agentName String
+  // ADR-0011: the space a conversation plans in, so a tool reads the kernel
+  // through it instead of reaching for tables.
+  spaceId   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
