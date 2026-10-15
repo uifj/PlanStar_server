@@ -65,7 +65,7 @@ function BlockRow({
 				onBlur={() => onCommitText(block.id, text)}
 			/>
 			{block.linkTargetId ? (
-				<span className="shrink-0 text-muted-foreground text-xs">
+				<span className="shrink-0 text-muted-foreground text-sm">
 					{t("blocks.linked")}
 				</span>
 			) : null}

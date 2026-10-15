@@ -103,7 +103,7 @@ export default function ObjectPage() {
 				<PropertyValue
 					value={object.name}
 					label={t("spaces.name")}
-					className="h-auto font-bold text-3xl"
+					className="h-auto font-bold text-4xl"
 					onCommit={(text) =>
 						save(() => updateObject(object.id, { name: text }))
 					}
@@ -133,7 +133,7 @@ export default function ObjectPage() {
 							return (
 								<div
 									key={key}
-									className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-3 border-border border-b pb-2 text-sm"
+									className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-3 border-border border-b pb-2 text-base"
 								>
 									<dt className="truncate text-muted-foreground">
 										{column?.label ?? key}
@@ -181,7 +181,7 @@ export default function ObjectPage() {
 							<li key={backlink.id}>
 								<Link
 									to={objectLink(backlink.id, backlink.spaceId)}
-									className="rounded-md px-2 py-1 text-sm transition-colors hover:bg-accent"
+									className="rounded-md px-2 py-1 text-base transition-colors hover:bg-accent"
 								>
 									{backlink.name}
 								</Link>

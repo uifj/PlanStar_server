@@ -104,7 +104,7 @@ function ClauseRow({
 		<div className="flex flex-wrap items-center gap-2">
 			<select
 				aria-label={t("spaces.filterRelation")}
-				className="h-9 rounded-md border border-border bg-transparent px-2 text-sm"
+				className="h-8 rounded-md border border-border bg-transparent px-2 text-base"
 				value={column.key}
 				onChange={(event) => chooseKey(event.target.value)}
 			>
@@ -117,7 +117,7 @@ function ClauseRow({
 
 			<select
 				aria-label={t("spaces.filterOperator")}
-				className="h-9 rounded-md border border-border bg-transparent px-2 text-sm"
+				className="h-8 rounded-md border border-border bg-transparent px-2 text-base"
 				value={operator}
 				onChange={(event) => chooseOperator(event.target.value)}
 			>
@@ -131,7 +131,7 @@ function ClauseRow({
 			{PRESENCE.includes(operator) ? null : column.format === "checkbox" ? (
 				<select
 					aria-label={valueLabel}
-					className="h-9 rounded-md border border-border bg-transparent px-2 text-sm"
+					className="h-8 rounded-md border border-border bg-transparent px-2 text-base"
 					value={valueText(clause.value) || "true"}
 					onChange={(event) => commit(event.target.value === "true")}
 				>
@@ -141,7 +141,7 @@ function ClauseRow({
 			) : column.format === "select" || column.format === "multiSelect" ? (
 				<Input
 					aria-label={valueLabel}
-					className="h-9 w-44"
+					className="h-8 w-44"
 					value={draft}
 					placeholder={t("spaces.filterChoices")}
 					onChange={(event) => setDraft(event.target.value)}
@@ -157,7 +157,7 @@ function ClauseRow({
 			) : (
 				<Input
 					aria-label={valueLabel}
-					className="h-9 w-44"
+					className="h-8 w-44"
 					type={column.format === "number" ? "number" : "text"}
 					value={draft}
 					onChange={(event) => setDraft(event.target.value)}
@@ -278,7 +278,7 @@ export function QueryBuilder({
 
 						<select
 							aria-label={t("spaces.sortField")}
-							className="h-9 rounded-md border border-border bg-transparent px-2 text-sm"
+							className="h-8 rounded-md border border-border bg-transparent px-2 text-base"
 							value={sorts[0]?.key ?? ""}
 							onChange={(event) => writeSort(event.target.value)}
 						>

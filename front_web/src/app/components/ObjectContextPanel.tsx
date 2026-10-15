@@ -78,7 +78,7 @@ export function ObjectContextPanel({
 					{entries.map(([key, value]) => (
 						<div
 							key={key}
-							className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-2 text-sm"
+							className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-2 text-base"
 						>
 							<dt className="truncate text-muted-foreground">{key}</dt>
 							<dd className="break-words">{detailText(value)}</dd>
@@ -96,7 +96,7 @@ export function ObjectContextPanel({
 						{t("shell.noBacklinks")}
 					</p>
 				) : (
-					<ul className="mt-2 flex flex-col gap-1 text-sm">
+					<ul className="mt-2 flex flex-col gap-1 text-base">
 						{backlinks.map((backlink) => (
 							<li key={backlink.id} className="truncate">
 								{backlink.name}

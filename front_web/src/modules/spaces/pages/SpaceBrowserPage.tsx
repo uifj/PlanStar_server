@@ -276,6 +276,7 @@ export default function SpaceBrowserPage() {
 								type="button"
 								size="sm"
 								variant={viewKind === kind ? "default" : "ghost"}
+								className="h-8 font-bold text-xl"
 								onClick={() => moveLayout(kind)}
 							>
 								{t(`spaces.view.${kind}`)}
@@ -285,7 +286,7 @@ export default function SpaceBrowserPage() {
 
 					{viewKind === "board" ? (
 						<select
-							className="h-9 rounded-md border border-border bg-transparent px-2 text-sm"
+							className="h-8 rounded-md border border-border bg-transparent px-2 text-base"
 							value={groupKey}
 							onChange={(event) => setGroup(event.target.value)}
 						>
@@ -304,7 +305,7 @@ export default function SpaceBrowserPage() {
 
 					{viewKind === "calendar" ? (
 						<select
-							className="h-9 rounded-md border border-border bg-transparent px-2 text-sm"
+							className="h-8 rounded-md border border-border bg-transparent px-2 text-base"
 							value={groupKey}
 							onChange={(event) => setGroup(event.target.value)}
 						>
@@ -321,7 +322,7 @@ export default function SpaceBrowserPage() {
 
 					{viewKind === "gallery" || viewKind === "board" ? (
 						<select
-							className="h-9 rounded-md border border-border bg-transparent px-2 text-sm"
+							className="h-8 rounded-md border border-border bg-transparent px-2 text-base"
 							value={coverKey}
 							onChange={(event) => setCover(event.target.value)}
 						>
@@ -595,7 +596,7 @@ function ViewBar({
 				{t("spaces.savedViews")}
 			</span>
 			{views.length === 0 ? (
-				<span className="text-muted-foreground text-xs">
+				<span className="text-muted-foreground text-sm">
 					{t("spaces.noViews")}
 				</span>
 			) : null}
@@ -778,11 +779,14 @@ function ObjectTable({
 			ref={scrollRef}
 			className="max-h-[70vh] overflow-auto rounded-xl border border-border"
 		>
-			<table className="w-full text-sm">
+			<table className="w-full text-base">
 				<thead className="sticky top-0 bg-muted/40">
 					<tr>
 						{columns.map((column) => (
-							<th key={column.key} className="px-4 py-2 text-left font-medium">
+							<th
+								key={column.key}
+								className="px-4 py-2 text-left font-normal text-muted-foreground text-sm"
+							>
 								{column.key === "name" ? t("spaces.name") : column.label}
 							</th>
 						))}
@@ -909,7 +913,7 @@ function Gallery({
 						<div className="space-y-1 p-4">
 							<p className="font-semibold">{object.name}</p>
 							{meta.map((line) => (
-								<p key={line} className="text-muted-foreground text-xs">
+								<p key={line} className="text-muted-foreground text-sm">
 									{line}
 								</p>
 							))}
@@ -945,7 +949,7 @@ function Board({
 		<div className="flex gap-4 overflow-x-auto pb-2">
 			{groups.map((group) => (
 				<div key={group.key} className="w-72 shrink-0">
-					<h3 className="mb-2 flex items-center justify-between font-medium text-sm">
+					<h3 className="mb-2 flex items-center justify-between font-medium text-base">
 						{group.key === "untagged" ? t("spaces.untagged") : group.label}
 						<Badge variant="secondary">{group.objects.length}</Badge>
 					</h3>
@@ -953,10 +957,10 @@ function Board({
 						{group.objects.map((object) => (
 							<li
 								key={object.id}
-								className="rounded-lg border border-border bg-card p-3 text-sm"
+								className="rounded-lg border border-border bg-card p-3 text-base"
 							>
 								<p className="font-medium">{object.name}</p>
-								<p className="text-muted-foreground text-xs">
+								<p className="text-muted-foreground text-sm">
 									{columns
 										.filter((c) => c.key !== "name")
 										.slice(0, 2)
@@ -968,7 +972,7 @@ function Board({
 					</ul>
 				</div>
 			))}
-			<span className="text-muted-foreground text-xs">{groupLabel}</span>
+			<span className="text-muted-foreground text-sm">{groupLabel}</span>
 		</div>
 	);
 }
@@ -1014,7 +1018,7 @@ function Calendar({
 									{day.objects.map((object) => (
 										<span key={object.id} className="mr-3">
 											{object.name}
-											<span className="text-muted-foreground text-xs">
+											<span className="text-muted-foreground text-sm">
 												{" "}
 												{columns
 													.filter((c) => c.key !== "name")
