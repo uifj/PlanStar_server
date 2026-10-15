@@ -21,6 +21,7 @@ file and gets a `superseded-by-NNNN` status line.
 | [0013](0013-documents-are-ordered-blocks.md) | Documents are ordered blocks | accepted |
 | [0014](0014-three-column-workspace-shell.md) | The workspace lives in a three-column shell | accepted |
 | [0015](0015-object-opens-as-a-page.md) | An object opens as a page | accepted |
+| [0016](0016-type-scale-follows-anytype-by-role.md) | Text size follows the role, on Anytype's scale | accepted |
 
 The port's seven phases are all implemented: phases 0 and 1 (spaces, registry, objects,
 filtered lists), phase 2 (relation edges, saved views, the filter performance gate),
