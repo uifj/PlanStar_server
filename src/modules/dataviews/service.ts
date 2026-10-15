@@ -176,6 +176,20 @@ async function update(
 		details,
 	);
 
+	// A view that stored a query the compiler refuses would fail on its next read
+	// (ADR-0007), so a rewrite is checked here against the whole query it will run.
+	if (input.filters !== undefined || input.sorts !== undefined) {
+		const current = viewConfig(view);
+		const compiled = await objectService.validateQuery(
+			spaceId,
+			input.filters ?? current.filters,
+			input.sorts ?? current.sorts,
+		);
+
+		details.dataviewFilters = compiled.filters;
+		details.dataviewSorts = compiled.sorts;
+	}
+
 	await dataviewRepository.saveDetails(
 		view.id,
 		details as Prisma.InputJsonObject,

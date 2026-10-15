@@ -1,4 +1,4 @@
-import type { ObjectDetail } from "@/modules/objects/types";
+import type { ObjectDetail, ObjectFilter } from "@/modules/objects/types";
 
 export const spacePermissions = ["reader", "writer", "admin", "owner"] as const;
 
@@ -82,16 +82,19 @@ export interface SaveViewInput {
 	viewType?: string;
 	groupRelationKey?: string;
 	coverRelationKey?: string;
-	filters: Record<string, unknown>[];
+	filters: ObjectFilter[];
 	sorts: ViewSort[];
 }
 
 // What the layout menu writes onto a view. null clears a key, so a board can stop
-// grouping by a relation. The server checks these against the view's own type.
+// grouping by a relation. The server checks these against the view's source type.
 export interface ViewLayoutInput {
 	viewType?: string;
 	coverRelationKey?: string | null;
 	groupRelationKey?: string | null;
+	// A saved view also owns its query, so the menu can rewrite what it runs.
+	filters?: ObjectFilter[];
+	sorts?: ViewSort[];
 }
 
 export interface ViewRecordsResponse {

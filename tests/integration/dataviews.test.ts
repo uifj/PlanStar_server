@@ -338,6 +338,59 @@ describe.skipIf(!databaseAvailable)("saved views", () => {
 		expect(details.groupRelationKey).toBeUndefined();
 	});
 
+	it("rewrites the query a saved view runs", async () => {
+		// Arrange
+		const response = await gridView();
+		const viewId = ((await response.json()) as Json).id as string;
+
+		// Act
+		const patched = await patch(
+			`${API_PREFIX}/spaces/${spaceId}/dataviews/${viewId}`,
+			{
+				filters: [{ key: "budget", operator: "greater", value: 100 }],
+				sorts: [{ key: "budget", order: "asc" }],
+			},
+		);
+		const details = ((await patched.json()) as Json).details as Json;
+
+		// Assert
+		expect(patched.status).toBe(200);
+		expect(details.dataviewFilters).toEqual([
+			{ key: "budget", operator: "greater", value: 100 },
+		]);
+		expect(details.dataviewSorts).toEqual([{ key: "budget", order: "asc" }]);
+
+		// …and the rewritten query is what the record list now runs
+		const records = await get(
+			`${API_PREFIX}/spaces/${spaceId}/dataviews/${viewId}/records`,
+		);
+
+		expect(
+			((await records.json()) as Json).data.map((r: Json) => r.name),
+		).toEqual(["Iceland"]);
+	});
+
+	it("refuses a query rewrite that would break the view on its next read", async () => {
+		// Arrange
+		const response = await gridView();
+		const viewId = ((await response.json()) as Json).id as string;
+
+		// Act — the same rule the create route uses (ADR-0007)
+		const patched = await patch(
+			`${API_PREFIX}/spaces/${spaceId}/dataviews/${viewId}`,
+			{ filters: [{ key: "ghost", operator: "equal", value: 1 }] },
+		);
+
+		// Assert
+		expect(patched.status).toBe(422);
+
+		const stored = await get(`${API_PREFIX}/objects/${viewId}`);
+
+		expect(((await stored.json()) as Json).details).not.toMatchObject({
+			dataviewFilters: [{ key: "ghost", operator: "equal", value: 1 }],
+		});
+	});
+
 	it("refuses to save a view whose filter names an unregistered relation", async () => {
 		// Act
 		const response = await gridView({

@@ -43,6 +43,18 @@ export const UpdateDataviewSchema = z
 		viewType: DataviewViewTypeSchema.optional(),
 		coverRelationKey: z.string().min(1).nullish(),
 		groupRelationKey: z.string().min(1).nullish(),
+		// A view's query can be rewritten too, so a saved view stays the whole
+		// statement rather than a layout wearing stale filters (ADR-0012).
+		filters: ClausesSchema.optional(),
+		sorts: z
+			.array(
+				z.object({
+					key: z.string().min(1),
+					order: SortOrderSchema,
+				}),
+			)
+			.max(10)
+			.optional(),
 	})
 	.meta({ id: "UpdateDataviewInput" });
 
