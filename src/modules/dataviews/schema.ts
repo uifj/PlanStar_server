@@ -22,6 +22,8 @@ export const CreateDataviewSchema = z
 		name: z.string().trim().min(1, "View name is required.").max(120),
 		sourceTypeId: z.string().min(1),
 		viewType: DataviewViewTypeSchema.default("grid"),
+		coverRelationKey: z.string().min(1).optional(),
+		groupRelationKey: z.string().min(1).optional(),
 		filters: ClausesSchema.default([]),
 		sorts: z
 			.array(
@@ -35,6 +37,15 @@ export const CreateDataviewSchema = z
 	})
 	.meta({ id: "CreateDataviewInput" });
 
+// What the layout menu writes. A null clears a key, so a board can stop grouping.
+export const UpdateDataviewSchema = z
+	.object({
+		viewType: DataviewViewTypeSchema.optional(),
+		coverRelationKey: z.string().min(1).nullish(),
+		groupRelationKey: z.string().min(1).nullish(),
+	})
+	.meta({ id: "UpdateDataviewInput" });
+
 // What a stored view's details map must look like (ADR-0012). Runtime only, so it
 // can keep the recursive filter shape.
 export const ViewConfigSchema = z.object({
@@ -46,7 +57,6 @@ export const ViewConfigSchema = z.object({
 export const DataviewCreateParamsSchema = z.object({
 	spaceId: z.string(),
 });
-
 export const DataviewParamsSchema = z.object({
 	spaceId: z.string(),
 	dataviewId: z.string(),
@@ -72,3 +82,4 @@ export const DataviewRecordsResponseSchema = createPaginatedResponseSchema(
 
 export type CreateDataviewInput = z.infer<typeof CreateDataviewSchema>;
 export type DataviewRecordsQuery = z.infer<typeof DataviewRecordsQuerySchema>;
+export type UpdateDataviewInput = z.infer<typeof UpdateDataviewSchema>;

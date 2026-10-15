@@ -8,6 +8,7 @@ import {
 	groupByRelation,
 	pickCover,
 	type ViewColumn,
+	viewLayout,
 } from "./viewModel";
 
 function relation(
@@ -166,5 +167,51 @@ describe("the space browser's view model", () => {
 			"2026-11-23",
 		]);
 		expect(months[1]?.days[0]?.objects.map((o) => o.name)).toEqual(["Winter"]);
+	});
+
+	it("reads the layout and its relations off the saved view", () => {
+		// Arrange
+		const view = detail("dv-1", "By kind", {
+			viewType: "board",
+			groupRelationKey: "type",
+			coverRelationKey: "imageUrl",
+		});
+
+		// Act + Assert
+		expect(viewLayout(view)).toEqual({
+			layout: "board",
+			groupRelationKey: "type",
+			coverRelationKey: "imageUrl",
+		});
+	});
+
+	it("falls back to the grid for a layout this build cannot draw", () => {
+		// Arrange — a hand-edited row, or a view saved by a newer build
+		const view = detail("dv-2", "Impossible", { viewType: "graph" });
+
+		expect(viewLayout(view).layout).toBe("grid");
+		expect(viewLayout(undefined).layout).toBe("grid");
+	});
+
+	it("prefers the cover the view names over the one it would guess", () => {
+		// Arrange — two image-looking columns
+		const van = detail("v-1", "Sierra", {
+			imageUrl: "https://images.example.com/a.jpg",
+			posterUrl: "https://images.example.com/b.jpg",
+		});
+		const columns: ViewColumn[] = [
+			{ key: "name", label: "Name", format: "text" },
+			{ key: "imageUrl", label: "Image", format: "shortText" },
+			{ key: "posterUrl", label: "Poster", format: "shortText" },
+		];
+
+		// Act + Assert
+		expect(pickCover(van, columns, "posterUrl")).toBe(
+			"https://images.example.com/b.jpg",
+		);
+		// …and a named cover the row does not carry falls back to the guess
+		expect(pickCover(van, columns, "missing")).toBe(
+			"https://images.example.com/a.jpg",
+		);
 	});
 });

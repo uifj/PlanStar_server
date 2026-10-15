@@ -16,6 +16,7 @@ import {
 	DataviewParamsSchema,
 	DataviewRecordsQuerySchema,
 	DataviewRecordsResponseSchema,
+	UpdateDataviewSchema,
 } from "./schema.js";
 
 const tags = [OPENAPI_TAGS.DATAVIEWS];
@@ -37,6 +38,26 @@ export const createDataviewRoute = createRoute({
 		...forbiddenResponse,
 		...notFoundResponse("Space or type not found."),
 		422: errorResponse("A filter or sort used an unknown relation."),
+	},
+});
+
+export const updateDataviewRoute = createRoute({
+	method: "patch",
+	path: "/{spaceId}/dataviews/{dataviewId}",
+	tags,
+	summary: "Update saved view layout",
+	description:
+		"Stores the layout a view renders as and the relations that layout reads. These keys are the view's own configuration, so this route checks them against its source type rather than the relation registry an object write uses (ADR-0012).",
+	request: {
+		params: DataviewParamsSchema,
+		...requestBody(UpdateDataviewSchema),
+	},
+	responses: {
+		...okResponse("View updated successfully.", ObjectSchema),
+		...unauthorizedResponse,
+		...forbiddenResponse,
+		...notFoundResponse("View not found."),
+		422: errorResponse("That layout cannot use the relation."),
 	},
 });
 

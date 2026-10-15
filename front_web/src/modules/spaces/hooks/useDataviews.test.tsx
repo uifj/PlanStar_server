@@ -6,7 +6,11 @@ import { describe, expect, it } from "vitest";
 import { server } from "@/test/server";
 import { useDataviews } from "./useDataviews";
 
-function view(id: string, name: string) {
+function view(
+	id: string,
+	name: string,
+	extraDetails: Record<string, unknown> = {},
+) {
 	return {
 		id,
 		spaceId: "space-1",
@@ -21,6 +25,7 @@ function view(id: string, name: string) {
 			viewType: "grid",
 			dataviewFilters: [{ key: "budget", operator: "greater", value: 100 }],
 			dataviewSorts: [{ key: "budget", order: "desc" }],
+			...extraDetails,
 		},
 		isArchived: false,
 		isDeleted: false,
@@ -178,6 +183,52 @@ describe("useDataviews", () => {
 			expect(result.current.views.map((v) => v.name)).toEqual([
 				"Trips over $100",
 			]),
+		);
+	});
+
+	it("saves the layout onto the view itself", async () => {
+		// Arrange
+		const stored = [view("view-1", "Expensive trips")];
+		let patchedBody: unknown = null;
+
+		server.use(
+			http.get("/api/spaces/space-1/objects", () =>
+				HttpResponse.json({
+					data: stored,
+					meta: { page: 1, limit: 100, total: 1, totalPages: 1 },
+				}),
+			),
+			http.patch(
+				"/api/spaces/space-1/dataviews/view-1",
+				async ({ request }) => {
+					patchedBody = await request.json();
+					stored[0] = view("view-1", "Expensive trips", {
+						viewType: "board",
+						groupRelationKey: "type",
+					});
+
+					return HttpResponse.json(stored[0]);
+				},
+			),
+		);
+
+		const { result } = renderHook(() => useDataviews("space-1"), { wrapper });
+
+		await waitFor(() => expect(result.current.loading).toBe(false));
+
+		// Act
+		await result.current.setLayout("view-1", {
+			viewType: "board",
+			groupRelationKey: "type",
+		});
+
+		// Assert — the layout travels with the view, not with the caller's URL
+		expect(patchedBody).toEqual({
+			viewType: "board",
+			groupRelationKey: "type",
+		});
+		await waitFor(() =>
+			expect(result.current.views[0]?.details.viewType).toBe("board"),
 		);
 	});
 });

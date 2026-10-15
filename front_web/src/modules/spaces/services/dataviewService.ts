@@ -1,7 +1,12 @@
 import type { ObjectDetail } from "@/modules/objects/types";
 import { apiClient } from "@/shared/api/apiClient";
 import { apiPaths } from "@/shared/api/endpoints";
-import type { ListMeta, SaveViewInput, ViewRecordsResponse } from "../types";
+import type {
+	ListMeta,
+	SaveViewInput,
+	ViewLayoutInput,
+	ViewRecordsResponse,
+} from "../types";
 
 const VIEWS_PAGE_SIZE = 100;
 
@@ -47,6 +52,21 @@ export async function renameDataview(
 
 export async function archiveDataview(objectId: string): Promise<void> {
 	await apiClient.delete(apiPaths.objects.detail(objectId));
+}
+
+// A layout and its relations are the view's own configuration, so they go through
+// the dataview route: the object write would refuse them as unknown relations.
+export async function updateDataviewLayout(
+	spaceId: string,
+	dataviewId: string,
+	input: ViewLayoutInput,
+): Promise<ObjectDetail> {
+	const response = await apiClient.patch<ObjectDetail>(
+		apiPaths.spaces.dataviewItem(spaceId, dataviewId),
+		input,
+	);
+
+	return response.data;
 }
 
 export async function getDataviewRecords(

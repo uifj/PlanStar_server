@@ -79,8 +79,19 @@ export interface ViewSort {
 export interface SaveViewInput {
 	name: string;
 	sourceTypeId: string;
+	viewType?: string;
+	groupRelationKey?: string;
+	coverRelationKey?: string;
 	filters: Record<string, unknown>[];
 	sorts: ViewSort[];
+}
+
+// What the layout menu writes onto a view. null clears a key, so a board can stop
+// grouping by a relation. The server checks these against the view's own type.
+export interface ViewLayoutInput {
+	viewType?: string;
+	coverRelationKey?: string | null;
+	groupRelationKey?: string | null;
 }
 
 export interface ViewRecordsResponse {

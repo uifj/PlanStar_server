@@ -105,10 +105,53 @@ export function coverColumn(
 export function pickCover(
 	object: ObjectDetail,
 	columns: ViewColumn[],
+	coverKey = "",
 ): string | undefined {
+	const named = coverKey ? firstValue(object, coverKey) : undefined;
+
+	if (typeof named === "string" && named) {
+		return named;
+	}
+
 	const cover = coverColumn(object, columns);
 
 	return cover ? (firstValue(object, cover.key) as string) : undefined;
+}
+
+export const VIEW_LAYOUTS = ["grid", "gallery", "board", "calendar"] as const;
+
+export type ViewLayout = (typeof VIEW_LAYOUTS)[number];
+
+export interface ViewLayoutConfig {
+	layout: ViewLayout;
+	groupRelationKey: string;
+	coverRelationKey: string;
+}
+
+/** A name the browser can draw; anything else is the grid. */
+export function layoutNamed(value: unknown): ViewLayout {
+	return (VIEW_LAYOUTS as readonly string[]).includes(String(value))
+		? (String(value) as ViewLayout)
+		: "grid";
+}
+
+/**
+ * The layout a saved view carries (ADR-0012). A value this build cannot draw - a
+ * hand-edited row or a layout from a newer build - falls back to the grid, so the
+ * view still answers instead of failing on every open.
+ */
+export function viewLayout(view?: ObjectDetail): ViewLayoutConfig {
+	const stored = (view?.details ?? {}) as Record<string, unknown>;
+
+	function text(key: string) {
+		return typeof stored[key] === "string" ? (stored[key] as string) : "";
+	}
+
+	return {
+		layout: layoutNamed(stored.viewType),
+		groupRelationKey: text("groupRelationKey"),
+		coverRelationKey: text("coverRelationKey"),
+	};
 }
 
 /** One column per choice; objects without one stay visible in their own column. */

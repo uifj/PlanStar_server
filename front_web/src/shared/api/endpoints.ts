@@ -30,6 +30,8 @@ export const apiPaths = {
 		objectTypes: (spaceId: string) => `/spaces/${spaceId}/object-types`,
 		objects: (spaceId: string) => `/spaces/${spaceId}/objects`,
 		dataviews: (spaceId: string) => `/spaces/${spaceId}/dataviews`,
+		dataviewItem: (spaceId: string, dataviewId: string) =>
+			`/spaces/${spaceId}/dataviews/${dataviewId}`,
 		dataviewRecords: (spaceId: string, dataviewId: string) =>
 			`/spaces/${spaceId}/dataviews/${dataviewId}/records`,
 		participants: (spaceId: string) => `/spaces/${spaceId}/participants`,

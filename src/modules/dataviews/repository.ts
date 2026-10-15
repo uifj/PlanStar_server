@@ -7,7 +7,8 @@ interface CreateViewInput {
 	creatorId: string;
 	name: string;
 	sourceTypeId: string;
-	viewType: string;
+	// viewType plus the relations that layout reads, already checked by the service.
+	layout: Prisma.InputJsonObject;
 	filters: Prisma.InputJsonValue;
 	sorts: Prisma.InputJsonValue;
 }
@@ -26,7 +27,7 @@ async function create(input: CreateViewInput) {
 				name: input.name,
 				creatorId: input.creatorId,
 				details: {
-					viewType: input.viewType,
+					...input.layout,
 					dataviewFilters: input.filters,
 					dataviewSorts: input.sorts,
 				},
@@ -69,11 +70,31 @@ async function findTypeInSpace(spaceId: string, typeId: string) {
 	});
 }
 
+// The layout menu may only point at relations the view's own type carries. A
+// relation belongs to a type through its typeId, so one read gives both the keys
+// and the formats the layout needs (ADR-0005).
+async function findTypeRelations(spaceId: string, typeId: string) {
+	const relations = await prisma.relation.findMany({
+		where: { spaceId, typeId },
+		select: { uniqueKey: true, format: true },
+	});
+
+	return new Map(
+		relations.map((relation) => [relation.uniqueKey, relation.format]),
+	);
+}
+
+async function saveDetails(id: string, details: Prisma.InputJsonObject) {
+	return prisma.obj.update({ where: { id }, data: { details } });
+}
+
 export const dataviewRepository = {
 	create,
 	findView,
 	findSourceTypeId,
 	findTypeInSpace,
+	findTypeRelations,
+	saveDetails,
 };
 
 export type ViewRow = NonNullable<Awaited<ReturnType<typeof findView>>>;

@@ -5,8 +5,9 @@ import {
 	createDataview,
 	getDataviews,
 	renameDataview,
+	updateDataviewLayout,
 } from "../services/dataviewService";
-import type { SaveViewInput } from "../types";
+import type { SaveViewInput, ViewLayoutInput } from "../types";
 
 export function useDataviews(spaceId?: string) {
 	const client = useQueryClient();
@@ -45,6 +46,18 @@ export function useDataviews(spaceId?: string) {
 		await refresh();
 	}
 
+	async function setLayout(objectId: string, input: ViewLayoutInput) {
+		const moved = await updateDataviewLayout(
+			spaceId as string,
+			objectId,
+			input,
+		);
+
+		await refresh();
+
+		return moved;
+	}
+
 	return {
 		loading: isPending && isFetching,
 		error,
@@ -52,6 +65,7 @@ export function useDataviews(spaceId?: string) {
 		saveView,
 		renameView,
 		archiveView,
+		setLayout,
 		refetch,
 	};
 }
