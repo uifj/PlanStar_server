@@ -25,14 +25,14 @@ import {
 	coverColumn,
 	groupByMonth,
 	groupByRelation,
+	layoutNamed,
 	objectsWithoutDate,
 	pickCover,
+	VIEW_LAYOUTS,
 	type ViewColumn,
+	type ViewLayout,
+	viewLayout,
 } from "../views/viewModel";
-
-const VIEW_KINDS = ["table", "gallery", "board", "calendar"] as const;
-
-type ViewKind = (typeof VIEW_KINDS)[number];
 
 const PAGE_LIMIT = 50;
 
@@ -49,9 +49,9 @@ export default function SpaceBrowserPage() {
 	const spaceId = searchParams.get("spaceId") ?? "";
 	const typeId = searchParams.get("typeId") ?? "";
 	const viewId = searchParams.get("viewId") ?? "";
-	const viewKind = (searchParams.get("view") ?? "table") as ViewKind;
+	const viewKind = layoutNamed(searchParams.get("view"));
 	const groupKey = searchParams.get("group") ?? "";
-	const dateKey = searchParams.get("date") ?? "";
+	const coverKey = searchParams.get("cover") ?? "";
 	const focusId = searchParams.get("focus") ?? "";
 	const [paletteOpen, setPaletteOpen] = useState(false);
 
@@ -74,7 +74,7 @@ export default function SpaceBrowserPage() {
 			filters: [{ key: "isArchived", operator: "equal", value: false }],
 		},
 	});
-	const { views, saveView, renameView, archiveView } = useDataviews(
+	const { views, saveView, renameView, archiveView, setLayout } = useDataviews(
 		spaceId || undefined,
 	);
 	const records = useDataviewRecords(
@@ -89,18 +89,22 @@ export default function SpaceBrowserPage() {
 	const error = viewId ? records.error : objects.error;
 	const refetch = viewId ? records.refetch : objects.refetch;
 
+	// Written as an update, not a snapshot: the layout menu can change two params in
+	// the same tick, and a captured searchParams would drop the first one.
 	function patch(params: Record<string, string>) {
-		const next = new URLSearchParams(searchParams);
+		setSearchParams((current) => {
+			const next = new URLSearchParams(current);
 
-		for (const [key, value] of Object.entries(params)) {
-			if (value) {
-				next.set(key, value);
-			} else {
-				next.delete(key);
+			for (const [key, value] of Object.entries(params)) {
+				if (value) {
+					next.set(key, value);
+				} else {
+					next.delete(key);
+				}
 			}
-		}
 
-		setSearchParams(next);
+			return next;
+		});
 	}
 
 	async function run(action: () => Promise<unknown>, message: string) {
@@ -109,6 +113,65 @@ export default function SpaceBrowserPage() {
 			toast.success(message);
 		} catch (cause) {
 			toast.error((cause as Error).message);
+		}
+	}
+
+	const activeView = views.find((view) => view.id === viewId);
+
+	// Applying a saved view also puts its stored layout on the page, so the view -
+	// not the address bar - decides what the visitor sees (ADR-0012).
+	function applyView(id: string) {
+		const stored = viewLayout(views.find((view) => view.id === id));
+
+		patch({
+			viewId: id,
+			view: stored.layout,
+			group: stored.groupRelationKey,
+			cover: stored.coverRelationKey,
+		});
+	}
+
+	function moveLayout(next: ViewLayout) {
+		patch({ view: next });
+
+		if (!activeView) {
+			return;
+		}
+
+		// The view decides which keys the layout can keep, so the address bar is
+		// rewritten from what it came back with rather than from what was asked.
+		void run(async () => {
+			const moved = viewLayout(
+				await setLayout(activeView.id, { viewType: next }),
+			);
+
+			patch({
+				view: moved.layout,
+				group: moved.groupRelationKey,
+				cover: moved.coverRelationKey,
+			});
+		}, t("spaces.layoutSaved"));
+	}
+
+	function setGroup(key: string) {
+		patch({ group: key });
+
+		if (activeView) {
+			void run(
+				() => setLayout(activeView.id, { groupRelationKey: key || null }),
+				t("spaces.layoutSaved"),
+			);
+		}
+	}
+
+	function setCover(key: string) {
+		patch({ cover: key });
+
+		if (activeView) {
+			void run(
+				() => setLayout(activeView.id, { coverRelationKey: key || null }),
+				t("spaces.layoutSaved"),
+			);
 		}
 	}
 
@@ -128,22 +191,11 @@ export default function SpaceBrowserPage() {
 	}
 
 	return (
-		<div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 py-12 lg:flex-row">
-			<aside className="lg:w-64 lg:shrink-0">
-				<SpaceList
-					spaces={spaces}
-					onPick={(id) =>
-						patch({ spaceId: id, typeId: "", viewId: "", group: "", date: "" })
-					}
-					activeId={spaceId}
-					onCreated={(id) => patch({ spaceId: id })}
-				/>
-			</aside>
-
+		<div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 py-12">
 			<section className="min-w-0 flex-1">
 				<PageHeader
-					eyebrow={t("spaces.eyebrow")}
-					title={spaces.find((s) => s.id === spaceId)?.name ?? spaceId}
+					eyebrow={spaces.find((s) => s.id === spaceId)?.name ?? spaceId}
+					title={activeType?.name ?? t("spaces.allTypes")}
 					aside={
 						<span className="font-medium text-muted-foreground text-sm">
 							{t("spaces.objectCount", { count: rows.length })}
@@ -152,38 +204,25 @@ export default function SpaceBrowserPage() {
 				/>
 
 				<div className="mt-6 flex flex-wrap items-center gap-2">
-					<select
-						className="h-9 rounded-md border border-border bg-transparent px-2 text-sm"
-						value={typeId}
-						onChange={(event) =>
-							patch({ typeId: event.target.value, viewId: "" })
-						}
-					>
-						<option value="">{t("spaces.allTypes")}</option>
-						{types.map((type) => (
-							<option key={type.id} value={type.id}>
-								{type.iconEmoji ?? ""} {type.name}
-							</option>
-						))}
-					</select>
-
-					<select
-						className="h-9 rounded-md border border-border bg-transparent px-2 text-sm"
-						value={viewKind}
-						onChange={(event) => patch({ view: event.target.value })}
-					>
-						{VIEW_KINDS.map((kind) => (
-							<option key={kind} value={kind}>
+					<div className="flex items-center gap-1 rounded-md border border-border p-1">
+						{VIEW_LAYOUTS.map((kind) => (
+							<Button
+								key={kind}
+								type="button"
+								size="sm"
+								variant={viewKind === kind ? "default" : "ghost"}
+								onClick={() => moveLayout(kind)}
+							>
 								{t(`spaces.view.${kind}`)}
-							</option>
+							</Button>
 						))}
-					</select>
+					</div>
 
 					{viewKind === "board" ? (
 						<select
 							className="h-9 rounded-md border border-border bg-transparent px-2 text-sm"
 							value={groupKey}
-							onChange={(event) => patch({ group: event.target.value })}
+							onChange={(event) => setGroup(event.target.value)}
 						>
 							<option value="">{t("spaces.groupBy")}</option>
 							{columns
@@ -201,12 +240,29 @@ export default function SpaceBrowserPage() {
 					{viewKind === "calendar" ? (
 						<select
 							className="h-9 rounded-md border border-border bg-transparent px-2 text-sm"
-							value={dateKey}
-							onChange={(event) => patch({ date: event.target.value })}
+							value={groupKey}
+							onChange={(event) => setGroup(event.target.value)}
 						>
 							<option value="">{t("spaces.dateField")}</option>
 							{columns
 								.filter((c) => c.format === "date")
+								.map((c) => (
+									<option key={c.key} value={c.key}>
+										{c.label}
+									</option>
+								))}
+						</select>
+					) : null}
+
+					{viewKind === "gallery" || viewKind === "board" ? (
+						<select
+							className="h-9 rounded-md border border-border bg-transparent px-2 text-sm"
+							value={coverKey}
+							onChange={(event) => setCover(event.target.value)}
+						>
+							<option value="">{t("spaces.coverField")}</option>
+							{columns
+								.filter((c) => c.key !== "name")
 								.map((c) => (
 									<option key={c.key} value={c.key}>
 										{c.label}
@@ -238,7 +294,7 @@ export default function SpaceBrowserPage() {
 				<ViewBar
 					views={views}
 					activeViewId={viewId}
-					onApply={(id) => patch({ viewId: id })}
+					onApply={applyView}
 					onClear={() => patch({ viewId: "" })}
 					onSave={async (name) => {
 						if (!typeId) {
@@ -252,6 +308,9 @@ export default function SpaceBrowserPage() {
 								saveView({
 									name,
 									sourceTypeId: typeId,
+									viewType: viewKind,
+									groupRelationKey: groupKey || undefined,
+									coverRelationKey: coverKey || undefined,
 									filters: [],
 									sorts: [{ key: "updatedAt", order: "desc" }],
 								}),
@@ -286,7 +345,7 @@ export default function SpaceBrowserPage() {
 
 				{!loading && rows.length > 0 ? (
 					<div className="mt-8">
-						{viewKind === "table" ? (
+						{viewKind === "grid" ? (
 							<ObjectTable
 								rows={rows}
 								columns={columns}
@@ -300,11 +359,12 @@ export default function SpaceBrowserPage() {
 								onArchive={(object) =>
 									run(() => archiveObject(object.id), t("spaces.archived"))
 								}
+								onFocus={(id) => patch({ focus: id })}
 							/>
 						) : null}
 
 						{viewKind === "gallery" ? (
-							<Gallery rows={rows} columns={columns} />
+							<Gallery rows={rows} columns={columns} coverKey={coverKey} />
 						) : null}
 
 						{viewKind === "board" ? (
@@ -319,7 +379,7 @@ export default function SpaceBrowserPage() {
 						{viewKind === "calendar" ? (
 							<Calendar
 								rows={rows}
-								dateKey={dateKey}
+								dateKey={groupKey}
 								columns={columns}
 								undatedLabel={t("spaces.noDate")}
 							/>
@@ -612,12 +672,14 @@ function ObjectTable({
 	focusId,
 	onEdit,
 	onArchive,
+	onFocus,
 }: {
 	rows: ObjectDetail[];
 	columns: ViewColumn[];
 	focusId: string;
 	onEdit: (object: ObjectDetail, column: ViewColumn, value: unknown) => void;
 	onArchive: (object: ObjectDetail) => void;
+	onFocus: (objectId: string) => void;
 }) {
 	const { t } = useTranslation();
 	const scrollRef = useRef<HTMLDivElement>(null);
@@ -662,6 +724,13 @@ function ObjectTable({
 									data-index={item.index}
 									ref={virtual.measureElement}
 									className={rowClass(rows[item.index]?.id, focusId)}
+									onClick={() => {
+										const row = rows[item.index];
+
+										if (row) {
+											onFocus(row.id);
+										}
+									}}
 								>
 									<Row
 										object={rows[item.index]}
@@ -672,7 +741,11 @@ function ObjectTable({
 								</tr>
 							))
 						: rows.map((object) => (
-								<tr key={object.id} className={rowClass(object.id, focusId)}>
+								<tr
+									key={object.id}
+									className={rowClass(object.id, focusId)}
+									onClick={() => onFocus(object.id)}
+								>
 									<Row
 										object={object}
 										columns={columns}
@@ -724,15 +797,18 @@ function Row({
 function Gallery({
 	rows,
 	columns,
+	coverKey,
 }: {
 	rows: ObjectDetail[];
 	columns: ViewColumn[];
+	coverKey: string;
 }) {
 	return (
 		<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 			{rows.map((object) => {
-				const cover = pickCover(object, columns);
-				const shown = coverColumn(object, columns);
+				const cover = pickCover(object, columns, coverKey);
+				const chosen = columns.find((c) => c.key === coverKey);
+				const shown = chosen ?? coverColumn(object, columns);
 				const meta = columns
 					.filter((c) => c.key !== "name" && c.key !== shown?.key)
 					.slice(0, 3)
