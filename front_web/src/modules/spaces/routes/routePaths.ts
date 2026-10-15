@@ -4,8 +4,12 @@ export const spacesRoutePaths = {
 } as const;
 
 // The shell's rail and the page share these, so a space is reachable from one place.
+export function spaceWorkspaceLink() {
+	return `/${spacesRoutePaths.browser}`;
+}
+
 export function spaceBrowserLink(spaceId: string) {
-	return `/${spacesRoutePaths.browser}?spaceId=${spaceId}`;
+	return `${spaceWorkspaceLink()}?spaceId=${spaceId}`;
 }
 
 export function spaceTypeLink(spaceId: string, typeId: string) {

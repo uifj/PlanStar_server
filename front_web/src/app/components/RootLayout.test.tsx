@@ -162,6 +162,38 @@ describe("RootLayout", () => {
 		await within(rail).findByText("Field Notes");
 	});
 
+	it("links the workspace from the rail even with no spaces", async () => {
+		// Arrange — a member of nothing yet, which is every fresh account
+		server.use(
+			http.get("/api/me", () =>
+				HttpResponse.json({
+					id: "user-1",
+					name: "Ada",
+					email: "ada@example.com",
+					role: "user",
+				}),
+			),
+			http.get("/api/spaces", () =>
+				HttpResponse.json({
+					data: [],
+					meta: { page: 1, limit: 100, total: 0, totalPages: 1 },
+				}),
+			),
+		);
+
+		// Act
+		renderShell();
+
+		// Assert — the object workspace is reachable by click, not only by URL
+		const rail = await screen.findByRole("navigation", {
+			name: "Primary navigation",
+		});
+
+		expect(
+			await within(rail).findByRole("link", { name: "Space browser" }),
+		).toHaveAttribute("href", "/space");
+	});
+
 	it("keeps the page in the middle column", async () => {
 		// Arrange
 		serveShellData();

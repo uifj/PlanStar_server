@@ -3,5 +3,6 @@ export {
 	spaceBrowserLink,
 	spacesRoutePaths,
 	spaceTypeLink,
+	spaceWorkspaceLink,
 } from "./routePaths";
 export { spacesRoutes } from "./routes";

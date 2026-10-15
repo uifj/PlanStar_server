@@ -59,6 +59,10 @@ function serveObject() {
 				meta,
 			}),
 		),
+		// A basic-layout object reads its document, so answer it empty by default.
+		http.get("/api/objects/van-1/blocks", () =>
+			HttpResponse.json({ data: [] }),
+		),
 		http.get("/api/spaces/space-1/object-types", () =>
 			HttpResponse.json({
 				data: [

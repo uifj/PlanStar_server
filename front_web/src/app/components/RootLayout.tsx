@@ -8,7 +8,11 @@ import { useAuth } from "@/modules/auth/context/AuthProvider";
 import { authRoutePaths } from "@/modules/auth/routes";
 import { useSpaceRegistry } from "@/modules/spaces/hooks/useSpaceRegistry";
 import { useSpaces } from "@/modules/spaces/hooks/useSpaces";
-import { spaceBrowserLink, spaceTypeLink } from "@/modules/spaces/routes";
+import {
+	spaceBrowserLink,
+	spaceTypeLink,
+	spaceWorkspaceLink,
+} from "@/modules/spaces/routes";
 import { LANGUAGE_LABELS, LANGUAGES, useTranslation } from "@/shared/i18n";
 import { useTheme } from "@/shared/theme";
 import { getHeaderNavigation } from "../routes/navigation";
@@ -65,45 +69,54 @@ export default function RootLayout() {
 					</NavLink>
 				))}
 
-				{spaces.length === 0 ? null : (
-					<div className="mt-4 flex flex-col gap-1">
-						<span className="px-3 font-semibold text-muted-foreground text-xs uppercase">
-							{t("spaces.rail")}
-						</span>
-						{spaces.map((space) => (
-							<div key={space.id} className="flex flex-col gap-1">
-								<Link
-									to={spaceBrowserLink(space.id)}
-									aria-current={space.id === activeSpaceId ? "page" : undefined}
-									className={cn(
-										railItem,
-										space.id === activeSpaceId && railItemActive,
-									)}
-								>
-									{space.name}
-								</Link>
-								{space.id === activeSpaceId
-									? types.map((type) => (
-											<Link
-												key={type.id}
-												to={spaceTypeLink(space.id, type.id)}
-												aria-current={
-													type.id === activeTypeId ? "page" : undefined
-												}
-												className={cn(
-													railItem,
-													"pl-6",
-													type.id === activeTypeId && railItemActive,
-												)}
-											>
-												{type.name}
-											</Link>
-										))
-									: null}
-							</div>
-						))}
-					</div>
-				)}
+				<div className="mt-4 flex flex-col gap-1">
+					{/* The workspace is reachable by click even before any space exists. */}
+					<Link to={spaceWorkspaceLink()} className={railItem}>
+						{t("spaces.title")}
+					</Link>
+
+					{spaces.length === 0 ? null : (
+						<>
+							<span className="px-3 font-semibold text-muted-foreground text-xs uppercase">
+								{t("spaces.rail")}
+							</span>
+							{spaces.map((space) => (
+								<div key={space.id} className="flex flex-col gap-1">
+									<Link
+										to={spaceBrowserLink(space.id)}
+										aria-current={
+											space.id === activeSpaceId ? "page" : undefined
+										}
+										className={cn(
+											railItem,
+											space.id === activeSpaceId && railItemActive,
+										)}
+									>
+										{space.name}
+									</Link>
+									{space.id === activeSpaceId
+										? types.map((type) => (
+												<Link
+													key={type.id}
+													to={spaceTypeLink(space.id, type.id)}
+													aria-current={
+														type.id === activeTypeId ? "page" : undefined
+													}
+													className={cn(
+														railItem,
+														"pl-6",
+														type.id === activeTypeId && railItemActive,
+													)}
+												>
+													{type.name}
+												</Link>
+											))
+										: null}
+								</div>
+							))}
+						</>
+					)}
+				</div>
 
 				<div className="mt-auto flex flex-col gap-3 pt-6">
 					<fieldset className="flex items-center gap-1 rounded-md border border-border px-1 py-1">
