@@ -1,4 +1,5 @@
 export {
+	objectLink,
 	spaceBrowserLink,
 	spacesRoutePaths,
 	spaceTypeLink,

@@ -131,6 +131,10 @@ function renderShell(entry = "/") {
 								<Route path="/" element={<RootLayout />}>
 									<Route index element={<div>page body</div>} />
 									<Route path="/space" element={<div>space browser</div>} />
+									<Route
+										path="/object/:objectId"
+										element={<div>object page</div>}
+									/>
 								</Route>
 							</Routes>
 						</AuthProvider>
@@ -179,6 +183,23 @@ describe("RootLayout", () => {
 		// Assert — the rail has loaded, so the absence is the shell's choice
 		await screen.findByRole("navigation", { name: "Primary navigation" });
 
+		expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+	});
+
+	it("opens the focused object as a page", async () => {
+		// Arrange
+		serveShellData();
+		serveRegistry();
+		serveFocusObject();
+		renderShell("/space?spaceId=space-1&focus=obj-9");
+
+		const panel = await screen.findByRole("complementary");
+
+		// Act
+		fireEvent.click(await within(panel).findByRole("link", { name: "Open" }));
+
+		// Assert — the peek hands over to the full page
+		expect(await screen.findByText("object page")).toBeInTheDocument();
 		expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
 	});
 

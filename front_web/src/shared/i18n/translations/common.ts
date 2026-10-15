@@ -19,7 +19,10 @@ export const en = {
 	},
 	shell: {
 		contextPanel: "Object details",
+		open: "Open",
 		closePanel: "Close panel",
+		properties: "Properties",
+		noObject: "This object is not in the space you can read.",
 		noProperties: "This object has no values yet.",
 		backlinks: "Linked from",
 		noBacklinks: "Nothing links here yet.",
@@ -140,7 +143,10 @@ export const zh: typeof en = {
 	},
 	shell: {
 		contextPanel: "对象详情",
+		open: "打开",
 		closePanel: "关闭面板",
+		properties: "属性",
+		noObject: "这个对象不在你能读取的空间里。",
 		noProperties: "这个对象还没有属性值。",
 		backlinks: "被这些对象引用",
 		noBacklinks: "还没有对象引用它。",

@@ -1,6 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,11 +14,14 @@ import LoadingSpinner from "@/shared/components/LoadingSpinner";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { useTranslation } from "@/shared/i18n";
 import { ObjectPalette } from "../components/ObjectPalette";
+import { PropertyValue } from "../components/PropertyValue";
 import { useDataviewRecords } from "../hooks/useDataviewRecords";
 import { useDataviews } from "../hooks/useDataviews";
 import { useObjectActions } from "../hooks/useObjectActions";
 import { useSpaceRegistry } from "../hooks/useSpaceRegistry";
 import { useSpaces } from "../hooks/useSpaces";
+// The concrete path, not the barrel: routes/index also imports this page.
+import { objectLink } from "../routes/routePaths";
 import {
 	cellText,
 	columnsFor,
@@ -640,28 +643,14 @@ function EditableCell({
 	column: ViewColumn;
 	onEdit: (object: ObjectDetail, column: ViewColumn, value: unknown) => void;
 }) {
-	const initial = cellText(object, column);
-	const [value, setValue] = useState(initial);
-
-	useEffect(() => setValue(initial), [initial]);
-
 	return (
-		<Input
-			className="h-8"
-			value={value}
+		<PropertyValue
+			value={cellText(object, column)}
+			label={column.label}
 			disabled={column.key === "name"}
-			onChange={(event) => setValue(event.target.value)}
-			onBlur={() => {
-				if (value === initial) {
-					return;
-				}
-
-				onEdit(
-					object,
-					column,
-					column.format === "number" ? Number(value) : value,
-				);
-			}}
+			onCommit={(text) =>
+				onEdit(object, column, column.format === "number" ? Number(text) : text)
+			}
 		/>
 	);
 }
@@ -780,7 +769,13 @@ function Row({
 					<EditableCell object={object} column={column} onEdit={onEdit} />
 				</td>
 			))}
-			<td className="px-2 py-1 text-right">
+			<td className="whitespace-nowrap px-2 py-1 text-right">
+				<Link
+					to={objectLink(object.id, object.spaceId)}
+					className="mr-2 text-muted-foreground text-sm transition-colors hover:text-foreground"
+				>
+					{t("shell.open")}
+				</Link>
 				<Button
 					type="button"
 					size="sm"

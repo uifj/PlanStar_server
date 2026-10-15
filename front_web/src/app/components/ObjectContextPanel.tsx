@@ -1,6 +1,8 @@
 import { X } from "lucide-react";
+import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { useObject } from "@/modules/objects/hooks/useObject";
+import { objectLink } from "@/modules/spaces/routes";
 import ErrorMessage from "@/shared/components/ErrorMessage";
 import LoadingSpinner from "@/shared/components/LoadingSpinner";
 import { useTranslation } from "@/shared/i18n";
@@ -40,15 +42,25 @@ export function ObjectContextPanel({
 		>
 			<div className="flex items-start justify-between gap-2">
 				<h2 className="break-words font-bold text-lg">{object?.name ?? ""}</h2>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					onClick={onClose}
-					aria-label={t("shell.closePanel")}
-				>
-					<X aria-hidden="true" />
-				</Button>
+				<div className="flex shrink-0 items-center gap-1">
+					{object ? (
+						<Link
+							to={objectLink(object.id, object.spaceId)}
+							className="text-muted-foreground text-sm transition-colors hover:text-foreground"
+						>
+							{t("shell.open")}
+						</Link>
+					) : null}
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						onClick={onClose}
+						aria-label={t("shell.closePanel")}
+					>
+						<X aria-hidden="true" />
+					</Button>
+				</div>
 			</div>
 
 			{loading ? <LoadingSpinner /> : null}
