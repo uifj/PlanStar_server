@@ -14,7 +14,7 @@ file and gets a `superseded-by-NNNN` status line.
 | [0006](0006-space-membership-authorisation.md) | Authorise data by space membership, not by platform role | accepted |
 | [0007](0007-registry-validated-query-compiler.md) | Compile filters to raw SQL validated against the relation registry | accepted |
 | [0008](0008-vanlife-becomes-a-generated-type.md) | Demote VanLife to a generated type behind compatibility shims | accepted |
-| [0009](0009-object-cache-beside-query.md) | Run a normalised object cache beside TanStack Query | accepted |
+| [0009](0009-object-cache-beside-query.md) | Run a normalised object cache beside TanStack Query | accepted, not implemented |
 | [0010](0010-front-web-own-test-rig.md) | Give `front_web` its own test rig instead of joining the workspace | accepted |
 | [0011](0011-agent-tools-call-services.md) | Keep agent tools on services and scope chats to a space | accepted |
 | [0012](0012-saved-view-is-an-object.md) | A saved view is an object | accepted |

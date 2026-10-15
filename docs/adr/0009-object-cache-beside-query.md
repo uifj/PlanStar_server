@@ -1,6 +1,6 @@
 # 0009. Run a normalised object cache beside TanStack Query
 
-Status: accepted
+Status: accepted - not implemented (see the status note)
 Date: 2026-10-13
 
 ## Context
@@ -14,3 +14,24 @@ Query owns collections keyed by space, view and a hash of page plus filters. A s
 ## Consequences
 
 Two caches must be kept consistent, which is the price of not having Anytype's push events; the rule is that views read through the store and never render from their own copy. Blocks and chat messages are deliberately excluded and stay windowed inside their hooks.
+
+## Status note, after phase 9 review
+
+**Not implemented.** No `ObjectCacheStore` and no `useSyncExternalStore` exist anywhere in
+`src` or `front_web/src`. What shipped instead is one-sided: every write calls
+`invalidateQueries({ queryKey: objectQueryKeys.all })`
+(`front_web/src/modules/spaces/hooks/useObjectActions.ts`), so a single
+value saved re-fetches every object list, view record set and object detail that is mounted -
+which is correct but coarse, and it is why the context panel and the browser both flash after
+a blur-commit.
+
+One premise of the decision is also wrong for this kernel as built. The record list does not
+return ids: `GET /spaces/{spaceId}/dataviews/{dataviewId}/records` answers whole objects
+(`ViewRecordsResponse.data: ObjectDetail[]`, ADR-0012), so a store keyed by object id would
+not invalidate a view on its own - either the view has to read through the store, or the
+records route has to change to return ids plus a batch read by id (the same missing kernel
+read that keeps `GET /bookings` on the legacy tables, ADR-0008).
+
+Implementing this remains open work, and it is a decision to revisit with that batch read
+rather than an implementation detail: the cheapest honest ordering is batch-read-by-id first,
+then the store, then narrowing the invalidation to the space prefix.
