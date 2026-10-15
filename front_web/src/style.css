@@ -78,6 +78,37 @@
 @theme inline {
 	--font-sans: "Outfit", sans-serif;
 
+	/*
+	 * The type scale is Anytype's, tier for tier (`_vars.scss`: very-small 11/18,
+	 * small 12/18, common 14/22, paragraph 16/24, header3 18/26, header2 22/28,
+	 * header1 28/32, title 36/40). Only the text utilities move; spacing, sizes and
+	 * radii keep Tailwind's steps, so this reads as a change in type density rather
+	 * than a zoom of the whole interface.
+	 */
+	--text-xs: 11px;
+	--text-xs--line-height: 18px;
+	--text-xs--letter-spacing: 0.2px;
+	--text-sm: 12px;
+	--text-sm--line-height: 18px;
+	--text-base: 14px;
+	--text-base--line-height: 22px;
+	--text-base--letter-spacing: -0.12px;
+	--text-lg: 16px;
+	--text-lg--line-height: 24px;
+	--text-lg--letter-spacing: -0.2px;
+	--text-xl: 18px;
+	--text-xl--line-height: 26px;
+	--text-xl--letter-spacing: -0.28px;
+	--text-2xl: 22px;
+	--text-2xl--line-height: 28px;
+	--text-2xl--letter-spacing: -0.48px;
+	--text-3xl: 28px;
+	--text-3xl--line-height: 32px;
+	--text-3xl--letter-spacing: -0.56px;
+	--text-4xl: 36px;
+	--text-4xl--line-height: 40px;
+	--text-4xl--letter-spacing: -0.64px;
+
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
@@ -136,6 +167,9 @@ html {
 body {
 	background-color: var(--background);
 	color: var(--foreground);
+	font-size: var(--text-base);
+	line-height: var(--text-base--line-height);
+	letter-spacing: var(--text-base--letter-spacing);
 	text-rendering: optimizeLegibility;
 }
 
