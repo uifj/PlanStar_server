@@ -19,7 +19,10 @@ file and gets a `superseded-by-NNNN` status line.
 | [0011](0011-agent-tools-call-services.md) | Keep agent tools on services and scope chats to a space | accepted |
 | [0012](0012-saved-view-is-an-object.md) | A saved view is an object | accepted |
 | [0013](0013-documents-are-ordered-blocks.md) | Documents are ordered blocks | accepted |
+| [0014](0014-three-column-workspace-shell.md) | The workspace lives in a three-column shell | accepted |
 
-The port runs in seven phases. Phases 0 and 1 (spaces, registry, objects, filtered
-lists) and the object-relation edges of phase 2 are implemented; the dataview module
-follows 0012.
+The port's seven phases are all implemented: phases 0 and 1 (spaces, registry, objects,
+filtered lists), phase 2 (relation edges, saved views, the filter performance gate),
+phase 3 (block documents), phase 4 (VanLife behind the kernel), phase 5 (agent tools on
+services) and phase 6-7 (the space browser, its stored layouts and the shell). Deferred
+work is recorded in the amendments, not in this index.
