@@ -54,3 +54,22 @@ export async function updateObject(
 export async function archiveObject(objectId: string): Promise<void> {
 	await apiClient.delete(apiPaths.objects.detail(objectId));
 }
+
+export async function getObject(objectId: string): Promise<ObjectDetail> {
+	const response = await apiClient.get<ObjectDetail>(
+		apiPaths.objects.detail(objectId),
+	);
+
+	return response.data;
+}
+
+export async function getObjectBacklinks(
+	objectId: string,
+): Promise<ObjectDetail[]> {
+	const response = await apiClient.get<ObjectsResponse>(
+		apiPaths.objects.backlinks(objectId),
+		{ params: { limit: 20 } },
+	);
+
+	return response.data.data;
+}
