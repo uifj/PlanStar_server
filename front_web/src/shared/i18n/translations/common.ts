@@ -17,6 +17,13 @@ export const en = {
 	footer: {
 		copyright: "© 2026 VanLife",
 	},
+	shell: {
+		contextPanel: "Object details",
+		closePanel: "Close panel",
+		noProperties: "This object has no values yet.",
+		backlinks: "Linked from",
+		noBacklinks: "Nothing links here yet.",
+	},
 	nav: {
 		about: "About",
 		vans: "Vans",
@@ -130,6 +137,13 @@ export const zh: typeof en = {
 	},
 	footer: {
 		copyright: "© 2026 VanLife",
+	},
+	shell: {
+		contextPanel: "对象详情",
+		closePanel: "关闭面板",
+		noProperties: "这个对象还没有属性值。",
+		backlinks: "被这些对象引用",
+		noBacklinks: "还没有对象引用它。",
 	},
 	nav: {
 		about: "关于",

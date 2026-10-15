@@ -3,5 +3,5 @@ import SpaceBrowserPage from "../pages/SpaceBrowserPage";
 import { spacesRoutePaths } from "./routePaths";
 
 export const spacesRoutes = (
-	<Route path={spacesRoutePaths.devBrowser} element={<SpaceBrowserPage />} />
+	<Route path={spacesRoutePaths.browser} element={<SpaceBrowserPage />} />
 );

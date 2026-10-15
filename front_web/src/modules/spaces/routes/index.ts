@@ -1,2 +1,6 @@
-export { spacesRoutePaths } from "./routePaths";
+export {
+	spaceBrowserLink,
+	spacesRoutePaths,
+	spaceTypeLink,
+} from "./routePaths";
 export { spacesRoutes } from "./routes";

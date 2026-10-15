@@ -41,7 +41,7 @@ export function AppRoutes() {
 
 					{import.meta.env.DEV ? blocksRoutes : null}
 
-					{import.meta.env.DEV ? spacesRoutes : null}
+					{spacesRoutes}
 
 					{/* Regular user only */}
 					<Route element={<RoleRequired allowedRoles={["user"]} />}>
