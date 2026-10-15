@@ -15,6 +15,7 @@ import { PageHeader } from "@/shared/components/PageHeader";
 import { useTranslation } from "@/shared/i18n";
 import { ObjectPalette } from "../components/ObjectPalette";
 import { PropertyValue } from "../components/PropertyValue";
+import { QueryBuilder } from "../components/QueryBuilder";
 import { useDataviewRecords } from "../hooks/useDataviewRecords";
 import { useDataviews } from "../hooks/useDataviews";
 import { useObjectActions } from "../hooks/useObjectActions";
@@ -22,6 +23,13 @@ import { useSpaceRegistry } from "../hooks/useSpaceRegistry";
 import { useSpaces } from "../hooks/useSpaces";
 // The concrete path, not the barrel: routes/index also imports this page.
 import { objectLink } from "../routes/routePaths";
+import {
+	activeClauses,
+	queryParams,
+	readQuery,
+	storedQuery,
+	type ViewQuery,
+} from "../views/queryModel";
 import {
 	cellText,
 	columnsFor,
@@ -66,15 +74,20 @@ export default function SpaceBrowserPage() {
 		[activeType, relationsByKey],
 	);
 
+	const query = readQuery(searchParams, columns);
+
 	const objects = useObjects({
 		spaceId: spaceId || undefined,
 		query: {
 			typeId: typeId || undefined,
 			limit: PAGE_LIMIT,
-			sort: "updatedAt",
-			order: "desc",
+			sort: query.sorts[0]?.key ?? "updatedAt",
+			order: query.sorts[0]?.order ?? "desc",
 			// The kernel lists archived objects too; the browser shows what is live.
-			filters: [{ key: "isArchived", operator: "equal", value: false }],
+			filters: [
+				{ key: "isArchived", operator: "equal", value: false },
+				...activeClauses(query.filters),
+			],
 		},
 	});
 	const { views, saveView, renameView, archiveView, setLayout } = useDataviews(
@@ -120,18 +133,62 @@ export default function SpaceBrowserPage() {
 	}
 
 	const activeView = views.find((view) => view.id === viewId);
+	// The view most recently applied, so an edited query can be written back to it on
+	// one deliberate click rather than on every clause change.
+	const [lastAppliedId, setLastAppliedId] = useState("");
 
-	// Applying a saved view also puts its stored layout on the page, so the view -
-	// not the address bar - decides what the visitor sees (ADR-0012).
+	// Applying a saved view puts its stored layout and its stored query on the page, so
+	// the view - not the address bar - decides what the visitor sees (ADR-0012).
 	function applyView(id: string) {
-		const stored = viewLayout(views.find((view) => view.id === id));
+		const chosen = views.find((view) => view.id === id);
+		const stored = viewLayout(chosen);
+
+		setLastAppliedId(id);
 
 		patch({
 			viewId: id,
 			view: stored.layout,
 			group: stored.groupRelationKey,
 			cover: stored.coverRelationKey,
+			...queryParams(storedQuery(chosen)),
 		});
+	}
+
+	// Editing a clause leaves view mode: the list on screen then answers the query in
+	// the address bar. Writing back to the view is the separate click below, because a
+	// PATCH replaces the view's whole statement and one response per keystroke would
+	// let a late reply overwrite a newer one.
+	function applyQuery(next: ViewQuery) {
+		patch({ ...queryParams(next), viewId: "" });
+	}
+
+	function updateAppliedView() {
+		const view = views.find((row) => row.id === lastAppliedId);
+
+		if (!view) {
+			return;
+		}
+
+		void run(async () => {
+			const moved = await setLayout(view.id, {
+				viewType: viewKind,
+				groupRelationKey: groupKey || null,
+				coverRelationKey: coverKey || null,
+				filters: activeClauses(query.filters),
+				sorts: query.sorts,
+			});
+			const stored = viewLayout(moved);
+
+			setLastAppliedId("");
+
+			patch({
+				viewId: view.id,
+				view: stored.layout,
+				group: stored.groupRelationKey,
+				cover: stored.coverRelationKey,
+				...queryParams(storedQuery(moved)),
+			});
+		}, t("spaces.viewUpdated"));
 	}
 
 	function moveLayout(next: ViewLayout) {
@@ -188,7 +245,12 @@ export default function SpaceBrowserPage() {
 						message={t("spaces.needsSpace")}
 					/>
 				</div>
-				<SpaceList spaces={spaces} onPick={(id) => patch({ spaceId: id })} />
+				<SpaceList
+					spaces={spaces}
+					onPick={(id) => patch({ spaceId: id })}
+					// A space created here is the one the visitor wants to see.
+					onCreated={(id) => patch({ spaceId: id })}
+				/>
 			</div>
 		);
 	}
@@ -294,11 +356,22 @@ export default function SpaceBrowserPage() {
 					</Button>
 				</div>
 
+				<QueryBuilder columns={columns} query={query} onChange={applyQuery} />
+
 				<ViewBar
 					views={views}
 					activeViewId={viewId}
 					onApply={applyView}
-					onClear={() => patch({ viewId: "" })}
+					onClear={() => {
+						setLastAppliedId("");
+						patch({ viewId: "" });
+					}}
+					pendingView={
+						viewId || !lastAppliedId
+							? ""
+							: (views.find((view) => view.id === lastAppliedId)?.name ?? "")
+					}
+					onUpdate={updateAppliedView}
 					onSave={async (name) => {
 						if (!typeId) {
 							toast.error(t("spaces.pickTypeFirst"));
@@ -314,8 +387,10 @@ export default function SpaceBrowserPage() {
 									viewType: viewKind,
 									groupRelationKey: groupKey || undefined,
 									coverRelationKey: coverKey || undefined,
-									filters: [],
-									sorts: [{ key: "updatedAt", order: "desc" }],
+									filters: activeClauses(query.filters),
+									sorts: query.sorts.length
+										? query.sorts
+										: [{ key: "updatedAt", order: "desc" }],
 								}),
 							t("spaces.viewSaved"),
 						);
@@ -483,17 +558,21 @@ function SpaceList({
 function ViewBar({
 	views,
 	activeViewId,
+	pendingView,
 	onApply,
 	onClear,
 	onSave,
+	onUpdate,
 	onRename,
 	onArchive,
 }: {
 	views: ObjectDetail[];
 	activeViewId: string;
+	pendingView: string;
 	onApply: (id: string) => void;
 	onClear: () => void;
 	onSave: (name: string) => void;
+	onUpdate: () => void;
 	onRename: (id: string, name: string) => void;
 	onArchive: (id: string) => void;
 }) {
@@ -569,6 +648,11 @@ function ViewBar({
 			{activeViewId ? (
 				<Button type="button" size="sm" variant="ghost" onClick={onClear}>
 					{t("spaces.clearView")}
+				</Button>
+			) : null}
+			{pendingView ? (
+				<Button type="button" size="sm" variant="outline" onClick={onUpdate}>
+					{t("spaces.updateView", { name: pendingView })}
 				</Button>
 			) : null}
 			<form
