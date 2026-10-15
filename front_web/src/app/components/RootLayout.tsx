@@ -20,8 +20,9 @@ import { paths } from "../routes/paths";
 import Footer from "./Footer";
 import { ObjectContextPanel } from "./ObjectContextPanel";
 
+// Anytype's sidebar rows: a 32px line, 8px of horizontal padding, medium weight.
 const railItem =
-	"rounded-md px-3 py-2 font-medium text-muted-foreground text-sm transition-colors hover:bg-accent hover:text-foreground";
+	"flex h-8 items-center gap-2 rounded-md px-2 font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
 const railItemActive = "bg-accent text-foreground";
 
 export default function RootLayout() {

@@ -29,7 +29,7 @@ export function PageHeader({
 				</p>
 				<h1
 					className={cn(
-						"text-balance font-black text-4xl text-foreground leading-tight md:text-5xl",
+						"text-balance font-bold text-4xl text-foreground leading-tight",
 						titleClassName,
 					)}
 				>
