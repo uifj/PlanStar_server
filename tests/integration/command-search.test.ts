@@ -138,6 +138,66 @@ describe.skipIf(!databaseAvailable)("POST /api/command/ObjectSearch", () => {
 		expect(body.records.map((it: any) => it.name)).toEqual(["Alpha index"]);
 	});
 
+	const createTyped = async (
+		spaceId: string,
+		uniqueKey: string,
+		name: string,
+	) => {
+		signInAs(ownerId);
+		return (
+			await (
+				await post("/api/command/ObjectCreate", {
+					spaceId,
+					objectTypeUniqueKey: uniqueKey,
+					details: { name },
+				})
+			).json()
+		).objectId as string;
+	};
+
+	// The highlighted sibling of ObjectSearch takes the same filters, plus a query it cannot do
+	// without — the text and the nested type filter have to narrow together.
+	const searchWithMeta = async (spaceId: string, filters: unknown[]) => {
+		signInAs(ownerId);
+		return (
+			await post("/api/command/ObjectSearchWithMeta", {
+				spaceId,
+				filters,
+				sorts: [],
+				keys: [],
+				fullText: "index",
+				offset: 0,
+				limit: 20,
+			})
+		).json();
+	};
+
+	// U.Data.countTemplatesByTypeId (lib/util/data.ts:756) asks a type how many templates it owns
+	// with a `type.uniqueKey` filter, and the template rail filters the same way. That key is nested —
+	// an object's typeId points at an ObjectType row — so the flat filter compiler drops it and the
+	// search answers with every visible object in the space. The subscriptions resolve it through
+	// typeUniqueKeyClause; a search that skips it cannot narrow, and live it returned ot-page objects
+	// for a query that asked for ot-template.
+	it("resolves a type.uniqueKey filter", async () => {
+		const spaceId = await createSpace();
+		const pageId = await createTyped(spaceId, "ot-page", "Alpha index");
+		const taskId = await createTyped(spaceId, "ot-task", "Beta index");
+
+		const pages = await searchWith(spaceId, [
+			{ RelationKey: "type.uniqueKey", condition: 1, value: "ot-page" },
+		]);
+		const pageIds = pages.records.map((it: any) => it.id);
+		expect(pageIds).toContain(pageId);
+		expect(pageIds).not.toContain(taskId);
+
+		const highlighted = await searchWithMeta(spaceId, [
+			{ RelationKey: "type.uniqueKey", condition: 1, value: "ot-page" },
+		]);
+		const metaIds = highlighted.results.map((it: any) => it.details.id);
+		expect(metaIds).toContain(pageId);
+		expect(metaIds).not.toContain(taskId);
+	});
+
 	it("applies the filter and the text together", async () => {
 		const spaceId = await createSpace();
 		await createObject(spaceId, "Alpha index");

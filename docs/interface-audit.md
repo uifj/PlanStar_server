@@ -228,6 +228,16 @@ transport never implemented, see §5).
     a hidden page gives ReactVirtualized no height, so grid rows cannot be measured there. Re-check
     the rendered grid on a visible surface.
 
+23. **`type.uniqueKey` narrowed nothing in a search** — **fixed**. The nested key (an object's
+    `typeId` pointing at an `ObjectType.uniqueKey`) is resolved by `typeUniqueKeyClause` for
+    subscriptions, but `searchRecords` and `searchRecordsWithMeta` only ran the flat compiler, which
+    drops any key containing a dot. So `U.Data.countTemplatesByTypeId`'s filter
+    (`lib/util/data.ts:756`) — and the template rail's — was ignored and the search answered with
+    every visible object: live, asking for `ot-template` returned the space's pages. Both search
+    entries now AND in the same clause. Found while looking for a template to apply; the first test
+    for it passed vacuously (it only asserted that hidden registry rows stayed out) and had to be
+    rewritten around two *visible* objects of different types to actually go red.
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,

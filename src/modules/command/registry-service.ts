@@ -1081,10 +1081,16 @@ export async function searchRecords(
 ) {
 	const query = fullText.trim();
 	const filters = translateSetFilters(wireFilters);
+	// A `type.uniqueKey` filter is nested, so translateSetFilters drops it; the search has to resolve
+	// it the way the subscriptions do or it silently narrows nothing.
+	const typeClause = await typeUniqueKeyClause(spaceId, wireFilters);
 	const and: Prisma.ObjWhereInput[] = [];
 
 	if (Object.keys(filters).length > 0) {
 		and.push(filters);
+	}
+	if (Object.keys(typeClause).length > 0) {
+		and.push(typeClause);
 	}
 	if (query) {
 		and.push({
@@ -1147,17 +1153,29 @@ export async function searchRecordsWithMeta(
 	}
 
 	const filters = translateSetFilters(wireFilters);
+	const typeClause = await typeUniqueKeyClause(spaceId, wireFilters);
+	const and: Prisma.ObjWhereInput[] = [
+		{
+			OR: [
+				{ name: { contains: query, mode: "insensitive" } },
+				{ snippet: { contains: query, mode: "insensitive" } },
+			],
+		},
+	];
+	if (Object.keys(filters).length > 0) {
+		and.push(filters);
+	}
+	if (Object.keys(typeClause).length > 0) {
+		and.push(typeClause);
+	}
+
 	const rows = await prisma.obj.findMany({
 		where: {
 			spaceId,
 			isDeleted: false,
 			isArchived: false,
 			isHidden: false,
-			...(Object.keys(filters).length > 0 ? { AND: [filters] } : {}),
-			OR: [
-				{ name: { contains: query, mode: "insensitive" } },
-				{ snippet: { contains: query, mode: "insensitive" } },
-			],
+			AND: and,
 		},
 		orderBy: { updatedAt: "desc" },
 		take: limit,
