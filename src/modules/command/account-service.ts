@@ -14,6 +14,9 @@ const SYSTEM_OBJECTS = [
 	{ layout: "profile", name: "Profile" },
 	{ layout: "spaceView", name: "Space" },
 	{ layout: "widgets", name: "Widgets" },
+	// The space's own chat. The Chat page resolves what it reads as `spaceview.chatId || rootId`, so
+	// a space with no chat object has a chat page that can only ever answer NOT_FOUND.
+	{ layout: "chat", name: "Chat" },
 ] as const;
 
 type SystemLayout = (typeof SYSTEM_OBJECTS)[number]["layout"];
@@ -55,6 +58,7 @@ export interface ResolvedAccount {
 	spaceOrder: string;
 	spaceAccessType: number;
 	creatorId: string;
+	chatId: string;
 }
 
 async function resolveSpace(user: AuthUser) {
@@ -189,6 +193,7 @@ async function accountForSpace(
 		spaceOrder: member?.orderId ?? "",
 		spaceAccessType: space.spaceAccessType,
 		creatorId: space.createdBy,
+		chatId: resolved.chat.id,
 	};
 }
 
@@ -503,7 +508,7 @@ export function spaceViewRecord(account: ResolvedAccount) {
 		readersLimit: 0,
 		writersLimit: 0,
 		creator: participantId(account.spaceId, account.creatorId),
-		chatId: "",
+		chatId: account.chatId,
 		spaceType: 0,
 		spacePushNotificationMode: 0,
 		spacePushNotificationForceAllIds: [],

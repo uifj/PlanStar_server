@@ -75,15 +75,20 @@ describe.skipIf(!databaseAvailable)("POST /command/:name", () => {
 		);
 		expect(second.account.info.widgetsId).toBe(first.account.info.widgetsId);
 
-		// The three system objects carry their layout inside details; the default type mirrors
-		// the boot installs have their own layout column, so they are not counted here.
-		const systemObjects = await prisma.obj.count({
+		// The system objects carry their layout inside details; the default type mirrors the boot
+		// installs have their own layout column, so they are not counted here.
+		const systemObjects = await prisma.obj.findMany({
 			where: {
 				spaceId: first.account.info.accountSpaceId,
 				layout: null,
 			},
+			select: { details: true },
 		});
-		expect(systemObjects).toBe(3);
+		expect(
+			systemObjects
+				.map((it) => (it.details as { layout: string }).layout)
+				.sort(),
+		).toEqual(["chat", "profile", "spaceView", "widgets"]);
 	});
 
 	it("answers an unknown command with an error envelope", async () => {

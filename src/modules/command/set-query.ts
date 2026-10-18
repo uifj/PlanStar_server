@@ -29,6 +29,7 @@ const LAYOUT_NAMES: Record<number, string[]> = {
 	5: ["relation"],
 	14: ["collection"],
 	27: ["discussion"],
+	22: ["chat"],
 };
 
 const TEXT_FORMATS = new Set<string>(["shortText", "longText"]);

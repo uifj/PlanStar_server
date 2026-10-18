@@ -70,13 +70,19 @@ describe.skipIf(!databaseAvailable)("POST /api/command/WorkspaceCreate", () => {
 		expect(member?.permission).toBe("owner");
 		expect(member?.status).toBe("active");
 
-		// The space boots with the same three system objects AccountSelect provisions. They
-		// carry their layout inside details, while the default type mirrors (ot-page /
-		// ot-task / ot-collection) set the layout column, so the mirrors are not counted here.
-		const systemObjects = await prisma.obj.count({
+		// The space boots with the same system objects AccountSelect provisions. They carry their
+		// layout inside details, while the default type mirrors (ot-page / ot-task / ot-collection)
+		// set the layout column, so the mirrors are not counted here. The chat is one of them: the
+		// client's Chat page reads `spaceview.chatId`, so a space without one has no chat to open.
+		const systemObjects = await prisma.obj.findMany({
 			where: { spaceId: body.spaceId, layout: null },
+			select: { details: true },
 		});
-		expect(systemObjects).toBe(3);
+		expect(
+			systemObjects
+				.map((it) => (it.details as { layout: string }).layout)
+				.sort(),
+		).toEqual(["chat", "profile", "spaceView", "widgets"]);
 	});
 
 	it("renames the space and lists it in the global space subscription", async () => {

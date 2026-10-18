@@ -692,6 +692,9 @@ const LAYOUT_DISCUSSION = 27;
 // ObjectDateByTimestamp finds-or-creates. isDateLayout(17) is true, so the shell renders it
 // from its timestamp detail rather than a plain page title.
 const LAYOUT_DATE = 17;
+// ObjectLayout.Chat === 22 (front_web interface/object.ts:24): the space's own chat object, which
+// every space provisions. isChatLayout(22) is what makes the client render a message feed.
+const LAYOUT_CHAT = 22;
 const NUMERIC_LAYOUT: Record<string, number> = {
 	basic: 0,
 	relation: LAYOUT_RELATION,
@@ -707,22 +710,16 @@ const NUMERIC_LAYOUT: Record<string, number> = {
 	bookmark: LAYOUT_BOOKMARK,
 	discussion: LAYOUT_DISCUSSION,
 	date: LAYOUT_DATE,
+	chat: LAYOUT_CHAT,
 };
 
 // The one place that turns a stored layout into the number the shell switches screens on. The
-// resolvedLayout column is authoritative; the details.layout marker is the fallback because the
-// creation paths lay it down and ObjectRelationDelete lets the client lift it off by name.
+// resolvedLayout column is authoritative except where it can only be reporting its `basic` default,
+// in which case the details.layout marker created by the owning path decides.
 export function numericLayout(row: {
 	resolvedLayout?: string | null;
 	details?: unknown;
 }): number {
-	const fromColumn = row.resolvedLayout
-		? NUMERIC_LAYOUT[row.resolvedLayout]
-		: undefined;
-	if (fromColumn !== undefined) {
-		return fromColumn;
-	}
-
 	const details =
 		row.details &&
 		typeof row.details === "object" &&
@@ -730,8 +727,24 @@ export function numericLayout(row: {
 			? (row.details as Record<string, unknown>)
 			: {};
 	const marker = typeof details.layout === "string" ? details.layout : "";
+	const fromMarker = marker ? NUMERIC_LAYOUT[marker] : undefined;
 
-	return NUMERIC_LAYOUT[marker] ?? LAYOUT_PAGE;
+	// The ObjectLayout enum cannot name a space's chat (nor its profile / spaceView / widgets
+	// objects), so those rows carry the schema's `basic` default in the column and their real layout
+	// in the marker. `basic` is the absence of a claim, not a claim of page-ness, so the marker wins
+	// over it — but never over a layout the column actually asserts.
+	if (row.resolvedLayout === "basic" && fromMarker !== undefined) {
+		return fromMarker;
+	}
+
+	const fromColumn = row.resolvedLayout
+		? NUMERIC_LAYOUT[row.resolvedLayout]
+		: undefined;
+	if (fromColumn !== undefined) {
+		return fromColumn;
+	}
+
+	return fromMarker ?? LAYOUT_PAGE;
 }
 
 // A plain object projected into the J.Relation.default record shape the recent
