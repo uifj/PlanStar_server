@@ -246,6 +246,10 @@ Defects this run found and fixed (each with a test):
   not receive a delta → `a056a8e`
 * `HistoryShowVersion` returned the object's current (stale or absent) block rows, leaving the
   preview pane blank → `ab5ff3d`
+* a space installed no object types at all, so the shell's `type-<spaceId>` registry was empty and
+  both type surfaces read "No Objects found" → `ba8d7b6`
+* the create menu's `ObjectSearch` ignored `body.filters` entirely and searched object rows by
+  text, so the type picker had nothing to list even once a registry existed → `4c21ba3`
 
 Screens beyond that flow, also driven in the browser: the **graph** opens from the header and
 draws the object's node (canvas + label, no error codes); the **discussion** panel on an object
@@ -259,7 +263,7 @@ Known boundaries, not defects: `FileNodeUsage`, `FileSetAutoDownload` and
 `participant` / `deleted` / `archived` registry sources stay unregistered on purpose, so those
 panels still refresh on reload.
 
-Gates at this commit: integration 598 passed / 5 skipped, unit 174 passed, `tsc --noEmit` clean,
+Gates at this commit: integration 605 passed / 5 skipped, unit 174 passed, `tsc --noEmit` clean,
 `pnpm build` clean, client `tsc` clean and 1386 client tests passing. Repo-wide `pnpm lint`
 remains red on the vendored `front_web/dist` assets — see the note in the memory index; scope the
 check with `npx biome check src tests front_web/src/ts`.
