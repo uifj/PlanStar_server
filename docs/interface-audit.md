@@ -24,6 +24,11 @@ downloads are same-host, cross-port requests carrying the session cookie.
 
 ## 2. Command coverage
 
+Reproduce with `pnpm inventory` (`scripts/client-inventory.ts` → `docs/frontend-capabilities.json`,
+2,196 entries: 236 `command-use`, 265 wrappers, 346 registry names, 347 proto RPCs). The inventory
+deliberately records every capability as `pending` — it joins the client's surface, never claims the
+migration is done — so the answered/pending split below comes from diffing it against the shim.
+
 - 259 exported wrappers in `command.ts`; **231 of them are called** from client code.
 - The shim answers **105** distinct command names.
 - **127 called commands have no server case.** They are not one bucket — see §3.
@@ -84,7 +89,11 @@ transport never implemented, see §5).
 `/api/blocks`, `/api/dataviews`, `/api/relations`, `/api/object-types`, `/api/publish`,
 `/api/me`, `/api/vans`, `/api/bookings`, `/api/reviews`, `/api/host`, `/api/system`, `/api/agent`,
 `/api/ai`. These are the pre-pivot REST API and the Genkit mounts; they are heavily covered by
-integration tests, so removing them is a scope decision, not a cleanup (§6).
+integration tests, so removing them is a scope decision, not a cleanup — **decided: keep them
+mounted and mark the superseded operations deprecated** (ADR-0021, `src/openapi/deprecations.ts`).
+36 documented operations now carry `deprecated`; the live surface is `/api`, `/api/health`,
+`/api/ready`, `/api/spaces`, `/api/command/{name}` and `/api/agent/trip-planner/messages` — the agent
+mount stays unmarked because nothing supersedes it, it simply has no caller in this client.
 
 **Frontend:** the grpc-web residue — `lib/api/service.ts:3-9,383-425`, `lib/api/dispatcher.ts:7,62`,
 `lib/api/grpc-devtools.ts` + its `.d.ts`, `package.json:70` `grpc-web`, `electronMock.ts:477`

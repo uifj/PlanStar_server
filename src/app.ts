@@ -7,6 +7,7 @@ import { loggerMiddleware } from "./middleware/logger.js";
 import { notFound } from "./middleware/not-found.js";
 import { requestIdMiddleware } from "./middleware/request-id.js";
 import { openApiDocument, scalarConfig } from "./openapi/config.js";
+import { markSupersededOperations } from "./openapi/deprecations.js";
 import routes from "./routes/index.js";
 
 const base = new OpenAPIHono().basePath(API_PREFIX);
@@ -17,7 +18,11 @@ base.use("*", loggerMiddleware);
 const app = base.route("/", routes);
 
 if (isDevelopment) {
-	app.doc("/openapi.json", openApiDocument);
+	// Not app.doc(): the document has to carry the deprecation marks, and the generator offers no
+	// per-operation hook.
+	app.get("/openapi.json", (c) =>
+		c.json(markSupersededOperations(app.getOpenAPIDocument(openApiDocument))),
+	);
 	app.get("/docs", scalarConfig);
 }
 

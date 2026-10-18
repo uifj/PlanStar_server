@@ -28,6 +28,7 @@ of implementation.** New migration records state pending/staged implementation e
 | [0018](0018-collaborative-document-source.md) | Make the collaborative document the sole body source | accepted; implementation pending, staged |
 | [0019](0019-authorised-subscription-events.md) | Feed MobX with authorised subscription events | accepted; implementation pending, staged |
 | [0020](0020-client-first-command-shim-transport.md) | Run the shell's command surface on a client-first shim during migration | accepted; shim + first boot slice implemented, typed end state pending |
+| [0021](0021-keep-rest-api-mark-superseded.md) | Keep the pre-pivot REST API mounted, mark the operations the shim superseded deprecated | accepted; implemented |
 
 ## Current migration status, 2026-10-16
 
