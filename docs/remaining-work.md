@@ -36,9 +36,22 @@
 ### P8 全量验收并退役旧传输（#91，pending）
 
 - 功能矩阵对照闭环（逐项确认「全部接口与功能」均经本方后端运行）。
-- 移除未使用的 gRPC / native mock 与旧传输通道。
+- 移除未使用的 gRPC / native mock 与旧传输通道。—— 2026-10-18 传输层已完成（`81419c2`：`service.ts` 只剩 JSON fetch + EventSource，descriptor/registry/interceptors/grpc-devtools 全部删除）；`package.json` 里已无人 import 的 `grpc-web`、`google-protobuf` 两个依赖待用户确认后再摘（#258）。
 - 迁移恢复演练（手写 SQL + `prisma migrate deploy`，禁用 `prisma migrate diff`）。
 - 全量 UI 浏览器验收（按屏截图比对，参照「一次标注一次修改」的做法）。
+
+#### 2026-10-18 验收记录（本轮审计）
+
+| 屏 / 能力 | 验收方式 | 结果 |
+| --- | --- | --- |
+| 集合屏视图族（建/切/删视图、筛选、排序、列、来源） | 走客户端自身命令层 + 刷新回读 | 通过：视图与筛选写入后刷新仍在，事件驱动本地 store 即时更新（#250） |
+| 画廊渲染 | 建画廊视图 → 刷新 → 截图 | 通过：卡片按名称渲染（Grid + 画廊双标签） |
+| 对象深链 / 刷新 | 直接刷新 `/main/set/<id>/spaceId/<s>` | 修复前落到 Widgets 页；修复后停在集合屏，8 行数据（#256） |
+| 发布链接 | `PublishingCreate` → 打开链接 → `PublishingRemove` | 通过：`http://localhost:8000/api/publish/<slug>` 返回 200，撤销后 404（#253） |
+| 实时推送 | 传输层重写后再验 | 通过：SSE 打开且收到 3 帧 `objectDetailsSet` |
+| `?server=` 覆盖 | 读代码 + 单测 | 修复：入口解析了参数但传输层自行取 env/origin，覆盖无效；现统一由 `serverAddress()` 决定 |
+
+尚未验收：成员面板、设置各分页、讨论/图谱屏（#91）；正文内联 dataview 块（#257）；AI 流式与命令级撤销（#254）。
 
 ## P3 可行性结论：Tiptap（免费/MIT）可全覆盖
 
