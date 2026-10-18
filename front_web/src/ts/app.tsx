@@ -521,6 +521,11 @@ const App: FC = () => {
 				U.Data.onInfo(account.info);
 				S.Common.spaceSet('');
 
+				// A tab that resumes with a stored token never passes through
+				// WalletCreateSession, which is where the desktop opened the event stream:
+				// without this the restored window has no server->client channel at all.
+				dispatcher.startStream();
+
 				// The quick search panel boots spaceless: global search is cross-space by
 				// design and results open in the main window, so WorkspaceOpen, the
 				// per-space subscriptions and the chat/notification side loads would only
@@ -562,6 +567,11 @@ const App: FC = () => {
 				U.Data.onInfo(account.info);
 				S.Common.spaceSet('');
 				U.Data.onAuthOnce();
+
+				// The desktop opens the event stream inside WalletCreateSession, which web
+				// boot never reaches: without this the client has no server->client channel,
+				// so presence, chat status and every list delta stay silent.
+				dispatcher.startStream();
 
 				// An empty route keeps onSpaceSwitch off the "restorable" path so a fresh
 				// space lands on the dashboard instead of a stale object.
