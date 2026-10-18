@@ -37,6 +37,13 @@ migration is done — so the answered/pending split below comes from diffing it 
   `ChatSubscribeToMessagePreviews` counters instead) and `ObjectToSet` (see §4 — the set screen calls
   a *different* entry point). Both still have integration tests, so they are live-but-unreached
   rather than dead.
+- **Measurement caveat:** the split above is derived from literal `C.<Name>(` call sites. Four names
+  are dispatched through a computed reference (`C[cmd]`) and so are outside those counts —
+  `BlockCopy`/`BlockCut` from `lib/action.ts:679` and `BlockTextListSetColor`/
+  `BlockListSetBackgroundColor` from `component/menu/block/action.tsx:497`. All four are legacy
+  `Block*` writes; §3b records which of their call sites this build can actually reach. The inventory's
+  own `unresolved` list (`needs-review`, 59 entries) is where the generator parks exactly this kind of
+  dynamic expression — read it rather than assuming the counts are exhaustive.
 
 ## 3. The 106 unhandled commands, classified
 
@@ -66,6 +73,18 @@ referenced only from code the page no longer mounts: `component/editor/page.tsx:
 `<CollabBody>` and contains **no** `<Block>` render, so the legacy block editor handlers in that same
 file (and `component/block/index.tsx`'s text/table branches) are unreachable in this build. They fail
 silently because the shim answers `NOT_SUPPORTED`, not because the interface is wrong.
+
+One member of the family is **not** unreachable: `component/page/main/history.tsx:50` binds
+`Cmd/Ctrl+C` and `Cmd/Ctrl+X` on the history pane to `Action.copyBlocks`, which dispatches
+`BlockCopy`/`BlockCut` dynamically (`lib/action.ts:679` `C[cmd](…)`, so the name never appears in
+`C.<Name>(` form and sat outside §2's 231). The shim answers `NOT_SUPPORTED`, and the callback returns
+before `U.Common.clipboardCopy` — but `keyboard.shortcut()` invokes its callback without cancelling the
+event, so the browser's own copy still puts the selected text on the clipboard. What is lost is
+Anytype's block-structured payload (`textSlot`/`htmlSlot`/`anySlot`), i.e. paste-into-another-surface
+as blocks. Deliberate boundary of the same class as `ObjectUndo`/`ObjectRedo` above, not a white
+screen. The other two dynamic sites (`menu/block/action.tsx:497` →
+`BlockTextListSetColor`/`BlockListSetBackgroundColor`, and `block/table.tsx:897`) belong to menus the
+page no longer mounts.
 
 **(c) Intentional boundaries — native, desktop, paid, external.** Account/wallet keys
 (`Wallet*`, `AccountCreate`/`Delete`/`Recover`/`Migrate*`, `AccountLocalLink*`), membership,
