@@ -1232,16 +1232,60 @@ export async function graphRecords(spaceId: string, limit: number) {
 	const nodes = rows.map(objectRecord);
 	const nodeIds = new Set(nodes.map((node) => node.id));
 
-	const links = await prisma.link.findMany({
-		where: { spaceId, fromId: { in: [...nodeIds] } },
-		select: { fromId: true, toId: true },
-	});
+	// An object relation lives in one of two stores: the Link table (what a body link projects
+	// to) and the object's own details JSONB (where the command write path puts it, ADR-0002).
+	// Reading only Link drew 29 nodes and no edges against a space whose links were made in the
+	// property editor.
+	const [links, relations] = await Promise.all([
+		prisma.link.findMany({
+			where: { spaceId, fromId: { in: [...nodeIds] } },
+			select: { fromId: true, toId: true },
+		}),
+		prisma.relation.findMany({
+			where: { spaceId, format: "object" },
+			select: { uniqueKey: true },
+		}),
+	]);
 
-	const edges = links
-		.filter((link) => nodeIds.has(link.fromId) && nodeIds.has(link.toId))
-		.map((link) => ({ source: link.fromId, target: link.toId }));
+	// One edge per ordered pair: a link written to both stores must not draw twice.
+	const edges = new Map<string, { source: string; target: string }>();
+	const addEdge = (source: string, target: string) => {
+		if (source === target || !nodeIds.has(source) || !nodeIds.has(target)) {
+			return;
+		}
+		edges.set(`${source}->${target}`, { source, target });
+	};
 
-	return { nodes, edges };
+	for (const link of links) {
+		addEdge(link.fromId, link.toId);
+	}
+
+	const keys = relations.map((relation) => relation.uniqueKey);
+	for (const row of rows) {
+		const details =
+			row.details &&
+			typeof row.details === "object" &&
+			!Array.isArray(row.details)
+				? (row.details as Record<string, unknown>)
+				: {};
+
+		for (const key of keys) {
+			const value = details[key];
+			const list = Array.isArray(value)
+				? value
+				: value === undefined || value === null
+					? []
+					: [value];
+
+			for (const item of list) {
+				if (typeof item === "string") {
+					addEdge(row.id, item);
+				}
+			}
+		}
+	}
+
+	return { nodes, edges: [...edges.values()] };
 }
 
 // Cross-space search spans every space the caller is an active member of, so the

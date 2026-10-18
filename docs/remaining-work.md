@@ -58,6 +58,7 @@
 | 移除历史 | 新建对象 → 删除 → 重开该屏 | 通过：新行「Removed by = P1 Fresh、Removed = October 18, 2026」；旧行三列为破折号，因为删除发生在 deletedBy/deletedDate 迁移之前 |
 | 记录形状契约 | 白屏崩溃定位 | 修复：`restrictions` 必须是**数组**——`S.Block.isAllowed` 用 `indexOf` 读它，`{}` 会让整棵 React 树白屏；spaceview 的 `creator` 必须是 participant id，`U.Space.getCreator` 才能解析 |
 | `id` 过滤器 | 实盘 + 集成测试 | 修复：`id In [...]` 此前被静默丢弃，一次订阅返回全空间 46 行；`id` 已登记为系统关系（#260） |
+| 图谱屏 | `/main/graph/...` → `ObjectGraph` 实盘 | 修复：edges 只读 Link 表，而命令写入路径把对象关系存在 details JSONB（ADR-0002）→ 29 节点 0 连线；现两表并读并去重 |
 
 尚未验收：讨论 / 图谱屏、成员邀请的**双账号端到端**（第二个账号点链接加入）、正文内联 dataview 块（#257）、AI 流式与命令级撤销（#254）。
 

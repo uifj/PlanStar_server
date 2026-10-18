@@ -139,6 +139,12 @@ transport never implemented, see §5).
 11. **An invite link the web build cannot open** — **fixed**. `getInviteLink` always built an
     `anytype://` link, a scheme only the desktop registers. The web build now hands out its own
     `/invite/?cid=…&key=…` route.
+12. **The graph drew no edges** — **fixed**. `graphRecords` read edges from the Link table only, while
+    the command write path (`ObjectListSetDetails`, the property editor) stores an object relation in
+    the object's `details` JSONB (ADR-0002) — the store `navigationObjectInfo` already reads for
+    backlinks. Live: 29 nodes, 0 edges. It now unions both stores and de-duplicates a pair written to
+    each. The existing test passed throughout because it seeded `prisma.link` directly instead of using
+    the write path it claims to cover.
 
 ## 5. Dead code and obsolete surface to prune
 

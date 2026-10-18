@@ -12,8 +12,9 @@ const databaseAvailable = await isDatabaseAvailable();
 
 // P4 graph: ObjectGraph(spaceId, ...) feeds the graph view. U.Data.getGraphData reads
 // message.nodes (detail records, kept when they carry a type) and message.edges
-// ({ source, target }, kept when both ends are nodes). Nodes come from live Obj rows;
-// edges come from the Link table, the sole store for object-valued relations (ADR-0002).
+// ({ source, target }, kept when both ends are nodes). Nodes come from live Obj rows; edges come
+// from both stores an object relation can live in — the Link table (what a body link projects to)
+// and the object's details JSONB (where the command write path puts it, ADR-0002).
 describe.skipIf(!databaseAvailable)("POST /api/command/ObjectGraph", () => {
 	const ownerId = "command-graph.owner";
 	const outsiderId = "command-graph.outsider";
@@ -143,5 +144,36 @@ describe.skipIf(!databaseAvailable)("POST /api/command/ObjectGraph", () => {
 			code: 2,
 			description: "Object access denied.",
 		});
+	});
+
+	// The client's own write path — the property editor, ObjectListSetDetails — stores an
+	// object-valued relation in the object's details JSONB, not in Link. A graph that reads only
+	// Link therefore drew 29 nodes and no edges against the live space.
+	it("draws an edge for a relation set through the command path", async () => {
+		const spaceId = await createSpace();
+		const fromId = await createObject(spaceId, "Road trip");
+		const toId = await createObject(spaceId, "Aurland");
+
+		signInAs(ownerId);
+		const relation = await (
+			await post("/api/command/ObjectCreateRelation", {
+				spaceId,
+				// I.RelationType.Object === 100.
+				details: { name: "Stopover", relationFormat: 100 },
+			})
+		).json();
+		const key = relation.key as string;
+
+		signInAs(ownerId);
+		const set = await (
+			await post("/api/command/ObjectListSetDetails", {
+				objectIds: [fromId],
+				details: [{ id: fromId, details: { [key]: [toId] } }],
+			})
+		).json();
+		expect(set.error).toEqual({ code: 0, description: "" });
+
+		const body = await graph(spaceId);
+		expect(body.edges).toContainEqual({ source: fromId, target: toId });
 	});
 });
