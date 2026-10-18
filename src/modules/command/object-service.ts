@@ -9,7 +9,7 @@ import { relationService } from "../relations/service.js";
 import { ensureAccount } from "./account-service.js";
 import { storeImageFile } from "./file-service.js";
 import { fetchLinkPreview, fetchPreviewImage } from "./link-preview-service.js";
-import { COLLECTION_RELATION } from "./registry-service.js";
+import { COLLECTION_RELATION, numericLayout } from "./registry-service.js";
 import type { CommandBody } from "./schema.js";
 
 // I.ObjectLayout.Page in the client enum; the Prisma enum cannot hold numeric
@@ -841,6 +841,7 @@ export function objectDetails(obj: {
 	typeId: string | null;
 	snippet?: string | null;
 	description?: string | null;
+	resolvedLayout?: string | null;
 	details?: Prisma.JsonValue;
 }) {
 	// Custom relation values live in the details JSONB (ADR-0002); the page's relation
@@ -853,11 +854,14 @@ export function objectDetails(obj: {
 			? (obj.details as Record<string, unknown>)
 			: {};
 
+	const layout = numericLayout(obj);
+
 	return {
 		...custom,
 		id: obj.id,
 		name: obj.name,
-		layout: LAYOUT_PAGE,
+		layout,
+		resolvedLayout: layout,
 		type: obj.typeId ?? "",
 		// The body's search text is a rebuildable projection of the Yjs document
 		// (ADR-0018), persisted onto Obj.snippet by the collab store path.
@@ -866,9 +870,9 @@ export function objectDetails(obj: {
 	};
 }
 
-// The detail record ObjectCreateSet answers with (response.ts:224 maps it straight through): a
-// page detail re-stamped with the Set layout number and its sources on setOf, so the dataview that
-// opens the new object (dataview.tsx:964 onSelect) renders a set rather than a plain page.
+// The detail record ObjectCreateSet answers with (response.ts:224 maps it straight through): the
+// set's own detail record — layout already projects as Set — plus its sources on setOf, so the
+// dataview that opens the new object (dataview.tsx:964 onSelect) renders a set rather than a page.
 export function createdSetDetails(obj: {
 	id: string;
 	name: string;
@@ -885,7 +889,7 @@ export function createdSetDetails(obj: {
 			: {};
 	const setOf = Array.isArray(stored.setOf) ? stored.setOf : [];
 
-	return { ...objectDetails(obj), layout: LAYOUT_SET, setOf };
+	return { ...objectDetails(obj), setOf };
 }
 
 // The detail record ObjectCreateFromUrl answers with (response.ts:231 maps it straight through): a
@@ -907,7 +911,7 @@ export function createdBookmarkDetails(obj: {
 			: {};
 	const source = typeof stored.source === "string" ? stored.source : "";
 
-	return { ...objectDetails(obj), layout: LAYOUT_BOOKMARK, source };
+	return { ...objectDetails(obj), source };
 }
 
 const DATE_MONTHS = [
@@ -982,7 +986,7 @@ export function createdDateDetails(obj: {
 			: {};
 	const timestamp = typeof stored.timestamp === "number" ? stored.timestamp : 0;
 
-	return { ...objectDetails(obj), layout: LAYOUT_DATE, timestamp };
+	return { ...objectDetails(obj), timestamp };
 }
 
 export async function loadObjectView(user: AuthUser, objectId: string) {

@@ -660,6 +660,31 @@ const NUMERIC_LAYOUT: Record<string, number> = {
 	date: LAYOUT_DATE,
 };
 
+// The one place that turns a stored layout into the number the shell switches screens on. The
+// resolvedLayout column is authoritative; the details.layout marker is the fallback because the
+// creation paths lay it down and ObjectRelationDelete lets the client lift it off by name.
+export function numericLayout(row: {
+	resolvedLayout?: string | null;
+	details?: unknown;
+}): number {
+	const fromColumn = row.resolvedLayout
+		? NUMERIC_LAYOUT[row.resolvedLayout]
+		: undefined;
+	if (fromColumn !== undefined) {
+		return fromColumn;
+	}
+
+	const details =
+		row.details &&
+		typeof row.details === "object" &&
+		!Array.isArray(row.details)
+			? (row.details as Record<string, unknown>)
+			: {};
+	const marker = typeof details.layout === "string" ? details.layout : "";
+
+	return NUMERIC_LAYOUT[marker] ?? LAYOUT_PAGE;
+}
+
 // A plain object projected into the J.Relation.default record shape the recent
 // subscriptions render (home "recently edited" list). lastModifiedDate rides on
 // updatedAt; there is no per-object last-modifier column yet, so recentEditMe scopes
