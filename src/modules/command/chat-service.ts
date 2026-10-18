@@ -1,11 +1,6 @@
 import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../../lib/prisma.js";
-
-// registry-service's participantId, duplicated here (it is module-private there) so a message's
-// creator projects to the participant id the client addresses people by.
-function participantId(spaceId: string, userId: string) {
-	return `_participant_${spaceId.replace(/\./g, "_")}_${userId}`;
-}
+import { participantId } from "./registry-service.js";
 
 // Inverse of participantId: the client addresses a reaction/search creator by participant id, so
 // decode it back to a userId. An id that does not carry this space's prefix decodes to "" and is

@@ -133,6 +133,7 @@ import {
 	setRecords,
 	setRelationOptionOrder,
 	setTypeOrder,
+	subSpaceRecords,
 	subscribeIdsRecords,
 	targetObjectTypeClause,
 	typeRecordById,
@@ -204,6 +205,8 @@ const REGISTRY_SOURCES: Record<
 // needs a type.uniqueKey join a later slice adds — until then it must not leak every object).
 // Anything else that names a space is an object-list widget subscription (All objects /
 // Favorites / Bin and the per-widget tree/list subIds), which the general branch below answers.
+// `subSpace` is neither: it has its own branch, because the client resolves a space's people and
+// homepage from it and every ownership gate reads that answer.
 const EMPTY_SUB_IDS = new Set<string>([
 	"profile",
 	"typeStore",
@@ -211,7 +214,6 @@ const EMPTY_SUB_IDS = new Set<string>([
 	"store",
 	"archive",
 	"sidebar",
-	"subSpace",
 	"library",
 	"lastMessage",
 	"fileManagerSynced",
@@ -225,6 +227,29 @@ const EMPTY_SUB_IDS = new Set<string>([
 	"treeParents",
 	"treeProbe",
 ]);
+
+// The ids an `id In [...]` filter names — how U.Subscription.createSubSpace addresses the space's
+// creator, the caller's own participant record and the homepage object.
+function idFilterValues(wireFilters: unknown): string[] {
+	if (!Array.isArray(wireFilters)) {
+		return [];
+	}
+
+	const ids: string[] = [];
+	for (const raw of wireFilters) {
+		const filter = raw as { RelationKey?: unknown; value?: unknown };
+		if (filter.RelationKey !== "id") {
+			continue;
+		}
+		if (Array.isArray(filter.value)) {
+			ids.push(...stringList(filter.value));
+		} else if (typeof filter.value === "string") {
+			ids.push(filter.value);
+		}
+	}
+
+	return ids;
+}
 
 function stringList(value: unknown): string[] {
 	return Array.isArray(value)
@@ -407,9 +432,7 @@ export async function run(
 
 			if (subId === SPACE_SUB_ID) {
 				const accounts = await listAccounts(user);
-				const records = accounts.map((account) =>
-					spaceViewRecord(account, user.id),
-				);
+				const records = accounts.map((account) => spaceViewRecord(account));
 
 				return {
 					error: OK,
@@ -513,6 +536,38 @@ export async function run(
 			}
 
 			const registry = subId.split("-")[0];
+
+			// The per-space subSpace subscription: the client reads its own participant record out of
+			// it, so isMyOwner / canManageInvite / canMyParticipantModerate / canMyParticipantWrite —
+			// and with them the share sheet, member management and the Bin entry — decide on this answer.
+			if (registry === "subSpace") {
+				let spaceId =
+					typeof body.spaceId === "string" && body.spaceId ? body.spaceId : "";
+				if (!spaceId) {
+					const account = await ensureAccount(user);
+					spaceId = account.spaceId;
+				}
+
+				try {
+					await ensureSpaceAccess(user.id, spaceId, "reader");
+				} catch {
+					return { error: FORBIDDEN, event: null };
+				}
+
+				const records = await subSpaceRecords(
+					spaceId,
+					idFilterValues(body.filters),
+				);
+
+				return {
+					error: OK,
+					event: null,
+					counters: { total: records.length, nextCount: 0, prevCount: 0 },
+					records,
+					dependencies: [],
+				};
+			}
+
 			if (REGISTRY_SOURCES[registry]) {
 				let spaceId =
 					typeof body.spaceId === "string" && body.spaceId ? body.spaceId : "";

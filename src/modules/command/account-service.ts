@@ -6,6 +6,7 @@ import type { AuthUser } from "../../lib/auth.js";
 import { prisma } from "../../lib/prisma.js";
 import { objectTypeService } from "../object-types/service.js";
 import { relationService } from "../relations/service.js";
+import { participantId } from "./registry-service.js";
 
 // The ObjectLayout migration is deferred, so the shell's system objects are real
 // hidden Obj rows whose Anytype layout rides in details rather than in the enum.
@@ -53,6 +54,7 @@ export interface ResolvedAccount {
 	homepage: string;
 	spaceOrder: string;
 	spaceAccessType: number;
+	creatorId: string;
 }
 
 async function resolveSpace(user: AuthUser) {
@@ -67,6 +69,7 @@ async function resolveSpace(user: AuthUser) {
 			name: true,
 			createdAt: true,
 			spaceAccessType: true,
+			createdBy: true,
 		},
 	});
 
@@ -80,6 +83,7 @@ type SpaceRow = {
 	name: string;
 	createdAt: Date;
 	spaceAccessType: number;
+	createdBy: string;
 };
 
 async function createSpaceRow(userId: string, name: string): Promise<SpaceRow> {
@@ -96,6 +100,7 @@ async function createSpaceRow(userId: string, name: string): Promise<SpaceRow> {
 			name: true,
 			createdAt: true,
 			spaceAccessType: true,
+			createdBy: true,
 		},
 	});
 }
@@ -183,6 +188,7 @@ async function accountForSpace(
 		homepage: homepageOf(resolved.spaceView.details),
 		spaceOrder: member?.orderId ?? "",
 		spaceAccessType: space.spaceAccessType,
+		creatorId: space.createdBy,
 	};
 }
 
@@ -204,6 +210,7 @@ export async function accountForSpaceId(
 			name: true,
 			createdAt: true,
 			spaceAccessType: true,
+			createdBy: true,
 		},
 	});
 	if (!space) {
@@ -308,6 +315,7 @@ export async function listAccounts(user: AuthUser): Promise<ResolvedAccount[]> {
 			name: true,
 			createdAt: true,
 			spaceAccessType: true,
+			createdBy: true,
 		},
 	});
 
@@ -456,8 +464,10 @@ export function accountInfo(account: ResolvedAccount, userId: string) {
 
 // The spaceview record the global "space" subscription must return for the shell to
 // consider the space auto-openable (U.Space.canAutoOpen). Field names follow the
-// client's default + space + participant relation keys.
-export function spaceViewRecord(account: ResolvedAccount, userId: string) {
+// client's default + space + participant relation keys. The creator is a participant id, not a
+// user id: U.Space.getCreator resolves it through the subSpace subscription, which stores people
+// by `_participant_<spaceId>_<accountId>`.
+export function spaceViewRecord(account: ResolvedAccount) {
 	return {
 		id: account.spaceViewId,
 		spaceId: account.spaceId,
@@ -492,7 +502,7 @@ export function spaceViewRecord(account: ResolvedAccount, userId: string) {
 		spaceAccessType: account.spaceAccessType,
 		readersLimit: 0,
 		writersLimit: 0,
-		creator: userId,
+		creator: participantId(account.spaceId, account.creatorId),
 		chatId: "",
 		spaceType: 0,
 		spacePushNotificationMode: 0,

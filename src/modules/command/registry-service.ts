@@ -564,7 +564,7 @@ export async function setTypeOrder(spaceId: string, typeIds: string[]) {
 // U.Space.getParticipantId derives `_participant_<spaceId>_<accountId>` (dots in the
 // spaceId replaced), and S.Detail.get looks the current user up by exactly that id, so
 // the participant record's id must be built the same way.
-function participantId(spaceId: string, accountId: string) {
+export function participantId(spaceId: string, accountId: string) {
 	return `_participant_${spaceId.replace(/\./g, "_")}_${accountId}`;
 }
 
@@ -1507,6 +1507,39 @@ export async function subscribeIdsRecords(spaceId: string, ids: string[]) {
 
 	const byId = new Map(rows.map((row) => [row.id, objectRecord(row)]));
 	return ids
+		.map((id) => byId.get(id))
+		.filter((record): record is NonNullable<typeof record> => Boolean(record));
+}
+
+// The `subSpace-<spaceId>` subscription is the store the client resolves a space's own people from:
+// U.Space.getMyParticipant reads `_participant_<spaceId>_<accountId>` out of it, and isMyOwner,
+// canManageInvite, canMyParticipantModerate and canMyParticipantWrite all answer false when that
+// record is missing — which hides the share sheet, the member-management controls and the Bin entry.
+// The same subscription carries the space's homepage object (U.Space.getDashboardObject), so the
+// answer is the requested participants and the requested objects merged, in the requested order, with
+// ids that match nothing in this space dropped.
+export async function subSpaceRecords(spaceId: string, ids: string[]) {
+	const wanted = [...new Set(ids.filter((id) => id !== ""))];
+	if (wanted.length === 0) {
+		return [];
+	}
+
+	const [participants, objects] = await Promise.all([
+		participantRecords(spaceId),
+		subscribeIdsRecords(
+			spaceId,
+			wanted.filter((id) => !id.startsWith("_participant_")),
+		),
+	]);
+
+	const byId = new Map(
+		[...participants, ...objects].map((record) => [
+			record.id as string,
+			record,
+		]),
+	);
+
+	return wanted
 		.map((id) => byId.get(id))
 		.filter((record): record is NonNullable<typeof record> => Boolean(record));
 }
