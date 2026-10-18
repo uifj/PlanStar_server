@@ -26,6 +26,9 @@ const LAYOUT_OPTION = 13;
 const LAYOUT_SET = 3;
 // I.ObjectLayout.Type === 4 (front_web interface/object.ts); a type opens as a set over its own objects.
 const LAYOUT_TYPE = 4;
+// I.ObjectLayout.Collection === 14; a collection opens at the same set screen, so it needs the same
+// dataview child. Its rows are not a query source: the screen sends collectionId instead of a source.
+const LAYOUT_COLLECTION = 14;
 // I.ObjectLayout.Bookmark === 11 (front_web interface/object.ts:13).
 const LAYOUT_BOOKMARK = 11;
 // I.ObjectLayout.Date === 17 (front_web interface/object.ts:19); the per-day date object.
@@ -1028,11 +1031,19 @@ export async function loadObjectView(user: AuthUser, objectId: string) {
 	// A type screen opens the TYPE object at the same route, and the dataview resolves its query's
 	// sources from the record's `setOf` (block/dataview.tsx:401), so a type is healed into a set over
 	// its own objects: without both the views and that source, the type page is a header over nothing.
+	// A collection routes to the same screen (U.Object.getSetLayouts), so it is healed the same way.
 	let dataview = null;
 	let viewRow = obj;
 	const viewLayout = numericLayout(obj);
-	if (viewLayout === LAYOUT_SET || viewLayout === LAYOUT_TYPE) {
-		if (viewLayout === LAYOUT_TYPE) {
+	if (
+		viewLayout === LAYOUT_SET ||
+		viewLayout === LAYOUT_TYPE ||
+		viewLayout === LAYOUT_COLLECTION
+	) {
+		if (viewLayout === LAYOUT_TYPE || viewLayout === LAYOUT_COLLECTION) {
+			// The default view object is created against a source type, so both of these point their
+			// setOf at themselves. Only a type's rows then come from that source: a collection's arrive
+			// through the collectionId the screen sends in place of a query source.
 			const stored =
 				obj.details &&
 				typeof obj.details === "object" &&

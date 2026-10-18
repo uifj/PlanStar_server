@@ -67,7 +67,9 @@
 | 「已编辑」标记 | 发一条新消息 → 刷新 → 看气泡是否带 edited | 修复：`addMessage` 把 `modifiedAt` 直接戳成创建时间，而客户端只要 `modifiedAt` 非 0 就显示 "(edited)"（`block/chat/message/index.tsx:261`）→ 每条消息一落地即被标记。现在新建为 0，只有 `ChatEditMessageContent` 会写它；改动前写入的开发数据仍带标记，未做回填 |
 | 双账号邀请加入 + 通知面板 | 第二个账号 SpaceInviteView/SpaceJoin(WithApprove) → 拥有者刷新看通知卡 → View request → Editor access → 请求者收到批准通知 | 通过：请求行 status=joining、拥有者收到 requestToJoin 卡片（"Probe Requester has requested to join 'My Space'"）、批准后成员转 active、请求者收到 participantRequestApproved（文案把 permissions=1 渲染成 Editor），participant 订阅两人各带 participantStatus=1。缺陷：space view 的 readersLimit/writersLimit 为 0，使确认弹层把 Accept/Reject 换成会员升级按钮（#21），已修复为 1000 席 |
 
-尚未验收：collection 页、模板套用、通知面板的双账号第二实例可见性（仅以 API + 客户端模型验证）、正文内联 dataview 块（#257）、AI 流式与命令级撤销（#254）。
+| Collection 页 | 建对象 → ObjectToCollection → ObjectCollectionAdd → 打开 /main/set/&lt;collectionId&gt; | 修复：视图修补只覆盖 Set(3)/Type(4)，而客户端把 Collection 路由到同一屏且该屏只渲染 root 的 dataview 子块 → 转换后的 collection 只剩标题。现在同样补齐视图（setOf 指向自身），成员仍由客户端的 collectionId 通道返回；实盘以客户端自己的 Dataview.getData 取回 2 条成员，但因 in-app 浏览器不可见（ReactVirtualized 量不到高度）**未做视觉验收** |
+
+尚未验收：collection 页的网格行渲染（需可见浏览器面）、模板套用、正文内联 dataview 块（#257）、AI 流式与命令级撤销（#254）。
 
 > 教训：`EMPTY_SUB_IDS` 里「不是对象列表」的判断必须由客户端实际解析路径反证。`subSpace` 与 `library` 都曾以「非对象列表」名义被留空，结果分别是所有权闸门全灭与内容模型 rail 空白。
 

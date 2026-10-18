@@ -102,6 +102,62 @@ describe.skipIf(!databaseAvailable)(
 			expect(await layoutOf(spaceId, "Reading list")).toBe(COLLECTION_LAYOUT);
 		});
 
+		// The shell routes a collection to the same screen as a set (U.Object.getSetLayouts), and that
+		// screen draws only the root's dataview child: block/dataview.tsx returns null on an empty
+		// views array. Converting an object therefore has to leave it something to draw, and the
+		// screen's own request (ObjectSearchSubscribe with collectionId, which widget/view/index.tsx
+		// sends in place of a source) has to answer the members that were added.
+		it("opens a collection with a dataview that lists its members", async () => {
+			const spaceId = await createSpace();
+			const objectId = await createObject(spaceId, "Film club");
+			const first = await createObject(spaceId, "Stalker");
+			const second = await createObject(spaceId, "Blade Runner");
+
+			signInAs(ownerId);
+			await post("/api/command/ObjectToCollection", { contextId: objectId });
+			const added = await (
+				await post("/api/command/ObjectCollectionAdd", {
+					contextId: objectId,
+					objectIds: [first, second],
+				})
+			).json();
+			expect(added.error).toEqual({ code: 0, description: "" });
+
+			const opened = await (
+				await post("/api/command/ObjectOpen", { spaceId, objectId })
+			).json();
+			expect(opened.error).toEqual({ code: 0, description: "" });
+
+			const root = opened.objectView.blocks.find(
+				(it: any) => it.id === objectId,
+			);
+			const dataview = opened.objectView.blocks.find(
+				(it: any) => it.id === "dataview",
+			);
+			expect(root.childrenIds).toContain("dataview");
+			expect(dataview?.dataview?.views.length).toBeGreaterThan(0);
+
+			const listed = await (
+				await post("/api/command/ObjectSearchSubscribe", {
+					spaceId,
+					subId: `${objectId}-dataview`,
+					collectionId: objectId,
+					filters: [],
+					sorts: [],
+					keys: ["name"],
+					offset: 0,
+					limit: 100,
+				})
+			).json();
+			expect(listed.error).toEqual({ code: 0, description: "" });
+
+			const ids = (listed.records || []).map((it: any) => it.id);
+			expect(ids).toContain(first);
+			expect(ids).toContain(second);
+			// The collection lists its members, not itself.
+			expect(ids).not.toContain(objectId);
+		});
+
 		it("answers NOT_FOUND for an object that does not exist", async () => {
 			await createSpace();
 			signInAs(ownerId);

@@ -216,6 +216,18 @@ transport never implemented, see §5).
     Found only by running the two-account flow: every command on that path answered OK while the UI
     offered nothing.
 
+22. **A collection page drew no list** — **fixed**. `U.Object.getSetLayouts()` routes a Collection to
+    the *same* screen as a set, and that screen draws only the root's dataview child — but the view
+    healing in `loadObjectView` covered only Set (3) and Type (4). A converted object therefore
+    arrived as a header with a composer-less empty body, even though its membership was stored and
+    servable. A collection now heals like a set (its `setOf` points at itself so the default view has
+    something to be created against) while its rows keep arriving through the `collectionId` the
+    screen sends in place of a query source (`widget/view/index.tsx:130`). Verified in the live
+    client's own data path — `Dataview.getData` for the collection's dataview subscription returns its
+    two members — but **not visually**: the in-app browser surface was hidden during this check, and
+    a hidden page gives ReactVirtualized no height, so grid rows cannot be measured there. Re-check
+    the rendered grid on a visible surface.
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,
