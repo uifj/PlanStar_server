@@ -706,13 +706,24 @@ class UtilSpace {
 	};
 
 	/**
-	 * Gets the invite link for a given CID and key.
-	 * @param {string} cid - The CID.
-	 * @param {string} key - The key.
+	 * Gets the invite link for a space.
+	 *
+	 * Only the desktop build can hand out an anytype:// link (it registers the scheme); the web build
+	 * has no handler, so its link is this app's own join route.
+	 * @param {string} cid - The invite cid.
+	 * @param {string} key - The invite key.
 	 * @returns {string} The invite link.
 	 */
-	getInviteLink (cid: string, key: string) {
-		return U.Data.isAnytypeNetwork() ? U.String.sprintf(J.Url.invite, cid, key) : `${J.Constant.protocol}://invite/?cid=${cid}&key=${key}`;
+	getInviteLink (cid: string, key: string): string {
+		if (U.Data.isAnytypeNetwork()) {
+			return U.String.sprintf(J.Url.invite, cid, key);
+		};
+
+		if (U.Common.getElectron().arch === 'web') {
+			return `${window.location.origin}/invite/?cid=${cid}&key=${key}`;
+		};
+
+		return `${J.Constant.protocol}://invite/?cid=${cid}&key=${key}`;
 	};
 
 	/**
