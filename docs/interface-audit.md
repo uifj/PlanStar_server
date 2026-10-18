@@ -89,11 +89,35 @@ page no longer mounts.
 **(c) Intentional boundaries — native, desktop, paid, external.** Account/wallet keys
 (`Wallet*`, `AccountCreate`/`Delete`/`Recover`/`Migrate*`, `AccountLocalLink*`), membership,
 push-notification registration, `Debug*` (keyboard-only), `Unsplash*` and `Gallery*` (external
-services), `ObjectImport*`/`ObjectListExport` (P5-f), `FileDrop` (P5-e), `FileNodeUsage`/
-`FileSetAutoDownload`/`FileAutoDownloadSetLimit` (already documented as code 12), and the AI stream
-commands (`AIListModels` is answered now, item 25; the streaming `AI*` family has no call site left in
-this build at all — the `streamClient` it used to ride was deleted with the transport, so nothing in
-`src/ts` asks for a stream).
+services), `FileNodeUsage`/`FileSetAutoDownload`/`FileAutoDownloadSetLimit` (already documented as code
+12), and the AI stream commands (`AIListModels` is answered now, item 25; the streaming `AI*` family has
+no call site left in this build at all — the `streamClient` it used to ride was deleted with the
+transport, so nothing in `src/ts` asks for a stream).
+
+**The file-transfer family is not one bucket, and two of its labels were wrong.** Checked against the
+web build's Electron mock (`lib/web/electronMock.ts`) rather than assumed:
+
+- `ObjectListExport` — **unreachable in the browser, verified.** `Action.export` asks for a *directory*
+  (`openDirectoryDialog`), and the mock's picker (`showOpenFilePicker`, or an `<input type=file>`
+  fallback) can only choose files, which it then *uploads* and returns as the "directory". There is no
+  browser surface that hands the server a writable directory, so answering this command would need a
+  client redesign (export to a server-side archive, then download), not a shim case.
+- `ObjectImport` / `ObjectImportNotionValidateToken` / `ObjectImportExperience` — **reachable.** The
+  picker path does upload bytes to `POST /api/web-upload` and returns real staged paths
+  (`electronMock.ts:482-543`, `filesRouter.post("/web-upload")`), which is exactly the shape
+  `uploadFile` already consumes as `body.localPath` (file-service.ts:55). So an import fires today and
+  gets `NOT_SUPPORTED`. Closing this needs a server-side reader for the staged file(s) — HTML/Markdown/
+  JSON into objects — with no client change at all.
+- `FileDrop` — **reachable, and broken before it reaches the server.** The drag-and-drop path does *not*
+  use the picker: it maps each dropped `File` through `electron.webFilePath(file)`, and the mock defines
+  that as `(file) => file.name` (electronMock.ts:546). So `localFilePaths` arrives as bare names like
+  `probe.txt` — no bytes, no staged path — and `isDirectory` is hardcoded false so folders are silently
+  skipped. Making drop work is two measured halves: route the drop through the same `uploadFileToServer`
+  the picker already uses, then answer `FileDrop` by creating file objects from the staged paths and
+  inserting the body's attachment node (task #227's `component/editor/attachment.ts`). It is listed here
+  rather than under (b) because the call sites in `drag/provider.tsx:279`, `popup/upload.tsx:82` and
+  `block/dataview.tsx:1877` are all mounted screens, and the failure is a visible error toast, not a
+  graceful degradation.
 
 **`ObjectUndo`/`ObjectRedo` (keyboard.ts:1298/1323) are a deliberate boundary, not a missing
 transport.** Body undo and redo work — the Yjs document's own `UndoManager` handles Cmd+Z in the

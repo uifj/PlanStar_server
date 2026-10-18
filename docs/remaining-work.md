@@ -79,7 +79,13 @@
 
 | 历史差异标记（#273） | 同一对象写三份快照 → `/main/history/<id>` → 读渲染出的 DOM 类名 | 修复：`HistoryDiffVersions` 事件按 `prisma.block` 行 id 出题，而预览块树是 `HistoryShowVersion` 现场投影的（Yjs 对象往往零 Block 行），客户端 `renderDiff` 找不到任何 `#block-<id>` → 差异面板什么都没标。现在两侧共用同一套「行序号」投影 id（`bodyLineId`），改行→blockSetText、增行→blockAdd、删行→root 的 blockSetChildrenIds，并跳过只因位置移动而行内容没变的配对。实盘：新增行 `.wrapContent.diffAdd`、改写行渲染出 `<markupchange> south</markupchange>`、删行 `.diffRemove` 都落在预览树上。残余近似：快照只是扁平文本行，中间删除的红色标记落在序号不再对齐处，不是被删行的精确位置 |
 
-验收清单已全部走完实盘（含 collection 网格行）。仍然**延期**而非「待验收」的是：#100（ADR-0018 正文持久化水位与客户端 ack）、#152（FileDrop 落正文）、#153（导入导出需先有客户端下载路径）、#154（`?width=` 缩略图）。
+验收清单已全部走完实盘（含 collection 网格行）。仍然**延期**而非「待验收」的是：#100（ADR-0018 正文持久化水位与客户端 ack）、#154（`?width=` 缩略图，只是带宽）。
+
+但审计收尾时按客户端实际可达性复核后，#152 / #153 的标签并不一样，已写进 `docs/interface-audit.md` §3c：
+
+- **#153 的导出半边确实不可达**：`Action.export` 要的是**目录**，而 web 的 picker 只能选文件并会把文件上传后当作目录返回，浏览器根本没有「给服务端一个可写目录」的接口 → 需要改成服务端打包 + 下载，不是补一个 shim case。
+- **#153 的导入半边是可达且缺的**：picker 已经把字节 POST 到 `/api/web-upload` 并返回真实暂存路径，正是 `uploadFile` 读 `localPath` 的同一种形状；现在点导入会打出 `NOT_SUPPORTED`。补它**不需要动客户端**，只要服务端解析暂存的 HTML/Markdown/JSON 生成对象。
+- **#152 拖拽落文件在到达服务端之前就坏了**：drop 走的是 `electron.webFilePath(file)`，而 mock 里它就是 `file.name`（`electronMock.ts:546`），所以 `localFilePaths` 只带文件名、没有字节；三个调用点（`drag/provider.tsx:279`、`popup/upload.tsx:82`、`block/dataview.tsx:1877`）都是活屏，失败表现为一条错误 toast。修它是两个可度量的半边：drop 复用 picker 已在用的 `uploadFileToServer`，服务端再应答 `FileDrop`（用暂存路径建文件对象 + 插入正文的附件节点 #227）。
 
 > 教训：`EMPTY_SUB_IDS` 里「不是对象列表」的判断必须由客户端实际解析路径反证。`subSpace` 与 `library` 都曾以「非对象列表」名义被留空，结果分别是所有权闸门全灭与内容模型 rail 空白。
 
