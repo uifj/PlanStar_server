@@ -16,7 +16,7 @@ objectBlocksRouter.openapi(listBlocksRoute, async (c) => {
 
 	const document = await blockService.list(user, objectId);
 
-	return c.json(document);
+	return c.json(document, 200);
 });
 
 objectBlocksRouter.openapi(createBlockRoute, async (c) => {
@@ -38,7 +38,7 @@ blocksRouter.openapi(updateBlockRoute, async (c) => {
 
 	const block = await blockService.update(user, blockId, body);
 
-	return c.json(block);
+	return c.json(block, 200);
 });
 
 blocksRouter.openapi(deleteBlockRoute, async (c) => {

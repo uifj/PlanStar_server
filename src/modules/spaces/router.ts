@@ -26,7 +26,7 @@ spacesRouter.openapi(listSpacesRoute, async (c) => {
 
 	const spaces = await spaceService.findMany(user, query);
 
-	return c.json(paginated(spaces.data, spaces.meta));
+	return c.json(paginated(spaces.data, spaces.meta), 200);
 });
 
 spacesRouter.openapi(addSpaceParticipantRoute, async (c) => {
@@ -51,5 +51,5 @@ spacesRouter.openapi(updateSpaceParticipantRoute, async (c) => {
 		body,
 	);
 
-	return c.json(participant);
+	return c.json(participant, 200);
 });

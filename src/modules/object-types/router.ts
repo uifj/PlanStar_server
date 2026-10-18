@@ -13,7 +13,7 @@ objectTypesRouter.openapi(listObjectTypesRoute, async (c) => {
 
 	const types = await objectTypeService.findMany(user, spaceId, query);
 
-	return c.json(paginated(types.data, types.meta));
+	return c.json(paginated(types.data, types.meta), 200);
 });
 
 objectTypesRouter.openapi(createObjectTypeRoute, async (c) => {

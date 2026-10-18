@@ -13,7 +13,7 @@ relationsRouter.openapi(listRelationsRoute, async (c) => {
 
 	const relations = await relationService.findMany(user, spaceId, query);
 
-	return c.json(paginated(relations.data, relations.meta));
+	return c.json(paginated(relations.data, relations.meta), 200);
 });
 
 relationsRouter.openapi(createRelationRoute, async (c) => {

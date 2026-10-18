@@ -1,6 +1,6 @@
 # 0016. Text size follows the role, on Anytype's scale
 
-Status: accepted
+Status: superseded-by-0017 for the historical custom UI implementation; design intent retained
 Date: 2026-10-15
 
 ## Context
@@ -51,3 +51,14 @@ type, and was declined alongside the calendar, board and gallery geometry. Legac
 still ask for `font-black` (900) where Anytype writes 700. Adding a new text utility will
 not pick up an Anytype value unless it is named here, and `--text-5xl` is still Tailwind's
 default - use `4xl` for a title.
+
+## Amendment, 2026-10-16 — historical Tailwind mapping, retained visual intent
+
+The `style.css` overrides, utility mapping, measurements and remaining geometry gaps
+above describe the replaced custom frontend, not verified properties of today's client.
+[0017](0017-hono-rpc-web-client.md) keeps the current Anytype SCSS shell and its role-based
+typography. The distinction between values, secondary text, captions, controls and view
+tabs remains design intent; do not reintroduce the old Tailwind theme to implement it.
+New auth and Tiptap surfaces must fit the existing style rather than trigger a UI redesign.
+Their integration and visual acceptance remain pending; the historical computed-style
+check does not validate the replacement editor or the full migration.

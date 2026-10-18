@@ -23,7 +23,7 @@ hostRouter.openapi(listHostVansRoute, async (c) => {
 
 	const vans = await hostService.findVans(user, query);
 
-	return c.json({ data: vans });
+	return c.json({ data: vans }, 200);
 });
 
 hostRouter.openapi(getHostVanRoute, async (c) => {
@@ -32,7 +32,7 @@ hostRouter.openapi(getHostVanRoute, async (c) => {
 
 	const van = await hostService.findVanById(user, id);
 
-	return c.json(van);
+	return c.json(van, 200);
 });
 
 hostRouter.openapi(createHostVanRoute, async (c) => {
@@ -51,7 +51,7 @@ hostRouter.openapi(updateHostVanRoute, async (c) => {
 
 	const van = await hostService.updateVan(user, id, body);
 
-	return c.json(van);
+	return c.json(van, 200);
 });
 
 hostRouter.openapi(deleteHostVanRoute, async (c) => {
@@ -69,7 +69,7 @@ hostRouter.openapi(getHostDashboardRoute, async (c) => {
 
 	const dashboard = await hostService.getDashboard(user, query);
 
-	return c.json(dashboard);
+	return c.json(dashboard, 200);
 });
 
 hostRouter.openapi(getHostIncomeRoute, async (c) => {
@@ -78,7 +78,7 @@ hostRouter.openapi(getHostIncomeRoute, async (c) => {
 
 	const income = await hostService.getIncome(user, query);
 
-	return c.json(income);
+	return c.json(income, 200);
 });
 
 hostRouter.openapi(getHostReviewsRoute, async (c) => {
@@ -87,7 +87,7 @@ hostRouter.openapi(getHostReviewsRoute, async (c) => {
 
 	const reviews = await hostService.getReviews(user, query);
 
-	return c.json(reviews);
+	return c.json(reviews, 200);
 });
 
 hostRouter.openapi(listHostBookingsRoute, async (c) => {
@@ -96,7 +96,7 @@ hostRouter.openapi(listHostBookingsRoute, async (c) => {
 
 	const bookings = await hostService.findBookings(user, query);
 
-	return c.json(paginated(bookings.data, bookings.meta));
+	return c.json(paginated(bookings.data, bookings.meta), 200);
 });
 
 hostRouter.openapi(updateHostBookingStatusRoute, async (c) => {
@@ -106,5 +106,5 @@ hostRouter.openapi(updateHostBookingStatusRoute, async (c) => {
 
 	const booking = await hostService.updateBookingStatus(user, id, body);
 
-	return c.json(booking);
+	return c.json(booking, 200);
 });

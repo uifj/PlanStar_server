@@ -1,6 +1,6 @@
 # 0013. Documents are ordered blocks
 
-Status: accepted
+Status: superseded-by-0018 for authoritative body storage
 Date: 2026-10-14
 
 ## Context
@@ -36,3 +36,19 @@ it is easier to hit. Flat reads push tree assembly into every client, but keep a
 read to one ordered query and make a move one PATCH for the moved block instead of
 renumbering its siblings. Blocks on registry mirrors and saved views are rejected rather
 than unmodelled, because a type or a view has no body to edit.
+
+## Amendment, 2026-10-16 — Block rows cease to be body authority
+
+[0018](0018-collaborative-document-source.md) supersedes the authoritative Block model
+above, including the assumption that rich content only needs more columns. One object's
+Tiptap/Yjs document becomes its only body write source; Block rows, body Link edges and
+search text are revision-tagged, rebuildable projections. Object metadata and non-body
+fractional ordering remain in PostgreSQL. Legacy Block routes, templates, import, AI and
+history restoration must use the shared document service, not write a competing tree.
+
+Implementation and existing-document migration are pending. Each cutover must preserve
+stable IDs, hierarchy, order, marks and links, retain source evidence, be idempotent and
+report unsupported content before disabling the old writer. Embedded view nodes hold
+references to separately authoritative view Obj configuration (amended
+[0012](0012-saved-view-is-an-object.md)); the earlier blanket body restrictions describe
+the old phase, not a completed mapping of the current client's layouts.

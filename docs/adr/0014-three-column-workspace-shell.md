@@ -1,6 +1,6 @@
 # 0014. The workspace lives in a three-column shell
 
-Status: accepted
+Status: superseded-by-0017 for the historical custom UI implementation; design intent retained
 Date: 2026-10-15
 
 ## Context
@@ -35,3 +35,14 @@ shell calls `GET /spaces` on every page, including sign-in and the marketing pag
 answer an empty space section to a guest rather than an error. A guest's navigation is the
 two links `getHeaderNavigation` already returns, so the shell is not an authenticated-only
 surface; nothing about the header's removal changes what those pages render.
+
+## Amendment, 2026-10-16 — historical custom shell, current Anytype shell retained
+
+The custom `RootLayout`, fixed widths, `/space` route and query-string focus contract
+above were replaced with the actual Anytype-style client. They are retained as history,
+not the current frontend structure. [0017](0017-hono-rpc-web-client.md) keeps that client's
+shell, navigation, MobX and SCSS while replacing transport and authentication; the intent
+of persistent space navigation and an object-focused workspace remains. Do not rebuild
+the removed custom three-column implementation to satisfy this record. Hono/Better Auth
+integration is pending staged delivery; having the replacement shell is not a completed
+backend migration.

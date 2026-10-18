@@ -1,7 +1,10 @@
 import type { ZodType } from "zod";
 import { ErrorResponseSchema } from "./schema.js";
 
-export const response = (description: string, schema: ZodType) => ({
+export const response = <T extends ZodType>(
+	description: string,
+	schema: T,
+) => ({
 	description,
 	content: {
 		"application/json": {
@@ -11,11 +14,17 @@ export const response = (description: string, schema: ZodType) => ({
 });
 
 // Successful response helpers
-export const okResponse = (description: string, schema: ZodType) => ({
+export const okResponse = <T extends ZodType>(
+	description: string,
+	schema: T,
+) => ({
 	200: response(description, schema),
 });
 
-export const createdResponse = (description: string, schema: ZodType) => ({
+export const createdResponse = <T extends ZodType>(
+	description: string,
+	schema: T,
+) => ({
 	201: response(description, schema),
 });
 

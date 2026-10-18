@@ -20,7 +20,7 @@ agentRouter.openapi(sendTripPlannerMessageRoute, async (c) => {
 		message,
 	});
 
-	return c.json(reply);
+	return c.json(reply, 200);
 });
 
 /**

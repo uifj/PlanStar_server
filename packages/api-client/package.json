@@ -1,0 +1,26 @@
+{
+	"name": "@agent-harness/api-client",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"sideEffects": false,
+	"packageManager": "pnpm@11.22.0",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"typecheck": "tsc -p tsconfig.json"
+	},
+	"dependencies": {
+		"hono": "4.13.3"
+	},
+	"devDependencies": {
+		"typescript": "5.9.3"
+	}
+}

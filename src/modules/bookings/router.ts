@@ -16,7 +16,7 @@ bookingsRouter.openapi(listBookingsRoute, async (c) => {
 
 	const bookings = await bookingService.findMany(user, query);
 
-	return c.json(paginated(bookings.data, bookings.meta));
+	return c.json(paginated(bookings.data, bookings.meta), 200);
 });
 
 bookingsRouter.openapi(createBookingRoute, async (c) => {
@@ -34,5 +34,5 @@ bookingsRouter.openapi(cancelBookingRoute, async (c) => {
 
 	const booking = await bookingService.cancel(user, id);
 
-	return c.json(booking);
+	return c.json(booking, 200);
 });

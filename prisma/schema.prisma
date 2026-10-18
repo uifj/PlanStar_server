@@ -206,6 +206,7 @@ enum SpacePermission {
 enum SpaceMemberStatus {
   active
   removed
+  joining
 }
 
 enum RelationFormat {
@@ -224,6 +225,16 @@ enum ObjectLayout {
   relation
   objectType
   dataview
+  collection
+  set
+  file
+  image
+  audio
+  video
+  pdf
+  bookmark
+  discussion
+  date
 }
 
 enum BlockType {
@@ -251,14 +262,48 @@ model Space {
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
+  // Anytype's numeric SpaceAccessType (interface/space.ts: Private 0, Personal 1, Shared 2). The
+  // share sheet flips a space to Shared before minting an invite and back to Private when sharing
+  // stops; the spaceView record projects it so the client derives isShared. Defaults to Private.
+  spaceAccessType Int     @default(0)
+
   creator   User          @relation("SpaceCreator", fields: [createdBy], references: [id], onDelete: Cascade)
   members   SpaceMember[]
+  invites   SpaceInvite[]
   relations Relation[]
   types     ObjectType[]
   objects   Obj[]
   links     Link[]
 
+  chatMessages ChatMessage[]
+  chatReadStates ChatReadState[]
+  notifications Notification[]
+  publishedObjects PublishedObject[]
+
   @@index([createdBy, status])
+}
+
+// A space's shareable invite. Anytype models an invite as an off-chain file addressed by a
+// cid + fileKey pair; the self-hosted backend stores that pair directly. Only one invite is
+// "current" per space at a time (SpaceInviteGetCurrent/Revoke/Change act on the live row), so
+// a space keeps at most one non-revoked invite. permissions/inviteType mirror Anytype's numeric
+// ParticipantPermissions/InviteType enums (interface/space.ts). createdBy holds the actor's user
+// id with no FK, mirroring Obj.deletedBy, to avoid touching the better-auth User model.
+model SpaceInvite {
+  id          String   @id @default(cuid())
+  spaceId     String
+  cid         String   @unique
+  fileKey     String
+  inviteType  Int      @default(0)
+  permissions Int      @default(0)
+  createdBy   String
+  revoked     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  @@index([spaceId])
 }
 
 model SpaceMember {
@@ -267,6 +312,7 @@ model SpaceMember {
   userId     String
   permission SpacePermission   @default(reader)
   status     SpaceMemberStatus @default(active)
+  orderId    String            @default("")
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
 
@@ -292,11 +338,34 @@ model Relation {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
-  space Space       @relation(fields: [spaceId], references: [id], onDelete: Cascade)
-  type  ObjectType? @relation(fields: [typeId], references: [id], onDelete: SetNull)
+  space   Space            @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  type    ObjectType?      @relation(fields: [typeId], references: [id], onDelete: SetNull)
+  options RelationOption[]
 
   @@unique([spaceId, uniqueKey])
   @@index([typeId])
+}
+
+// A select/multiSelect relation's option. Anytype models options as objects of
+// layout Option (13); the kernel keeps them as rows keyed by the relation they
+// belong to. The composite FK ties an option's lifetime to its relation, so
+// deleting a relation drops its options.
+model RelationOption {
+  id          String   @id @default(cuid())
+  spaceId     String
+  relationKey String
+  name        String
+  color       String   @default("")
+  // The option's position within its relation, set by RelationOptionSetOrder when the
+  // caller drags options into an order. Defaults to 0 so a freshly created option sorts
+  // before any explicitly ordered ones until the client assigns a position.
+  optionOrder Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  relation Relation @relation(fields: [spaceId, relationKey], references: [spaceId, uniqueKey], onDelete: Cascade)
+
+  @@index([spaceId, relationKey])
 }
 
 model ObjectType {
@@ -307,6 +376,7 @@ model ObjectType {
   description String?
   iconEmoji   String?
   layout      ObjectLayout @default(basic)
+  orderId     String       @default("")
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
@@ -332,8 +402,18 @@ model Obj {
   isDeleted      Boolean       @default(false)
   isHidden       Boolean       @default(false)
   isFavorite     Boolean       @default(false)
+  // Per-object dismissal for the Bin's "Suggested for cleanup" forest
+  // (ObjectCleanupSuggestionIgnore). Ignoring an object hides it and its createdInContext
+  // descendants from ObjectCleanupSuggestions; ignored=false clears it. Additive and defaulted,
+  // so every pre-existing row stays a cleanup candidate.
+  cleanupIgnored Boolean       @default(false)
   done           Boolean?
   creatorId      String?
+  // Removal stamp for the space deletion audit (ObjectDeletionAudit). deletedBy stores the
+  // actor's user id (mirroring creatorId); the read path projects it to a participant id.
+  // Nullable: pre-audit deletions and actorless (system/GC) deletes carry no stamp.
+  deletedDate    DateTime?
+  deletedBy      String?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
@@ -344,6 +424,9 @@ model Obj {
   linksTo   Link[]      @relation("LinkTo")
   blocks Block[] @relation("DocumentBlocks")
   linkedByBlocks Block[] @relation("BlockLinkTargets")
+  state DocumentState? @relation("DocumentState")
+  published PublishedObject[]
+  versions DocumentVersion[]
 
   @@index([spaceId, resolvedLayout])
   @@index([spaceId, typeId])
@@ -373,6 +456,67 @@ model Block {
   @@index([linkTargetId])
 }
 
+// The folded Yjs document for an object's body (ADR-0018). Stored as the raw
+// update binary so the collab server is the body's source of truth.
+model DocumentState {
+  objectId  String   @id
+  state     Bytes
+  updatedAt DateTime @updatedAt
+
+  document Obj @relation("DocumentState", fields: [objectId], references: [id], onDelete: Cascade)
+}
+
+// A point-in-time snapshot of an object's folded Yjs body, written on every collab
+// store so HistoryGetVersions/ShowVersion/SetVersion can list, preview and restore
+// prior versions (Anytype Rpc.History). authorId carries the last editor resolved from
+// the collab connection session, with no FK (mirrors Obj.deletedBy) so the better-auth
+// User model stays untouched; it is null when the store path has no session context.
+model DocumentVersion {
+  id        String   @id @default(cuid())
+  objectId  String
+  spaceId   String
+  authorId  String?
+  groupId   String?
+  state     Bytes
+  createdAt DateTime @default(now())
+
+  object Obj @relation(fields: [objectId], references: [id], onDelete: Cascade)
+
+  @@index([objectId, createdAt])
+  @@index([spaceId])
+}
+
+// An object published to the self-hosted public gateway (Anytype Rpc.Publishing). The client keeps the
+// public URLS split: the domain comes from the participant identity (U.Space.getPublishDomain) and the
+// editable slug is stored here as `uri` (PublishState.uri round-trips into the menu's slug input). A row
+// exists only while the object is published — PublishingRemove deletes it — so it always projects status
+// Published(1); the transient Created(0) state never persists because publishing is synchronous here.
+// version is a monotonic re-publish counter projected as a string (interface/publish.ts); size is the
+// body byte length; timestamp is unix seconds. joinSpace mirrors the share-space toggle. publishedBy holds
+// the actor's user id with no FK (mirrors Obj.deletedBy, to avoid touching the better-auth User model).
+// @@unique([uri]) makes a slug a globally-unique public address; @@unique([spaceId, objectId]) keeps one
+// publish per object so re-publishing upserts. Both FKs cascade: deleting the space or the object unpublishes.
+model PublishedObject {
+  id          String   @id @default(cuid())
+  spaceId     String
+  objectId    String
+  uri         String
+  joinSpace   Boolean  @default(false)
+  version     Int      @default(1)
+  size        Int      @default(0)
+  timestamp   BigInt
+  publishedBy String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  space  Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  object Obj   @relation(fields: [objectId], references: [id], onDelete: Cascade)
+
+  @@unique([uri])
+  @@unique([spaceId, objectId])
+  @@index([spaceId])
+}
+
 model Link {
   id          String    @id @default(cuid())
   spaceId     String
@@ -388,5 +532,89 @@ model Link {
 
   @@unique([fromId, relationKey, toId])
   @@index([toId, relationKey])
+  @@index([spaceId])
+}
+
+// A chat / discussion message. Anytype stores these as CRDT objects ordered by a fractional
+// orderId; this backend is append-only per chat, so order is a monotonic per-chat `seq`
+// (ADR-0003 fractional ordering, race-free by locking the chat's Obj row before assigning the
+// next seq). `orderId` is the zero-padded seq the client sorts and paginates by lexicographic
+// compare (dispatcher.ts liveAddIndex, ChatGetMessages beforeOrderId/afterOrderId).
+//
+// The wire message the client's Mapper.From.ChatMessage reads keeps content/attachments/blocks/
+// reactions as opaque JSONB so nested shapes (marks, reaction id-lists, quote blocks) round-trip
+// verbatim; the projector converts BigInt seconds/seq back to JS numbers at the boundary.
+// creatorId holds the authoring user id with no FK (mirrors Obj.deletedBy) and is projected to a
+// participant id on read. createdAt/modifiedAt are unix seconds (U.Date.date multiplies by 1000).
+model ChatMessage {
+  id               String   @id @default(cuid())
+  chatId           String
+  spaceId          String
+  creatorId        String
+  seq              BigInt
+  orderId          String
+  content          Json     @default("{}")
+  attachments      Json     @default("[]")
+  blocks           Json     @default("[]")
+  reactions        Json     @default("{}")
+  replyToMessageId String   @default("")
+  createdAt        BigInt
+  modifiedAt       BigInt
+  deleted          Boolean  @default(false)
+  pinned           Boolean  @default(false)
+
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  @@unique([chatId, seq])
+  @@index([chatId, orderId])
+  @@index([spaceId])
+}
+
+// Per-member read watermarks for one chat. Anytype tracks unread state as an oldestOrderId+counter
+// pair per participant; the web-equivalent stores a high-watermark orderId per read type and derives
+// the counter on read (live messages with orderId > the watermark). messageOrderId/mentionOrderId
+// advance on ChatReadMessages (irreversible), move back on ChatUnreadMessages, and reactionOrderId
+// advances on ChatReadReactions. lastStateId + order are the optimistic-concurrency token and
+// monotonic version the client echoes back and receives in ChatStateUpdate events. spaceId is kept
+// for cascade cleanup and so ChatReadAll can scope to the caller's spaces.
+model ChatReadState {
+  id              String @id @default(cuid())
+  chatId          String
+  spaceId         String
+  userId          String
+  messageOrderId  String @default("")
+  mentionOrderId  String @default("")
+  reactionOrderId String @default("")
+  lastStateId     String @default("")
+  order           BigInt @default(0)
+
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  @@unique([chatId, userId])
+  @@index([spaceId, userId])
+}
+
+// A per-user notification (Anytype Rpc.Notification). The client derives a notification's TYPE from
+// which type-named field is present on the wire object (mapper.ts:94 NotificationPayload) and reads
+// the payload off that field (mapper.ts:536 From.Notification), so a row stores the wire `type` field
+// name (e.g. "requestToJoin", "participantRequestApproved") plus its `payload` JSONB and projects to
+// { id, createTime, status, isLocal, [type]: payload }. status is Anytype's numeric
+// I.NotificationStatus (Created 0, Shown 1, Read 2, Replied 3); NotificationReply(Close) moves a row
+// to Replied so it drops off the unread list (data.ts:496 boots with includeRead=false). createTime is
+// unix seconds. userId is the recipient with no FK (mirrors ChatMessage.creatorId, to avoid touching
+// the better-auth User model); spaceId keeps cascade cleanup so deleting a space clears its notices.
+model Notification {
+  id         String  @id @default(cuid())
+  spaceId    String
+  userId     String
+  type       String
+  status     Int     @default(0)
+  isLocal    Boolean @default(false)
+  createTime BigInt
+  payload    Json    @default("{}")
+
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
   @@index([spaceId])
 }

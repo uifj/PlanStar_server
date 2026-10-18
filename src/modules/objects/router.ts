@@ -11,18 +11,20 @@ import {
 } from "./routes.js";
 import { objectService } from "./service.js";
 
-export const spaceObjectsRouter = createProtectedRouter();
 export const objectsRouter = createProtectedRouter();
 
-spaceObjectsRouter.openapi(listObjectsRoute, async (c) => {
-	const { spaceId } = c.req.valid("param");
-	const query = c.req.valid("query");
-	const user = getCurrentUser(c);
+export const spaceObjectsRouter = createProtectedRouter().openapi(
+	listObjectsRoute,
+	async (c) => {
+		const { spaceId } = c.req.valid("param");
+		const query = c.req.valid("query");
+		const user = getCurrentUser(c);
 
-	const objects = await objectService.findMany(user, spaceId, query);
+		const objects = await objectService.findMany(user, spaceId, query);
 
-	return c.json(paginated(objects.data, objects.meta));
-});
+		return c.json(paginated(objects.data, objects.meta), 200);
+	},
+);
 
 spaceObjectsRouter.openapi(createObjectRoute, async (c) => {
 	const { spaceId } = c.req.valid("param");
@@ -40,7 +42,7 @@ objectsRouter.openapi(getObjectRoute, async (c) => {
 
 	const object = await objectService.findById(user, objectId);
 
-	return c.json(object);
+	return c.json(object, 200);
 });
 
 objectsRouter.openapi(listBacklinksRoute, async (c) => {
@@ -50,7 +52,7 @@ objectsRouter.openapi(listBacklinksRoute, async (c) => {
 
 	const backlinks = await objectService.findBacklinks(user, objectId, query);
 
-	return c.json(paginated(backlinks.data, backlinks.meta));
+	return c.json(paginated(backlinks.data, backlinks.meta), 200);
 });
 
 objectsRouter.openapi(updateObjectRoute, async (c) => {
@@ -60,7 +62,7 @@ objectsRouter.openapi(updateObjectRoute, async (c) => {
 
 	const object = await objectService.update(user, objectId, body);
 
-	return c.json(object);
+	return c.json(object, 200);
 });
 
 objectsRouter.openapi(archiveObjectRoute, async (c) => {

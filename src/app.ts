@@ -9,15 +9,12 @@ import { requestIdMiddleware } from "./middleware/request-id.js";
 import { openApiDocument, scalarConfig } from "./openapi/config.js";
 import routes from "./routes/index.js";
 
-const app = new OpenAPIHono().basePath(API_PREFIX);
+const base = new OpenAPIHono().basePath(API_PREFIX);
+base.use("*", corsMiddleware);
+base.use("*", requestIdMiddleware);
+base.use("*", loggerMiddleware);
 
-app.use("*", corsMiddleware);
-
-app.use("*", requestIdMiddleware);
-
-app.use("*", loggerMiddleware);
-
-app.route("/", routes);
+const app = base.route("/", routes);
 
 if (isDevelopment) {
 	app.doc("/openapi.json", openApiDocument);

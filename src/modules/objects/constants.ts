@@ -5,6 +5,16 @@ export const OBJECT_LAYOUTS = [
 	"relation",
 	"objectType",
 	"dataview",
+	"collection",
+	"set",
+	"file",
+	"image",
+	"audio",
+	"video",
+	"pdf",
+	"bookmark",
+	"discussion",
+	"date",
 ] as const;
 
 export const LISTABLE_OBJECT_LAYOUTS = ["basic"] as const;

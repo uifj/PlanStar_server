@@ -14,6 +14,9 @@ node_modules/
 # generated prisma client (pnpm db:generate)
 src/generated/
 
+# local file store (uploaded bytes keyed by object id)
+.data/
+
 # env
 .env
 .env.production
@@ -35,6 +38,9 @@ lerna-debug.log*
 dev.db
 test.db
 .vercel
-dist
+/dist
+/packages/api-client/dist/
 
 .dev.vars
+
+/front_web/_archive_src/

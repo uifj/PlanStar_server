@@ -27,7 +27,7 @@ dataviewsRouter.openapi(updateDataviewRoute, async (c) => {
 
 	const view = await dataviewService.update(user, spaceId, dataviewId, body);
 
-	return c.json(view);
+	return c.json(view, 200);
 });
 
 dataviewsRouter.openapi(listDataviewRecordsRoute, async (c) => {
@@ -42,8 +42,11 @@ dataviewsRouter.openapi(listDataviewRecordsRoute, async (c) => {
 		query,
 	);
 
-	return c.json({
-		...paginated(records.data, records.meta),
-		counters: records.counters,
-	});
+	return c.json(
+		{
+			...paginated(records.data, records.meta),
+			counters: records.counters,
+		},
+		200,
+	);
 });

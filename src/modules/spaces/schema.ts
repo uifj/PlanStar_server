@@ -28,7 +28,7 @@ export const SpaceParticipantSchema = z
 		spaceId: z.string(),
 		userId: z.string(),
 		permission: SpacePermissionSchema,
-		status: z.enum(["active", "removed"]),
+		status: z.enum(["active", "removed", "joining"]),
 		createdAt: z.iso.datetime(),
 	})
 	.meta({ id: "SpaceParticipant" });

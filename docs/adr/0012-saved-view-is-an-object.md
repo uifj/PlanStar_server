@@ -1,6 +1,6 @@
 # 0012. A saved view is an object
 
-Status: accepted
+Status: accepted - amended for the current client; view migration pending
 Date: 2026-10-14
 
 ## Context
@@ -71,3 +71,20 @@ Two rules follow from where the check lives:
 A view's record list now excludes archived objects in both passes, so its counters and the
 browser's unsaved list of the same type agree; the kernel still lists archived objects to
 any caller who asks (0007).
+
+## Amendment, 2026-10-16 — map views to the current client's containers
+
+The amendments above describe the former custom frontend, not the current client's
+complete view support. View configuration remains authoritative in an Obj and validated
+by the dataview service. Extend its ownership mapping with `ownerObjectId`, `blockId` and
+`viewId` to identify the containing object, dataview block and individual view; a container
+can have multiple views. A collaborative body node holds stable references to that
+configuration, never a duplicate authoritative filter, sort or layout definition
+([0018](0018-collaborative-document-source.md)). These identifiers are planned contract
+fields, not a claim that the current schema already stores them.
+
+Existing saved-view objects still need migration to the container's default view,
+preserving their IDs and accessible paths. View deletion must define container/body
+reference cleanup. Ownership mapping, migration and the wider view/layout matrix are
+pending staged implementation; the earlier four-layout support and client-side grouping
+notes are historical limits, not full acceptance of the replacement client's views.

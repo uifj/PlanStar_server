@@ -5,12 +5,12 @@ export const SortOrderSchema = z.enum(["asc", "desc"]);
 
 export const ListQuerySchema = z.object({
 	page: z.coerce
-		.number()
+		.number<string>()
 		.int("Page must be a whole number.")
 		.min(1, "Page must be at least 1.")
 		.default(1),
 	limit: z.coerce
-		.number()
+		.number<string>()
 		.int("Limit must be a whole number.")
 		.min(1, "Limit must be at least 1.")
 		.max(PAGINATION.MAX_LIMIT, `Limit cannot exceed ${PAGINATION.MAX_LIMIT}.`)

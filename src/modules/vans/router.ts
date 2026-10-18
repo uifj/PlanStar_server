@@ -10,7 +10,7 @@ vansRouter.openapi(listVansRoute, async (c) => {
 
 	const vans = await vanService.findMany(query);
 
-	return c.json(paginated(vans.data, vans.meta));
+	return c.json(paginated(vans.data, vans.meta), 200);
 });
 
 vansRouter.openapi(getVanRoute, async (c) => {
@@ -18,5 +18,5 @@ vansRouter.openapi(getVanRoute, async (c) => {
 
 	const van = await vanService.findById(id);
 
-	return c.json(van);
+	return c.json(van, 200);
 });

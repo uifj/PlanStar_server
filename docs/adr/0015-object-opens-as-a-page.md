@@ -1,6 +1,6 @@
 # 0015. An object opens as a page
 
-Status: accepted
+Status: superseded-by-0017 for the historical custom UI implementation; design intent retained
 Date: 2026-10-15
 
 ## Context
@@ -37,3 +37,15 @@ mirrors (`relation`, `objectType`) likewise get a page whose fields cannot be sa
 their relations are read-only by 0005 - the page shows them rather than pretending otherwise.
 There is no heading above the document, matching Anytype, so the properties, the incoming
 links and the body read as one column rather than three panels.
+
+## Amendment, 2026-10-16 — preserve page intent in the replacement client
+
+The custom object route, `BlockDocument`, `PropertyValue`, peek flow and layout limits
+above belong to the replaced frontend. [0017](0017-hono-rpc-web-client.md) retains the
+current Anytype client's object-opening/navigation behaviour and page shell instead of
+restoring those components. Keep objects addressable as pages with their cover, name,
+properties and surrounding links/comments; [0018](0018-collaborative-document-source.md)
+replaces the body with Tiptap/Yjs while keeping header/body interaction boundaries clear.
+Set and Chat pages are not wholesale editor rewrites. The shell replacement is current;
+real HTTP data, collaborative bodies and legacy-body migration remain staged work, not
+features established by the historical page implementation.

@@ -1,6 +1,6 @@
 # 0009. Run a normalised object cache beside TanStack Query
 
-Status: accepted - not implemented (see the status note)
+Status: superseded-by-0019; this proposal was never implemented
 Date: 2026-10-13
 
 ## Context
@@ -35,3 +35,13 @@ read that keeps `GET /bookings` on the legacy tables, ADR-0008).
 Implementing this remains open work, and it is a decision to revisit with that batch read
 rather than an implementation detail: the cheapest honest ordering is batch-read-by-id first,
 then the store, then narrowing the invalidation to the space prefix.
+
+## Amendment, 2026-10-16 — superseded before implementation
+
+The phase 9 note above describes the replaced custom frontend and its then-open work;
+its file paths and cache behaviour are historical, not assertions about the current
+Anytype client. [0019](0019-authorised-subscription-events.md) supersedes this proposal:
+retain the current MobX stores, fed by authorised Hono SSE snapshots, deltas and replay.
+Do not implement the proposed TanStack Query/ObjectCacheStore pair or add a new TanStack
+cache. Subscription delivery and its acceptance tests are pending staged implementation;
+the presence of MobX alone does not mean the server event channel is connected.
