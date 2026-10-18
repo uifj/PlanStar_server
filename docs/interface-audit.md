@@ -95,9 +95,10 @@ transport never implemented, see §5).
    created view now appears in the client's store under the answered id, a filter added to it lands in
    the store without a reload, and the view survives a reload and comes back with the same id.
    Remaining: `BlockDataviewCreateFromExistingObject` (§3a) for dataview blocks inside a page body.
-4. **The AI writing tools cannot stream** — `service.ts:383-394` keeps `client`/`streamClient`
-   instances that nothing uses, and `getDescriptor` (`:397-425`, path
-   `/anytype.ClientCommands/<Name>`) is dead. Any `C.AI*` call that expects a stream has no transport.
+4. **The AI writing tools cannot stream** — the gRPC-web machinery was deleted with the transport
+   (`81419c2`), so the `C.AI*` calls that expect a server-streaming response have no transport at all
+   (task #254). Unary commands ride `fetch`; a stream would need a second seam (SSE or a chunked
+   `POST`) rather than a resurrected `streamClient`.
 5. **Publish links pointed off-box** — **fixed**. `U.Space.getPublishDomain` built the link from the
    participant identity (`J.Url.publish` = `any.coop/%s`), so every published page's link led to the
    hosted service while this harness serves `GET /api/publish/:uri` itself. The link is now
@@ -117,6 +118,27 @@ transport never implemented, see §5).
    `switchSpace`, the way the desktop path already did at `app.tsx:541`. Verified live: the set URL
    reloads to `/main/set/<id>` with its grid (8 rows, Name column), and a bare-root boot still lands
    on Widgets. The server was never at fault — `ObjectOpen` answered the full dataview block both times.
+8. **Every ownership-gated screen was dead** (task #259) — **fixed**. `U.Space.getMyParticipant` reads
+   `_participant_<spaceId>_<accountId>` out of the `subSpace-<spaceId>` subscription, and
+   `isMyOwner` / `canManageInvite` / `canMyParticipantModerate` / `canMyParticipantWrite` all answer
+   false (or null) when that record is missing. The subId sat in `EMPTY_SUB_IDS`, so the members screen
+   rendered its list but no share panel, member controls were hidden, and `U.Space.getCreator` never
+   resolved. `subSpaceRecords` now merges the space's participants with the requested objects, and the
+   space view names its creator by participant id. Verified live: `isMyOwner` flips false → true and the
+   share sheet renders its toggle, Copy link, QR, Manage link and Reset link.
+9. **The settings content-model rail was empty, then white-screened** (task #261) — **fixed**. `library`
+   was also in `EMPTY_SUB_IDS`; its rows are registry records (the type/relation mirror rows are hidden
+   from object lists), so it is answered from `typeRecords`/`relationRecords` narrowed by the rail's own
+   filters. Fixing the emptiness exposed the second defect: `S.Block.isAllowed` reads
+   `restrictions.indexOf`, and every projection sent `{}` for "no restrictions" — an object there throws
+   inside the row renderer and React unmounts the whole tree. `restrictions` is a list. Verified live:
+   the rail lists Collection / Page / Task / Template and opens the type editor.
+10. **An `id In [...]` filter was ignored** (task #260) — **fixed**. `id` was missing from
+    `SYSTEM_RELATIONS`, so the filter either fell to the details-JSONB path (matches nothing) or, with no
+    wire format, was dropped outright. Live: one requested id returned all 46 live objects in the space.
+11. **An invite link the web build cannot open** — **fixed**. `getInviteLink` always built an
+    `anytype://` link, a scheme only the desktop registers. The web build now hands out its own
+    `/invite/?cid=…&key=…` route.
 
 ## 5. Dead code and obsolete surface to prune
 

@@ -50,8 +50,19 @@
 | 发布链接 | `PublishingCreate` → 打开链接 → `PublishingRemove` | 通过：`http://localhost:8000/api/publish/<slug>` 返回 200，撤销后 404（#253） |
 | 实时推送 | 传输层重写后再验 | 通过：SSE 打开且收到 3 帧 `objectDetailsSet` |
 | `?server=` 覆盖 | 读代码 + 单测 | 修复：入口解析了参数但传输层自行取 env/origin，覆盖无效；现统一由 `serverAddress()` 决定 |
+| 成员 / 邀请面板 | `/main/settings/spaceShare` → 截图 | 修复后通过：`subSpace` 订阅应答后 `isMyOwner`/`canManageInvite` 为真，分享开关与 Copy link / QR / Manage link / Reset link 全部渲染（#259） |
+| 邀请链接 | `getInviteLink` 单测 + 实盘 | 修复：web 构建此前只发 `anytype://` 链接（本站没有协议处理程序），改发本应用 `/invite/` 路由 |
+| 设置-通用 | 截图 | 通过：空间卡 + Copy link / QR + Homepage / Sidebar View / Default Object Type 偏好项 |
+| 设置-通知 / 远程存储 / 回收站 / 导入 / 导出 | 逐屏 `Action.openSettings`，控制台零错误 | 渲染通过；导入/导出的**执行**仍属 #153，存储用量依赖 `FileNodeUsage`（桌面能力，NOT_SUPPORTED） |
+| 内容模型（Object Types / Properties） | 打开侧栏 rail → 截图 | 修复后通过：`library` 订阅改由注册表投影应答，rail 列出 4 个类型并能进入类型编辑器（#261） |
+| 移除历史 | 新建对象 → 删除 → 重开该屏 | 通过：新行「Removed by = P1 Fresh、Removed = October 18, 2026」；旧行三列为破折号，因为删除发生在 deletedBy/deletedDate 迁移之前 |
+| 记录形状契约 | 白屏崩溃定位 | 修复：`restrictions` 必须是**数组**——`S.Block.isAllowed` 用 `indexOf` 读它，`{}` 会让整棵 React 树白屏；spaceview 的 `creator` 必须是 participant id，`U.Space.getCreator` 才能解析 |
+| `id` 过滤器 | 实盘 + 集成测试 | 修复：`id In [...]` 此前被静默丢弃，一次订阅返回全空间 46 行；`id` 已登记为系统关系（#260） |
 
-尚未验收：成员面板、设置各分页、讨论/图谱屏（#91）；正文内联 dataview 块（#257）；AI 流式与命令级撤销（#254）。
+尚未验收：讨论 / 图谱屏、成员邀请的**双账号端到端**（第二个账号点链接加入）、正文内联 dataview 块（#257）、AI 流式与命令级撤销（#254）。
+
+> 教训：`EMPTY_SUB_IDS` 里「不是对象列表」的判断必须由客户端实际解析路径反证。`subSpace` 与 `library` 都曾以「非对象列表」名义被留空，结果分别是所有权闸门全灭与内容模型 rail 空白。
+
 
 ## P3 可行性结论：Tiptap（免费/MIT）可全覆盖
 
