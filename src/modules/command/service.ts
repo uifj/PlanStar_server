@@ -44,6 +44,11 @@ import {
 	toggleReaction,
 	unreadMessages,
 } from "./chat-service.js";
+import {
+	DATAVIEW_WRITE_COMMANDS,
+	type DataviewWrite,
+	dataviewWrite,
+} from "./dataview-write.js";
 import { uploadFile } from "./file-service.js";
 import {
 	fetchLinkPreview,
@@ -2980,8 +2985,26 @@ export async function run(
 			}
 		}
 
-		default:
-			return { error: NOT_SUPPORTED, event: null };
+		// The set screen's dataview controls (BlockDataview*) are one family: the module owns the
+		// whole table, so a command's guard mapping and event envelope live in one place rather
+		// than repeated 22 times here.
+		default: {
+			if (!DATAVIEW_WRITE_COMMANDS.has(name)) {
+				return { error: NOT_SUPPORTED, event: null };
+			}
+
+			let answered: DataviewWrite | null;
+			try {
+				answered = await dataviewWrite(user, name, body);
+			} catch {
+				return { error: FORBIDDEN, event: null };
+			}
+			if (answered === null) {
+				return { error: NOT_FOUND, event: null };
+			}
+
+			return { error: OK, event: answered.event, ...answered.response };
+		}
 	}
 }
 

@@ -10,6 +10,17 @@ import { RELATION_FORMAT } from "./registry-service.js";
 export const SET_VIEWS_KEY = "dataviewViews";
 export const SET_ACTIVE_VIEW_KEY = "dataviewActiveView";
 
+// A view row written through the command shim carries the client's own view object, exactly as
+// Mapper.To.View sent it (ADR-0020: the shell owns view semantics, so every setting the screen
+// exposes round-trips without a translation table). Rows written by the pre-pivot REST API have no
+// such blob and are still projected from the kernel fields below.
+export const VIEW_WIRE_KEY = "dataviewView";
+
+// The dataview block's own state, which belongs to the object rather than to a view.
+export const SET_RELATION_LINKS_KEY = "dataviewRelationLinks";
+export const SET_GROUP_ORDERS_KEY = "dataviewGroupOrders";
+export const SET_OBJECT_ORDERS_KEY = "dataviewObjectOrders";
+
 // The client's block id for a set/collection dataview (json/constant.ts:210). set.tsx looks the
 // child up by this id and the grid's shortcuts assume it.
 export const DATAVIEW_BLOCK_ID = "dataview";
@@ -44,7 +55,7 @@ const SORT_TYPE: Record<string, number> = { asc: 0, desc: 1 };
 
 type Details = Record<string, unknown>;
 
-function detailsOf(obj: { details: Prisma.JsonValue }): Details {
+export function detailsOf(obj: { details: Prisma.JsonValue }): Details {
 	return obj.details &&
 		typeof obj.details === "object" &&
 		!Array.isArray(obj.details)
@@ -68,6 +79,46 @@ async function defaultRelationKeys(spaceId: string, typeId: string) {
 	return keys;
 }
 
+// The view object a healed set starts with, in the client's own wire shape so the write commands
+// mutate it like any view the screen created. The id is stamped by the projection, not stored here.
+function defaultWireView(columns: { key: string }[], sourceTypeId: string) {
+	return {
+		type: VIEW_TYPE.grid,
+		name: "Grid",
+		coverRelationKey: "",
+		coverFit: false,
+		cardSize: 0,
+		listSize: 0,
+		hideIcon: false,
+		groupRelationKey: "",
+		endRelationKey: "",
+		wrapContent: true,
+		groupBackgroundColors: false,
+		pageLimit: 0,
+		defaultTemplateId: "",
+		defaultObjectTypeId: sourceTypeId,
+		relations: columns.map((column) => ({
+			key: column.key,
+			isVisible: true,
+			width: 0,
+			formula: 0,
+			align: 0,
+		})),
+		filters: [],
+		// The client echoes a view's sorts verbatim, so this is an Anytype relation key rather than
+		// the kernel's column name — a `createdAt` would come back as an unknown relation.
+		sorts: [
+			{
+				id: "sort-0",
+				RelationKey: "createdDate",
+				type: SORT_TYPE.desc,
+				customOrder: [],
+				emptyPlacement: 0,
+			},
+		],
+	};
+}
+
 // Idempotent: a set that already owns readable views keeps them, so healing a set that predates this
 // path — or re-opening one after a partial write — never duplicates a view. Returns the set's row as
 // it now stands, so the caller projects the ids it just wrote.
@@ -81,19 +132,44 @@ export async function ensureSetViews(
 		? (details[SET_VIEWS_KEY] as string[])
 		: [];
 
-	if (stored.length) {
-		const live = await prisma.obj.count({
-			where: { id: { in: stored }, spaceId, resolvedLayout: DATAVIEW_LAYOUT },
-		});
-		if (live === stored.length) {
-			return obj;
-		}
-	}
-
 	const sourceTypeIds = Array.isArray(details.setOf)
 		? (details.setOf as string[]).filter((it) => typeof it === "string")
 		: [];
 	const sourceTypeId = sourceTypeIds[0] ?? obj.typeId ?? "";
+
+	if (stored.length && sourceTypeId) {
+		const rows = await prisma.obj.findMany({
+			where: { id: { in: stored }, spaceId, resolvedLayout: DATAVIEW_LAYOUT },
+		});
+		if (rows.length === stored.length) {
+			// Views healed before a row carried its own view object get one on the next open, so
+			// every write command starts from the same shape the screen created.
+			const stale = rows.filter((row) => !wireOf(row));
+			if (stale.length) {
+				const columns = await defaultRelationKeys(spaceId, sourceTypeId);
+				await Promise.all(
+					stale.map((row) =>
+						prisma.obj.update({
+							where: { id: row.id },
+							data: {
+								details: {
+									...detailsOf(row),
+									[VIEW_WIRE_KEY]: projectKernelView(
+										row,
+										detailsOf(row),
+										sourceTypeId,
+										columns,
+									),
+								} as Prisma.InputJsonObject,
+							},
+						}),
+					),
+				);
+			}
+			return obj;
+		}
+	}
+
 	if (!sourceTypeId) {
 		return obj;
 	}
@@ -107,6 +183,7 @@ export async function ensureSetViews(
 		layout: {
 			viewType: "grid",
 			dataviewRelations: columns.map((it) => it.key),
+			[VIEW_WIRE_KEY]: defaultWireView(columns, sourceTypeId),
 		} as Prisma.InputJsonObject,
 		filters: [],
 		// The client echoes a view's sorts verbatim, so these are Anytype relation keys rather
@@ -174,8 +251,55 @@ function projectFilters(stored: unknown) {
 	});
 }
 
-// The dataview block content the set screen renders: the set's view objects projected into the
-// client's inline view shape, with the relation links its grid columns resolve their formats from.
+// The view object a row carries for the client, or null for a row that only has kernel fields.
+export function wireOf(row: { details: Prisma.JsonValue }) {
+	const stored = detailsOf(row)[VIEW_WIRE_KEY];
+	return stored && typeof stored === "object" && !Array.isArray(stored)
+		? (stored as Details)
+		: null;
+}
+
+// A view row written by the pre-pivot REST router has no view object of its own: the kernel's
+// layout fields are translated into the client's shape instead.
+function projectKernelView(
+	row: { id: string; name: string },
+	viewDetails: Details,
+	sourceTypeId: string,
+	columns: { key: string }[],
+): Details {
+	const keys = Array.isArray(viewDetails.dataviewRelations)
+		? (viewDetails.dataviewRelations as string[])
+		: columns.map((it) => it.key);
+
+	return {
+		id: row.id,
+		type: VIEW_TYPE[String(viewDetails.viewType ?? "grid")] ?? VIEW_TYPE.grid,
+		name: row.name,
+		coverRelationKey: "",
+		coverFit: false,
+		cardSize: 0,
+		listSize: 0,
+		hideIcon: false,
+		groupRelationKey: String(viewDetails.groupRelationKey ?? ""),
+		endRelationKey: "",
+		wrapContent: true,
+		pageLimit: 0,
+		defaultTemplateId: "",
+		defaultObjectTypeId: sourceTypeId,
+		relations: keys.map((key) => ({
+			key,
+			isVisible: true,
+			width: 0,
+			formula: 0,
+			align: 0,
+		})),
+		filters: projectFilters(viewDetails.dataviewFilters),
+		sorts: projectSorts(viewDetails.dataviewSorts),
+	};
+}
+
+// The dataview block content the set screen renders: the set's view objects echoed in the client's
+// inline view shape, with the relation links its grid columns resolve their formats from.
 export async function dataviewBlockFor(
 	spaceId: string,
 	obj: { id: string; typeId: string | null; details: Prisma.JsonValue },
@@ -216,39 +340,20 @@ export async function dataviewBlockFor(
 		: [];
 
 	const views = ordered.map((row) => {
-		const viewDetails = detailsOf(row);
-		const keys = Array.isArray(viewDetails.dataviewRelations)
-			? (viewDetails.dataviewRelations as string[])
-			: columns.map((it) => it.key);
-		const type =
-			VIEW_TYPE[String(viewDetails.viewType ?? "grid")] ?? VIEW_TYPE.grid;
-
+		const view = wireOf(row);
 		return {
+			...(view ??
+				projectKernelView(row, detailsOf(row), sourceTypeId, columns)),
 			id: row.id,
-			type,
-			name: row.name,
-			coverRelationKey: "",
-			coverFit: false,
-			cardSize: 0,
-			listSize: 0,
-			hideIcon: false,
-			groupRelationKey: String(viewDetails.groupRelationKey ?? ""),
-			endRelationKey: "",
-			wrapContent: true,
-			pageLimit: 0,
-			defaultTemplateId: "",
-			defaultObjectTypeId: sourceTypeId,
-			relations: keys.map((key) => ({
-				key,
-				isVisible: true,
-				width: 0,
-				formula: 0,
-				align: 0,
-			})),
-			filters: projectFilters(viewDetails.dataviewFilters),
-			sorts: projectSorts(viewDetails.dataviewSorts),
 		};
 	});
+
+	const relationLinks = Array.isArray(stored[SET_RELATION_LINKS_KEY])
+		? (stored[SET_RELATION_LINKS_KEY] as { key?: unknown; format?: unknown }[])
+		: columns.map((it) => ({
+				key: it.key,
+				format: RELATION_FORMAT[it.format] ?? 0,
+			}));
 
 	return {
 		source: sourceTypeIds,
@@ -256,12 +361,16 @@ export async function dataviewBlockFor(
 			activeViewId && byId.has(activeViewId) ? activeViewId : ordered[0].id,
 		TargetObjectId: "",
 		isCollection: false,
-		relationLinks: columns.map((it) => ({
-			key: it.key,
-			format: RELATION_FORMAT[it.format] ?? 0,
+		relationLinks: relationLinks.map((it) => ({
+			key: String(it.key ?? ""),
+			format: Number(it.format ?? 0),
 		})),
-		groupOrders: [],
-		objectOrders: [],
+		groupOrders: Array.isArray(stored[SET_GROUP_ORDERS_KEY])
+			? (stored[SET_GROUP_ORDERS_KEY] as Details[])
+			: [],
+		objectOrders: Array.isArray(stored[SET_OBJECT_ORDERS_KEY])
+			? (stored[SET_OBJECT_ORDERS_KEY] as Details[])
+			: [],
 		views,
 	};
 }
