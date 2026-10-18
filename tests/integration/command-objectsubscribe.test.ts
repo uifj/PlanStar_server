@@ -141,6 +141,22 @@ describe.skipIf(!databaseAvailable)(
 			expect(names).toContain("Third");
 		});
 
+		// U.Subscription.subscribeIds-style widgets and the settings library rail's search both
+		// narrow by id, so an `id In [...]` filter has to constrain the answer rather than be
+		// dropped and hand back every live object in the space.
+		it("narrows to the ids an id filter names", async () => {
+			const spaceId = await createSpace();
+			const wanted = await createObject(spaceId, "Wanted");
+			await createObject(spaceId, "Unwanted");
+
+			const body = await subscribe(spaceId, `widget-${spaceId}-ids`, [
+				...baseFilters(),
+				{ RelationKey: "id", format: 0, condition: 9, value: [wanted] },
+			]);
+
+			expect(body.records.map((it: any) => it.id)).toEqual([wanted]);
+		});
+
 		it("forbids a non-member from reading the space's object list", async () => {
 			const spaceId = await createSpace();
 			await createObject(spaceId, "Guarded");

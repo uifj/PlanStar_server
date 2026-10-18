@@ -27,6 +27,10 @@ export const MAX_FILTER_JSON_LENGTH = 4000;
 // Relations the object table already stores as columns (ADR-0002). The keys are
 // client-facing; the SQL fragments come from this table, never from the client.
 export const SYSTEM_RELATIONS: Record<string, RelationDefinition> = {
+	// The client addresses objects by id in its own filters (an `id In [...]` subscribe from
+	// U.Subscription, the settings library rail's search). Without a column here that filter falls
+	// through to the details-JSONB path, which holds no "id" key, and wrongly matches nothing.
+	id: { format: "shortText", column: 'o."id"' },
 	name: { format: "shortText", column: 'o."name"' },
 	description: { format: "longText", column: 'o."description"' },
 	snippet: { format: "longText", column: 'o."snippet"' },
