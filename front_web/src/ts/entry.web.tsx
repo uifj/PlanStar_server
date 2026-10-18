@@ -11,15 +11,18 @@ import React from "react";
 
 // First, set up the Electron mock BEFORE any imports that might use it
 import { electronMock } from "./lib/web/electronMock";
-import { serverAddress as defaultServerAddress } from "./lib/web/serverAddress";
+import {
+	serverAddress as defaultServerAddress,
+	usableStoredAddress,
+} from "./lib/web/serverAddress";
 
 // Set up global configuration from URL params or defaults
 const urlParams = new URLSearchParams(window.location.search);
-const storedAddress = localStorage.getItem("anytype_serverAddress") || "";
+const storedAddress = usableStoredAddress(
+	localStorage.getItem("anytype_serverAddress") || "",
+);
 const serverAddress =
-	urlParams.get("server") ||
-	(storedAddress.startsWith("http") ? storedAddress : "") ||
-	defaultServerAddress();
+	urlParams.get("server") || storedAddress || defaultServerAddress();
 const dataPath =
 	urlParams.get("dataPath") || localStorage.getItem("anytype_dataPath") || "";
 

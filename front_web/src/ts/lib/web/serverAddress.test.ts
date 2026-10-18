@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { serverAddress } from "./serverAddress";
+import { serverAddress, usableStoredAddress } from "./serverAddress";
 
 describe("serverAddress", () => {
 	it("uses the configured API base, without its trailing slash", () => {
@@ -20,5 +20,19 @@ describe("serverAddress", () => {
 		expect(value).toMatch(/^https?:\/\/.+/);
 
 		vi.unstubAllEnvs();
+	});
+});
+
+describe("usableStoredAddress", () => {
+	it("discards a stored address that points at the retired proxy", () => {
+		expect(usableStoredAddress("http://127.0.0.1:31008")).toBe("");
+	});
+
+	it("keeps a stored API base and drops a non-address", () => {
+		expect(usableStoredAddress("http://localhost:8000/api")).toBe(
+			"http://localhost:8000/api",
+		);
+		expect(usableStoredAddress("")).toBe("");
+		expect(usableStoredAddress("not-a-url")).toBe("");
 	});
 });
