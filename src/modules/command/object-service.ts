@@ -24,6 +24,8 @@ const LAYOUT_PAGE = 0;
 const LAYOUT_OPTION = 13;
 // I.ObjectLayout.Set === 3 (front_web interface/object.ts); a set reads as a dataview.
 const LAYOUT_SET = 3;
+// I.ObjectLayout.Type === 4 (front_web interface/object.ts); a type opens as a set over its own objects.
+const LAYOUT_TYPE = 4;
 // I.ObjectLayout.Bookmark === 11 (front_web interface/object.ts:13).
 const LAYOUT_BOOKMARK = 11;
 // I.ObjectLayout.Date === 17 (front_web interface/object.ts:19); the per-day date object.
@@ -1023,9 +1025,32 @@ export async function loadObjectView(user: AuthUser, objectId: string) {
 
 	// A set screen draws only its dataview child (page/main/set.tsx:248), so the view objects are
 	// ensured here and projected inline — this client has no view-object subscription to fill them.
+	// A type screen opens the TYPE object at the same route, and the dataview resolves its query's
+	// sources from the record's `setOf` (block/dataview.tsx:401), so a type is healed into a set over
+	// its own objects: without both the views and that source, the type page is a header over nothing.
 	let dataview = null;
-	if (numericLayout(obj) === LAYOUT_SET) {
-		const healed = await ensureSetViews(obj.spaceId, obj.creatorId ?? "", obj);
+	let viewRow = obj;
+	const viewLayout = numericLayout(obj);
+	if (viewLayout === LAYOUT_SET || viewLayout === LAYOUT_TYPE) {
+		if (viewLayout === LAYOUT_TYPE) {
+			const stored =
+				obj.details &&
+				typeof obj.details === "object" &&
+				!Array.isArray(obj.details)
+					? (obj.details as Record<string, unknown>)
+					: {};
+			if (!Array.isArray(stored.setOf) || stored.setOf.length === 0) {
+				viewRow = await prisma.obj.update({
+					where: { id: obj.id },
+					data: { details: { ...stored, setOf: [obj.id] } },
+				});
+			}
+		}
+		const healed = await ensureSetViews(
+			obj.spaceId,
+			obj.creatorId ?? "",
+			viewRow,
+		);
 		dataview = await dataviewBlockFor(obj.spaceId, healed);
 	}
 
@@ -1085,7 +1110,7 @@ export async function loadObjectView(user: AuthUser, objectId: string) {
 	return {
 		rootId: obj.id,
 		blocks,
-		details: [{ id: obj.id, details: objectDetails(obj) }],
+		details: [{ id: obj.id, details: objectDetails(viewRow) }],
 		restrictions: { object: [], dataview: [] },
 		blockParticipants: [],
 	};

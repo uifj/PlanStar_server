@@ -184,6 +184,13 @@ transport never implemented, see §5).
     subscriptions use, and an empty query means "no text constraint" rather than "no results";
     `ObjectSearchWithMeta` narrows by its filters the same way.
 
+18. **A type screen listed nothing** — **fixed**. Clicking a type in the rail opens the **type
+    object itself** at `/main/set/<typeId>`, and that screen draws only the root's dataview child,
+    resolving its query's sources from the record's `setOf` (`block/dataview.tsx:401`). A type had
+    neither views nor a source, so the page came up as a header over an empty body — live, "Page"
+    showed nothing while the space held seven page objects. Opening a type now heals it into a set
+    over its own objects: `setOf: [typeId]` on the record and the same default-view child a set gets.
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,
