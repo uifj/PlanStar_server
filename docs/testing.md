@@ -247,6 +247,13 @@ Defects this run found and fixed (each with a test):
 * `HistoryShowVersion` returned the object's current (stale or absent) block rows, leaving the
   preview pane blank → `ab5ff3d`
 
+Screens beyond that flow, also driven in the browser: the **graph** opens from the header and
+draws the object's node (canvas + label, no error codes); the **discussion** panel on an object
+page lazily creates its chat object (`ObjectAddDiscussion`), then `ChatSubscribeLastMessages` +
+`ChatAddMessage` + `ChatGetMessages` post and render a comment with author and time, and the editor
+clears. Across both screens the console shows only the three intentional `code 12` file commands
+and the vendored SVG/React warnings — no new interface failures.
+
 Known boundaries, not defects: `FileNodeUsage`, `FileSetAutoDownload` and
 `FileAutoDownloadSetLimit` answer code 12 (native-only), and the `type` / `relation` / `option` /
 `participant` / `deleted` / `archived` registry sources stay unregistered on purpose, so those
