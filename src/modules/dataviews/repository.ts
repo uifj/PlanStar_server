@@ -6,6 +6,9 @@ interface CreateViewInput {
 	spaceId: string;
 	creatorId: string;
 	name: string;
+	// The type the view is authored against. Empty for a view of a freshly created set or a
+	// collection, whose rows the screen does not fetch by type at all — such a view simply has no
+	// source edge.
 	sourceTypeId: string;
 	// viewType plus the relations that layout reads, already checked by the service.
 	layout: Prisma.InputJsonObject;
@@ -33,15 +36,19 @@ async function create(input: CreateViewInput) {
 				},
 			},
 		}),
-		prisma.link.create({
-			data: {
-				spaceId: input.spaceId,
-				fromId: id,
-				toId: input.sourceTypeId,
-				relationKey: DATAVIEW_SOURCE_RELATION,
-				sortOrder: "0001",
-			},
-		}),
+		...(input.sourceTypeId
+			? [
+					prisma.link.create({
+						data: {
+							spaceId: input.spaceId,
+							fromId: id,
+							toId: input.sourceTypeId,
+							relationKey: DATAVIEW_SOURCE_RELATION,
+							sortOrder: "0001",
+						},
+					}),
+				]
+			: []),
 	]);
 
 	return { id };

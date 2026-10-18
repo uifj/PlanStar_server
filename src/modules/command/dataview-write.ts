@@ -5,9 +5,10 @@ import { prisma } from "../../lib/prisma.js";
 import { DATAVIEW_LAYOUT } from "../dataviews/constants.js";
 import { dataviewRepository } from "../dataviews/repository.js";
 import { type SessionEvent, spaceEvents } from "../pubsub/space-events.js";
-import { RELATION_FORMAT } from "./registry-service.js";
+import { numericLayout, RELATION_FORMAT } from "./registry-service.js";
 import type { CommandBody } from "./schema.js";
 import {
+	dataviewBlockFor,
 	detailsOf,
 	ensureSetViews,
 	SET_ACTIVE_VIEW_KEY,
@@ -30,6 +31,12 @@ import {
 // reload — the same message core pushes.
 
 type Details = Record<string, unknown>;
+
+// I.ObjectLayout numbers (front_web interface/object.ts) for the objects a dataview block can be
+// bound to; each renders a view list even before anyone picks a source.
+const LAYOUT_SET = 3;
+const LAYOUT_TYPE = 4;
+const LAYOUT_COLLECTION = 14;
 
 export type DataviewWrite = {
 	// The event the client applies locally; null when the command has no event.
@@ -76,6 +83,7 @@ export const DATAVIEW_WRITE_COMMANDS: ReadonlySet<string> = new Set([
 	"BlockDataviewRelationDelete",
 	"BlockDataviewRelationSet",
 	"BlockDataviewSetSource",
+	"BlockDataviewCreateFromExistingObject",
 	"BlockDataviewGroupOrderUpdate",
 	"BlockDataviewObjectOrderUpdate",
 ]);
@@ -636,6 +644,62 @@ export async function dataviewWrite(
 			await saveHolder(owner, { setOf: strings(body.source) });
 
 			return { event: null, response: {} };
+		}
+
+		// Binding a dataview block inside a page body to an existing set or collection. Which object
+		// the block shows is stored in the body's own Yjs attrs (ADR-0018), so this command persists
+		// nothing; it hands back the target's views, because the client switches to the first one the
+		// moment the answer lands (block/dataview.tsx:979 reads message.views[0].id, and response.ts:517
+		// maps the response's `view` onto `views`). The target must live in the caller's space, so a
+		// page cannot be used to read another space's view list.
+		case "BlockDataviewCreateFromExistingObject": {
+			const context = await prisma.obj.findUnique({
+				where: { id: contextId },
+				select: { spaceId: true },
+			});
+			if (!context) {
+				return null;
+			}
+			await ensureSpaceAccess(user.id, context.spaceId, "writer");
+
+			const targetObjectId = text(body.targetObjectId);
+			const target = await prisma.obj.findFirst({
+				where: { id: targetObjectId, spaceId: context.spaceId },
+				select: {
+					id: true,
+					spaceId: true,
+					typeId: true,
+					layout: true,
+					creatorId: true,
+					details: true,
+				},
+			});
+			if (!target) {
+				return null;
+			}
+
+			// Only a set, a type or a collection can be a block's target (head.tsx's picker filters to
+			// those layouts), and each of them needs a view before a source is chosen — a set minted
+			// from the picker arrives with none.
+			const targetLayout = numericLayout(target);
+			const healed = await ensureSetViews(
+				target.spaceId,
+				target.creatorId ?? "",
+				target,
+				targetLayout === LAYOUT_SET ||
+					targetLayout === LAYOUT_TYPE ||
+					targetLayout === LAYOUT_COLLECTION,
+			);
+			const block = await dataviewBlockFor(target.spaceId, healed);
+
+			return {
+				event: null,
+				response: {
+					blockId,
+					targetObjectId,
+					view: block?.views ?? [],
+				},
+			};
 		}
 
 		case "BlockDataviewGroupOrderUpdate": {

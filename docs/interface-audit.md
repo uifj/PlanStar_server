@@ -30,15 +30,15 @@ deliberately records every capability as `pending` — it joins the client's sur
 migration is done — so the answered/pending split below comes from diffing it against the shim.
 
 - 259 exported wrappers in `command.ts`; **231 of them are called** from client code.
-- The shim answers **127** distinct command names (105 at the audit's first pass, plus the 22
-  `BlockDataview*` writes added by task #250).
-- **108 called commands have no server case.** They are not one bucket — see §3.
+- The shim answers **128** distinct command names (105 at the audit's first pass, plus the 22
+  `BlockDataview*` writes added by task #250, plus the inline-block binding of item 24).
+- **107 called commands have no server case.** They are not one bucket — see §3.
 - Only **2 answered commands are never called**: `ChatUnreadMessages` (the client's unread path uses
   `ChatSubscribeToMessagePreviews` counters instead) and `ObjectToSet` (see §4 — the set screen calls
   a *different* entry point). Both still have integration tests, so they are live-but-unreached
   rather than dead.
 
-## 3. The 108 unhandled commands, classified
+## 3. The 107 unhandled commands, classified
 
 **(a) Genuine feature gaps — the set/collection/board/gallery screens.** The client renders those
 screens from `component/page/main/set.tsx` and `media.tsx`, which mount the block tree and drive the
@@ -50,12 +50,10 @@ dataview through 20 commands. **Nineteen of them are now answered** (task #250, 
 Three of those 22 — `FilterSort`, `ViewRelationRemove`, `SetSource` — are wrapper-only today, with no
 call site in this build; they complete one seam rather than leaving the family partly answered.
 
-The one remaining gap is **`BlockDataviewCreateFromExistingObject`** (`block/dataview.tsx:969`,
-`block/dataview/head.tsx:121/135/163`, `menu/block/action.tsx:578`): pointing a dataview block inside a
-page's body at an existing set, or converting that inline block into a collection. It needs the inline
-block to exist as a block with its own target object, which the body model does not yet project (the
-Yjs dataview node from task #229 lives only in the document), so it is tracked as its own task rather
-than half-implemented here.
+That leaves **no gap in this family**: `BlockDataviewCreateFromExistingObject` — the last one, at
+`block/dataview.tsx:969`, `block/dataview/head.tsx:121/135/163` and `menu/block/action.tsx:578` — is
+answered too (item 24). Which object an inline block shows is carried by the block's own Yjs attrs, so
+the command answers the target's views rather than duplicating that state.
 
 Call sites of the answered family: `component/block/dataview/*`, `component/menu/dataview/*`,
 `lib/dataview.ts`, and `component/sidebar/page/widget.tsx` (the sidebar widget's sort menu). ADR-0012
@@ -94,7 +92,7 @@ transport never implemented, see §5).
    (`controls.tsx:342`) found nothing and the new view never opened. Verified live in the browser: a
    created view now appears in the client's store under the answered id, a filter added to it lands in
    the store without a reload, and the view survives a reload and comes back with the same id.
-   Remaining: `BlockDataviewCreateFromExistingObject` (§3a) for dataview blocks inside a page body.
+   `BlockDataviewCreateFromExistingObject` (§3a) is now answered too — see item 24.
 4. **The AI writing tools cannot stream** — the gRPC-web machinery was deleted with the transport
    (`81419c2`), so the `C.AI*` calls that expect a server-streaming response have no transport at all
    (task #254). Unary commands ride `fetch`; a stream would need a second seam (SSE or a chunked
@@ -237,6 +235,20 @@ transport never implemented, see §5).
     entries now AND in the same clause. Found while looking for a template to apply; the first test
     for it passed vacuously (it only asserted that hidden registry rows stayed out) and had to be
     rewritten around two *visible* objects of different types to actually go red.
+
+24. **A dataview block in a page body could not be bound to a set** — **fixed**.
+    `BlockDataviewCreateFromExistingObject` was unanswered (NOT_SUPPORTED 12), so the inline block's
+    source picker — "create new set", "create new collection", or pick an existing one
+    (`block/dataview.tsx:969`, `dataview/head.tsx:121/135/163`) — left the block with nothing: the
+    client loads `message.views[0].id` from the answer. It now gates on write access to the hosting
+    page, keeps the target inside that page's space (a page must not read another space's view list),
+    heals the target's default view and answers `{blockId, targetObjectId, view}`. The binding itself
+    stays where it belongs — the block's Yjs attrs (ADR-0018). Two gaps surfaced on the way:
+    `ensureSetViews` only reused stored views when the holder had a source type, so a set created
+    without one gained a **fresh view on every open** (the test caught it as two different ids), and
+    the view repository always wrote a source edge, which a sourceless view would have written as a
+    dangling `toId: ""`. Verified live: binding a set through the client's own command returns a Grid
+    view with the Name column.
 
 ## 5. Dead code and obsolete surface to prune
 

@@ -122,10 +122,15 @@ function defaultWireView(columns: { key: string }[], sourceTypeId: string) {
 // Idempotent: a set that already owns readable views keeps them, so healing a set that predates this
 // path — or re-opening one after a partial write — never duplicates a view. Returns the set's row as
 // it now stands, so the caller projects the ids it just wrote.
+//
+// `healWithoutSource` is for the holders whose screen renders only a dataview child and therefore
+// needs a view before anyone has picked a source — a fresh set, or a collection whose rows come from
+// its own membership rather than a type. Their default grid carries just the Name column.
 export async function ensureSetViews(
 	spaceId: string,
 	creatorId: string,
 	obj: { id: string; details: Prisma.JsonValue; typeId: string | null },
+	healWithoutSource = false,
 ) {
 	const details = detailsOf(obj);
 	const stored = Array.isArray(details[SET_VIEWS_KEY])
@@ -137,14 +142,17 @@ export async function ensureSetViews(
 		: [];
 	const sourceTypeId = sourceTypeIds[0] ?? obj.typeId ?? "";
 
-	if (stored.length && sourceTypeId) {
+	// Stored views are reused whatever the source is — a set minted without a source type (the inline
+	// block's picker creates one, and a collection never has one) would otherwise gain a fresh view on
+	// every open. The stale-wire backfill needs a type to read columns from, so it stays conditional.
+	if (stored.length) {
 		const rows = await prisma.obj.findMany({
 			where: { id: { in: stored }, spaceId, resolvedLayout: DATAVIEW_LAYOUT },
 		});
 		if (rows.length === stored.length) {
 			// Views healed before a row carried its own view object get one on the next open, so
 			// every write command starts from the same shape the screen created.
-			const stale = rows.filter((row) => !wireOf(row));
+			const stale = sourceTypeId ? rows.filter((row) => !wireOf(row)) : [];
 			if (stale.length) {
 				const columns = await defaultRelationKeys(spaceId, sourceTypeId);
 				await Promise.all(
@@ -170,7 +178,7 @@ export async function ensureSetViews(
 		}
 	}
 
-	if (!sourceTypeId) {
+	if (!sourceTypeId && !healWithoutSource) {
 		return obj;
 	}
 

@@ -72,7 +72,9 @@
 | 模板套用 | C.ObjectApplyTemplate(目标页, 模板) → 打开目标页读正文 | 通过：实盘把模板「Widgets」的正文（Clean component persists too / 1235 sfesf / diff-probe …）复制到新建页并在编辑器里渲染出来；探针对象两步删除后 ObjectOpen 返回 NOT_FOUND，顺带验证了回收站彻底删除路径 |
 | 搜索的嵌套类型过滤 | type.uniqueKey Equal ot-template | 缺陷：订阅走 `typeUniqueKeyClause` 解析该键，而 ObjectSearch / ObjectSearchWithMeta 只用扁平编译器，点号键被静默丢弃 → 返回空间全部可见对象（实盘查模板却返回 page 对象）。现两个搜索入口都并上同一子句。第一版测试是**假绿**（只断言隐藏注册表行不出现），改成两个可见不同类型对象才真正变红 |
 
-尚未验收：collection 页的网格行渲染（需可见浏览器面）、正文内联 dataview 块（#257）、AI 流式与命令级撤销（#254）。
+| 正文内联 dataview 绑定（#257） | C.ObjectCreateSet → C.BlockDataviewCreateFromExistingObject(页, 块id, set) → 读回调 message.views | 通过：命令此前完全无答案（code 12），内联块的目标选择器一点就静默失败；现在按 host 页写权限设闸、目标限同空间、补齐默认视图并回 `{blockId,targetObjectId,view}`。实盘回调拿到 Grid 视图含 Name 列。顺带修掉两处衍生缺陷：无源 set 每次打开都新建视图（幂等判断错把 sourceTypeId 当必要条件），以及视图仓库总会写一条 `toId: ""` 的悬空 source 边 |
+
+尚未验收：collection 页的网格行渲染（需可见浏览器面）、AI 流式与命令级撤销（#254）。
 
 > 教训：`EMPTY_SUB_IDS` 里「不是对象列表」的判断必须由客户端实际解析路径反证。`subSpace` 与 `library` 都曾以「非对象列表」名义被留空，结果分别是所有权闸门全灭与内容模型 rail 空白。
 

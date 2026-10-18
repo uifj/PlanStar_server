@@ -1061,6 +1061,7 @@ export async function loadObjectView(user: AuthUser, objectId: string) {
 			obj.spaceId,
 			obj.creatorId ?? "",
 			viewRow,
+			true,
 		);
 		dataview = await dataviewBlockFor(obj.spaceId, healed);
 	}
