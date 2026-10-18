@@ -229,11 +229,13 @@ the state it would need to replay does not.
     arrived as a header with a composer-less empty body, even though its membership was stored and
     servable. A collection now heals like a set (its `setOf` points at itself so the default view has
     something to be created against) while its rows keep arriving through the `collectionId` the
-    screen sends in place of a query source (`widget/view/index.tsx:130`). Verified in the live
-    client's own data path — `Dataview.getData` for the collection's dataview subscription returns its
-    two members — but **not visually**: the in-app browser surface was hidden during this check, and
-    a hidden page gives ReactVirtualized no height, so grid rows cannot be measured there. Re-check
-    the rendered grid on a visible surface.
+    screen sends in place of a query source (`widget/view/index.tsx:130`). That still left the grid
+    empty, and the client's own log said why: `[BlockDataview.loadData] No sources` —
+    `block/dataview.tsx:246` refuses to request records unless the block reports sources **or** is a
+    collection, and it reads "is a collection" from the block *content* (`mapper.ts:278`:
+    `TargetObjectId` / `isCollection`), which the projection pinned at `""`/`false`. The projected
+    block now names the collection as its own target, and the page renders its members: verified with
+    the grid on screen showing "Name / Bergen wharf / Trollstigen lookout".
 
 23. **`type.uniqueKey` narrowed nothing in a search** — **fixed**. The nested key (an object's
     `typeId` pointing at an `ObjectType.uniqueKey`) is resolved by `typeUniqueKeyClause` for

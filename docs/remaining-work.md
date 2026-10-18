@@ -67,7 +67,7 @@
 | 「已编辑」标记 | 发一条新消息 → 刷新 → 看气泡是否带 edited | 修复：`addMessage` 把 `modifiedAt` 直接戳成创建时间，而客户端只要 `modifiedAt` 非 0 就显示 "(edited)"（`block/chat/message/index.tsx:261`）→ 每条消息一落地即被标记。现在新建为 0，只有 `ChatEditMessageContent` 会写它；改动前写入的开发数据仍带标记，未做回填 |
 | 双账号邀请加入 + 通知面板 | 第二个账号 SpaceInviteView/SpaceJoin(WithApprove) → 拥有者刷新看通知卡 → View request → Editor access → 请求者收到批准通知 | 通过：请求行 status=joining、拥有者收到 requestToJoin 卡片（"Probe Requester has requested to join 'My Space'"）、批准后成员转 active、请求者收到 participantRequestApproved（文案把 permissions=1 渲染成 Editor），participant 订阅两人各带 participantStatus=1。缺陷：space view 的 readersLimit/writersLimit 为 0，使确认弹层把 Accept/Reject 换成会员升级按钮（#21），已修复为 1000 席 |
 
-| Collection 页 | 建对象 → ObjectToCollection → ObjectCollectionAdd → 打开 /main/set/&lt;collectionId&gt; | 修复：视图修补只覆盖 Set(3)/Type(4)，而客户端把 Collection 路由到同一屏且该屏只渲染 root 的 dataview 子块 → 转换后的 collection 只剩标题。现在同样补齐视图（setOf 指向自身），成员仍由客户端的 collectionId 通道返回；实盘以客户端自己的 Dataview.getData 取回 2 条成员，但因 in-app 浏览器不可见（ReactVirtualized 量不到高度）**未做视觉验收** |
+| Collection 页 | 建对象 → ObjectToCollection → ObjectCollectionAdd → 打开 /main/set/&lt;collectionId&gt; → 看网格 | 通过（含实盘网格行）：先修视图补齐只覆盖 Set/Type 的问题；但网格仍然空的真因在客户端日志 `[BlockDataview.loadData] No sources` —— loadData 需要块内容里的 `TargetObjectId`/`isCollection`（mapper.ts:278）才认得这是个 collection，而投影把它写死成 `""`/`false`。现在投影把 collection 自身作为块的 target，实盘网格显示「Name / Bergen wharf / Trollstigen lookout」 |
 
 | 模板套用 | C.ObjectApplyTemplate(目标页, 模板) → 打开目标页读正文 | 通过：实盘把模板「Widgets」的正文（Clean component persists too / 1235 sfesf / diff-probe …）复制到新建页并在编辑器里渲染出来；探针对象两步删除后 ObjectOpen 返回 NOT_FOUND，顺带验证了回收站彻底删除路径 |
 | 搜索的嵌套类型过滤 | type.uniqueKey Equal ot-template | 缺陷：订阅走 `typeUniqueKeyClause` 解析该键，而 ObjectSearch / ObjectSearchWithMeta 只用扁平编译器，点号键被静默丢弃 → 返回空间全部可见对象（实盘查模板却返回 page 对象）。现两个搜索入口都并上同一子句。第一版测试是**假绿**（只断言隐藏注册表行不出现），改成两个可见不同类型对象才真正变红 |
@@ -77,7 +77,7 @@
 | 设置 → AI 提供商 | C.AIListModels 指向一个不存在的本地 provider → 看回调错误码 | 通过：命令此前返回 code 12，模型下拉永远空；现在按 OpenAI 兼容协议请求 `<endpoint>/models` 并带 bearer token，失败映射成客户端自己的 `AiListModelsErrorCode`。实盘返回 101 NotReachable（带 description）。出站地址受 link-preview 同一套分类器管制，只额外放行 loopback（Ollama/LM Studio 在本机），且不跟随重定向。测试用本地假 provider（127.0.0.1 随机端口）跑通 200/401/拒连/私网/坏 URL/非模型列表 7 条 |
 | 旧传输依赖 | front_web `pnpm typecheck` + `pnpm test` + 应用启动 | 已删：`grpc-web`、`google-protobuf` 两项（确认全仓无 import、codegen 只用 ts-proto），install 减少 2 个包；客户端 1397 项测试与 typecheck 全过，Vite 页面照常启动并恢复空间 |
 
-尚未验收：collection 页的网格行渲染（需可见浏览器面）。
+验收清单已全部走完实盘（含 collection 网格行）。仍然**延期**而非「待验收」的是：#100（ADR-0018 正文持久化水位与客户端 ack）、#152（FileDrop 落正文）、#153（导入导出需先有客户端下载路径）、#154（`?width=` 缩略图）。
 
 > 教训：`EMPTY_SUB_IDS` 里「不是对象列表」的判断必须由客户端实际解析路径反证。`subSpace` 与 `library` 都曾以「非对象列表」名义被留空，结果分别是所有权闸门全灭与内容模型 rail 空白。
 

@@ -311,6 +311,11 @@ function projectKernelView(
 export async function dataviewBlockFor(
 	spaceId: string,
 	obj: { id: string; typeId: string | null; details: Prisma.JsonValue },
+	// A collection's rows are its own membership, and the client only takes that route when the block
+	// says so: block/dataview.tsx reads isCollection/targetObjectId out of the block content
+	// (mapper.ts:278) and its loadData refuses to request records for a block with neither a target
+	// nor a source. So a collection's projected block has to name the collection as its target.
+	asCollection = false,
 ) {
 	const stored = detailsOf(obj);
 	const viewIds = Array.isArray(stored[SET_VIEWS_KEY])
@@ -367,8 +372,8 @@ export async function dataviewBlockFor(
 		source: sourceTypeIds,
 		activeView:
 			activeViewId && byId.has(activeViewId) ? activeViewId : ordered[0].id,
-		TargetObjectId: "",
-		isCollection: false,
+		TargetObjectId: asCollection ? obj.id : "",
+		isCollection: asCollection,
 		relationLinks: relationLinks.map((it) => ({
 			key: String(it.key ?? ""),
 			format: Number(it.format ?? 0),

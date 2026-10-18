@@ -1063,7 +1063,11 @@ export async function loadObjectView(user: AuthUser, objectId: string) {
 			viewRow,
 			true,
 		);
-		dataview = await dataviewBlockFor(obj.spaceId, healed);
+		dataview = await dataviewBlockFor(
+			obj.spaceId,
+			healed,
+			viewLayout === LAYOUT_COLLECTION,
+		);
 	}
 
 	const rootChildren = childrenIds("");

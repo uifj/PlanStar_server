@@ -136,6 +136,12 @@ describe.skipIf(!databaseAvailable)(
 			);
 			expect(root.childrenIds).toContain("dataview");
 			expect(dataview?.dataview?.views.length).toBeGreaterThan(0);
+			// The screen's own gate: block/dataview.tsx recognises a collection only through the block
+			// content (mapper.ts:278 reads TargetObjectId / isCollection), and loadData refuses to ask for
+			// records at all when the block reports neither a target nor a sources list — which is why the
+			// collection page came up as a Grid header over nothing.
+			expect(dataview.dataview.isCollection).toBe(true);
+			expect(dataview.dataview.TargetObjectId).toBe(objectId);
 
 			const listed = await (
 				await post("/api/command/ObjectSearchSubscribe", {

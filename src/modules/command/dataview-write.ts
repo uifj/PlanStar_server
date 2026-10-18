@@ -690,7 +690,11 @@ export async function dataviewWrite(
 					targetLayout === LAYOUT_TYPE ||
 					targetLayout === LAYOUT_COLLECTION,
 			);
-			const block = await dataviewBlockFor(target.spaceId, healed);
+			const block = await dataviewBlockFor(
+				target.spaceId,
+				healed,
+				targetLayout === LAYOUT_COLLECTION,
+			);
 
 			return {
 				event: null,
