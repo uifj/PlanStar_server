@@ -206,3 +206,54 @@ Example:
 ```
 
 Good tests document expected behavior and make refactoring safer without exposing implementation details.
+
+---
+
+# Acceptance run — 2026-10-18 (command shim, web client)
+
+Environment: API on `:8000` (`pnpm dev`, tsx watch), the ported Anytype client on `:3030`
+(`pnpm dev` in `front_web`, `VITE_API_BASE_URL=http://localhost:8000/api`), Postgres 16 in the
+`vanlife-postgres` Podman container. The client talks to `POST /api/command/:name` plus the SSE
+channel `GET /api/events`; the retired gRPC-web proxy on `:31008` is no longer dialled.
+
+Flow executed in the browser, each step observed rather than assumed:
+
+| Step | Evidence |
+| --- | --- |
+| login / session restore | `[App] Init http://localhost:8000/api`, `AccountSelect` → code 0 |
+| open a space | `WorkspaceOpen` + the space's registry/list subscriptions → code 0 |
+| object page | body edit persisted through Hocuspocus, survived a reload, produced a new `DocumentVersion` |
+| history diff | panel fires `HistoryGetVersions → HistoryShowVersion → HistoryDiffVersions → HistoryShowVersion`, all code 0; selecting an older row swaps the preview text |
+| live update | `GET /api/events [200] text/event-stream`; on the client's own subId `recentEditAll-<spaceId>` a create delivers one frame: `objectDetailsSet + subscriptionAdd + subscriptionRemove` |
+
+Interface sweep (each command called with the payload the client's `command.ts` actually sends):
+`ObjectShow`, `ObjectSearchWithMeta`, `ObjectCrossSpaceSearch`, `ObjectGraph`,
+`NavigationGetObjectInfoWithLinks`, `ObjectSubscribeIds`, `ObjectGroupsSubscribe`,
+`ObjectDeletionAudit`, `ObjectCleanupSuggestions`, `RelationListWithValue`,
+`ObjectDateByTimestamp`, `NotificationList`, `PublishingList`, `SpaceInviteGetCurrent`,
+`TemplateCreateFromObject`, `ChatGetMessages`, `ChatSubscribeLastMessages`,
+`ChatUnreadMessages`, `ChatReadReactions`, `ChatGetPinnedMessages`, `ChatGetMessagesByIds`,
+`ChatReadAll`, `ChatSearch`, `ChatAddMessage`, `ObjectAddDiscussion`,
+`ObjectTypeListConflictingRelations` → all code 0.
+
+Defects this run found and fixed (each with a test):
+
+* `ObjectOpen` of the client's synthetic `_personalWidgets_<spaceId>` answered NOT_FOUND → `e8c8b9c`
+* the browser never opened `/api/events` (`startStream` was reachable only from
+  `WalletCreateSession`) → `758172d`
+* a stored `:31008` address outranked the API base on every later boot → `faf9dea`, `7d5992f`
+* `recentEditMe` / `recentEditAll` were answered but never registered, so the Recent widget could
+  not receive a delta → `a056a8e`
+* `HistoryShowVersion` returned the object's current (stale or absent) block rows, leaving the
+  preview pane blank → `ab5ff3d`
+
+Known boundaries, not defects: `FileNodeUsage`, `FileSetAutoDownload` and
+`FileAutoDownloadSetLimit` answer code 12 (native-only), and the `type` / `relation` / `option` /
+`participant` / `deleted` / `archived` registry sources stay unregistered on purpose, so those
+panels still refresh on reload.
+
+Gates at this commit: integration 598 passed / 5 skipped, unit 174 passed, `tsc --noEmit` clean,
+`pnpm build` clean, client `tsc` clean and 1386 client tests passing. Repo-wide `pnpm lint`
+remains red on the vendored `front_web/dist` assets — see the note in the memory index; scope the
+check with `npx biome check src tests front_web/src/ts`.
+
