@@ -22,7 +22,7 @@
     ]
   },
   "summary": {
-    "sourceFiles": 1619,
+    "sourceFiles": 1618,
     "capabilitiesByKind": {
       "command-use": 236,
       "command-wrapper": 265,
@@ -40,7 +40,6 @@
       "native-method": 30,
       "page-route": 29,
       "proto-rpc": 347,
-      "registry-command": 346,
       "renderer-command": 78,
       "renderer-event": 42,
       "route-pattern": 5,
@@ -65,7 +64,6 @@
       "native-method": 73,
       "page-route": 29,
       "proto-rpc": 347,
-      "registry-command": 346,
       "renderer-command": 120,
       "renderer-event": 74,
       "route-pattern": 5,
@@ -178,7 +176,7 @@
     },
     {
       "file": "front_web/src/ts/app.tsx",
-      "sha256": "980a8fc1a66025cbb1c3a252a98e7e039fb35b419b0551ccd047892e8ee49c3a"
+      "sha256": "34d1586d7de4ff9aa8d8f3fed7deae483bc87cb5d2a8327c23e7976ae0ce3b41"
     },
     {
       "file": "front_web/src/ts/component/block/bookmark.tsx",
@@ -5902,7 +5900,7 @@
     },
     {
       "file": "front_web/src/ts/entry.web.tsx",
-      "sha256": "f45c3d2e36f8b6e9a23dad1c8804a98de0f22f93a722c7718c56f87fa1d4909b"
+      "sha256": "8f24fb03520bb648f5b6c7ced624d6a618be19389045a3749d0b90c9bce102f1"
     },
     {
       "file": "front_web/src/ts/hook/index.ts",
@@ -6082,11 +6080,7 @@
     },
     {
       "file": "front_web/src/ts/lib/api/dispatcher.ts",
-      "sha256": "f1464f898fa4cf9327763616f72533c4109fe19d3beccb0d157e00b764aaf875"
-    },
-    {
-      "file": "front_web/src/ts/lib/api/grpc-devtools.ts",
-      "sha256": "6a0279ffd4b3bf4400811c7d3813c9a216fa027f0dbfcb4da3e702af19551cc7"
+      "sha256": "bfff36bc3a1c063b61216b502a53dc91a9f1b1ba8cfd01be8a9c13cfdc805d0c"
     },
     {
       "file": "front_web/src/ts/lib/api/mapper.ts",
@@ -6098,11 +6092,11 @@
     },
     {
       "file": "front_web/src/ts/lib/api/service.ts",
-      "sha256": "d403a99d35f7a0cd8b2895af0df8b4e201226efa2d7c37fd6cfcfa2de07c28d8"
+      "sha256": "0c263e07064469ca8d7193cd53583dc57d8a273a1c3f8562387b19063dc37537"
     },
     {
       "file": "front_web/src/ts/lib/api/spaces.ts",
-      "sha256": "f27524c49f20cefda578bd952814555fb3718f42c9e6f7be09c1cc3fafb6222a"
+      "sha256": "c823055d57b157454eff9a2ff1b0308d8b20dbf064bf80a42f75d6b20320b2e9"
     },
     {
       "file": "front_web/src/ts/lib/api/struct.ts",
@@ -6338,7 +6332,7 @@
     },
     {
       "file": "front_web/src/ts/lib/util/space.ts",
-      "sha256": "45a5231055eeefa997feaca15007a31e4492bfd51a4019ae33ad0ad2c73b2eb4"
+      "sha256": "bcc9de03f7c624eb90e579fa3f65be7179c5b3c900ddb6c9d0ff281dd5094428"
     },
     {
       "file": "front_web/src/ts/lib/util/sparkOnboardingKeyboard.ts",
@@ -6366,7 +6360,7 @@
     },
     {
       "file": "front_web/src/ts/lib/web/electronMock.ts",
-      "sha256": "1f3ceac2e6206d903b742bab7cd7e2bf1002dd4fba020715b2a463c361b8c6e1"
+      "sha256": "c5b5b4780600d73650560291812f5e03aff1f91679c6a96caee03586c12a3a02"
     },
     {
       "file": "front_web/src/ts/lib/web/routeSync.ts",
@@ -6374,7 +6368,7 @@
     },
     {
       "file": "front_web/src/ts/lib/web/serverAddress.ts",
-      "sha256": "08470eea03e51e82755c23035599ed5f035e5576d9c36d1a8401e379a16618b1"
+      "sha256": "59c95548dba820c203fc7e330f0c5ac09b8889d885927b7ba077d4d386001deb"
     },
     {
       "file": "front_web/src/ts/model/account.ts",
@@ -6628,7 +6622,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 774,
+          "line": 789,
           "column": 3,
           "usage": "call"
         }
@@ -6788,13 +6782,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 488,
+          "line": 493,
           "column": 4,
           "usage": "call"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 556,
+          "line": 561,
           "column": 4,
           "usage": "call"
         },
@@ -11700,7 +11694,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/util/space.ts",
-          "line": 723,
+          "line": 735,
           "column": 3,
           "usage": "call"
         }
@@ -12160,7 +12154,7 @@
         },
         {
           "file": "front_web/src/ts/lib/util/space.ts",
-          "line": 185,
+          "line": 186,
           "column": 3,
           "usage": "call"
         }
@@ -12244,7 +12238,7 @@
         },
         {
           "file": "front_web/src/ts/lib/util/space.ts",
-          "line": 193,
+          "line": 194,
           "column": 4,
           "usage": "call"
         }
@@ -21963,7 +21957,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 330,
+          "line": 326,
           "column": 5
         }
       ]
@@ -21978,7 +21972,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 338,
+          "line": 334,
           "column": 5
         }
       ]
@@ -21993,7 +21987,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 399,
+          "line": 395,
           "column": 5
         }
       ]
@@ -22008,7 +22002,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 343,
+          "line": 339,
           "column": 5
         }
       ]
@@ -22023,7 +22017,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 356,
+          "line": 352,
           "column": 5
         }
       ]
@@ -22038,7 +22032,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 320,
+          "line": 316,
           "column": 5
         }
       ]
@@ -22053,7 +22047,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 325,
+          "line": 321,
           "column": 5
         }
       ]
@@ -22068,7 +22062,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 461,
+          "line": 457,
           "column": 5
         }
       ]
@@ -22083,7 +22077,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1001,
+          "line": 997,
           "column": 5
         }
       ]
@@ -22098,7 +22092,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1014,
+          "line": 1010,
           "column": 5
         }
       ]
@@ -22113,7 +22107,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 632,
+          "line": 628,
           "column": 5
         }
       ]
@@ -22128,7 +22122,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 987,
+          "line": 983,
           "column": 5
         }
       ]
@@ -22143,7 +22137,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 994,
+          "line": 990,
           "column": 5
         }
       ]
@@ -22158,7 +22152,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 620,
+          "line": 616,
           "column": 5
         }
       ]
@@ -22173,7 +22167,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 960,
+          "line": 956,
           "column": 5
         }
       ]
@@ -22188,7 +22182,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 979,
+          "line": 975,
           "column": 5
         }
       ]
@@ -22203,7 +22197,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 812,
+          "line": 808,
           "column": 5
         }
       ]
@@ -22218,7 +22212,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 825,
+          "line": 821,
           "column": 5
         }
       ]
@@ -22233,7 +22227,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 479,
+          "line": 475,
           "column": 5
         }
       ]
@@ -22248,7 +22242,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 734,
+          "line": 730,
           "column": 5
         }
       ]
@@ -22263,7 +22257,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 722,
+          "line": 718,
           "column": 5
         }
       ]
@@ -22278,7 +22272,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 700,
+          "line": 696,
           "column": 5
         }
       ]
@@ -22293,7 +22287,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 500,
+          "line": 496,
           "column": 5
         }
       ]
@@ -22308,7 +22302,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 604,
+          "line": 600,
           "column": 5
         }
       ]
@@ -22323,7 +22317,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 510,
+          "line": 506,
           "column": 5
         }
       ]
@@ -22338,7 +22332,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 670,
+          "line": 666,
           "column": 5
         }
       ]
@@ -22353,7 +22347,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 776,
+          "line": 772,
           "column": 5
         }
       ]
@@ -22368,7 +22362,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 522,
+          "line": 518,
           "column": 5
         }
       ]
@@ -22383,7 +22377,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 758,
+          "line": 754,
           "column": 5
         }
       ]
@@ -22398,7 +22392,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 794,
+          "line": 790,
           "column": 5
         }
       ]
@@ -22413,7 +22407,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 560,
+          "line": 556,
           "column": 5
         }
       ]
@@ -22428,7 +22422,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 746,
+          "line": 742,
           "column": 5
         }
       ]
@@ -22443,7 +22437,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 644,
+          "line": 640,
           "column": 5
         }
       ]
@@ -22458,7 +22452,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1202,
+          "line": 1198,
           "column": 5
         }
       ]
@@ -22473,7 +22467,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1387,
+          "line": 1383,
           "column": 5
         }
       ]
@@ -22488,7 +22482,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1329,
+          "line": 1325,
           "column": 5
         }
       ]
@@ -22503,7 +22497,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1301,
+          "line": 1297,
           "column": 5
         }
       ]
@@ -22518,7 +22512,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1355,
+          "line": 1351,
           "column": 5
         }
       ]
@@ -22533,7 +22527,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1343,
+          "line": 1339,
           "column": 5
         }
       ]
@@ -22548,7 +22542,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1367,
+          "line": 1363,
           "column": 5
         }
       ]
@@ -22563,7 +22557,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1478,
+          "line": 1474,
           "column": 5
         }
       ]
@@ -22578,7 +22572,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1379,
+          "line": 1375,
           "column": 5
         }
       ]
@@ -22593,7 +22587,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1401,
+          "line": 1397,
           "column": 5
         }
       ]
@@ -22608,7 +22602,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 361,
+          "line": 357,
           "column": 5
         }
       ]
@@ -22623,7 +22617,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 455,
+          "line": 451,
           "column": 5
         }
       ]
@@ -22638,7 +22632,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 456,
+          "line": 452,
           "column": 5
         }
       ]
@@ -22653,7 +22647,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 443,
+          "line": 439,
           "column": 5
         }
       ]
@@ -22668,7 +22662,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1191,
+          "line": 1187,
           "column": 5
         }
       ]
@@ -22683,7 +22677,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1531,
+          "line": 1527,
           "column": 5
         }
       ]
@@ -22698,7 +22692,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1559,
+          "line": 1555,
           "column": 5
         }
       ]
@@ -22713,7 +22707,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1554,
+          "line": 1550,
           "column": 5
         }
       ]
@@ -22728,7 +22722,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1151,
+          "line": 1147,
           "column": 5
         }
       ]
@@ -22743,7 +22737,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1168,
+          "line": 1164,
           "column": 5
         }
       ]
@@ -22758,7 +22752,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 419,
+          "line": 415,
           "column": 5
         }
       ]
@@ -22773,7 +22767,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1081,
+          "line": 1077,
           "column": 5
         }
       ]
@@ -22788,7 +22782,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1068,
+          "line": 1064,
           "column": 5
         }
       ]
@@ -22803,7 +22797,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1090,
+          "line": 1086,
           "column": 5
         }
       ]
@@ -22818,7 +22812,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 404,
+          "line": 400,
           "column": 5
         }
       ]
@@ -22833,7 +22827,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 409,
+          "line": 405,
           "column": 5
         }
       ]
@@ -22848,7 +22842,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 414,
+          "line": 410,
           "column": 5
         }
       ]
@@ -22863,7 +22857,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1549,
+          "line": 1545,
           "column": 5
         }
       ]
@@ -22878,7 +22872,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1179,
+          "line": 1175,
           "column": 5
         }
       ]
@@ -22893,7 +22887,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1526,
+          "line": 1522,
           "column": 5
         }
       ]
@@ -22908,7 +22902,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1496,
+          "line": 1492,
           "column": 5
         }
       ]
@@ -22923,7 +22917,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1514,
+          "line": 1510,
           "column": 5
         }
       ]
@@ -22938,7 +22932,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1173,
+          "line": 1169,
           "column": 5
         }
       ]
@@ -22953,7 +22947,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1548,
+          "line": 1544,
           "column": 5
         }
       ]
@@ -22968,7 +22962,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1104,
+          "line": 1100,
           "column": 5
         }
       ]
@@ -22983,7 +22977,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1128,
+          "line": 1124,
           "column": 5
         }
       ]
@@ -22998,7 +22992,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1137,
+          "line": 1133,
           "column": 5
         }
       ]
@@ -23013,7 +23007,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1121,
+          "line": 1117,
           "column": 5
         }
       ]
@@ -23028,7 +23022,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1111,
+          "line": 1107,
           "column": 5
         }
       ]
@@ -24153,7 +24147,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 461,
+          "line": 51,
           "column": 18,
           "expression": "`${commandBase()}/events`"
         }
@@ -27816,7 +27810,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/spaces.ts",
-          "line": 34,
+          "line": 29,
           "column": 25,
           "expression": "`${apiBase()}${path}`",
           "method": "unknown"
@@ -27833,7 +27827,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 433,
+          "line": 23,
           "column": 3,
           "expression": "`${commandBase()}/command/${commandName}`",
           "method": "POST"
@@ -28857,7 +28851,7 @@
         },
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 387,
+          "line": 383,
           "column": 23,
           "expression": "electron.fileMime"
         }
@@ -28873,7 +28867,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 385,
+          "line": 381,
           "column": 20,
           "expression": "electron.fileName"
         }
@@ -28889,7 +28883,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 381,
+          "line": 377,
           "column": 22,
           "expression": "electron.fileSize"
         }
@@ -29043,7 +29037,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 386,
+          "line": 382,
           "column": 16,
           "expression": "electron.logRead"
         },
@@ -29249,7 +29243,7 @@
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 641,
+          "line": 656,
           "column": 24,
           "expression": "electron.tabId"
         },
@@ -35426,5196 +35420,6 @@
       ]
     },
     {
-      "id": "registry-command:AIAutofill",
-      "kind": "registry-command",
-      "name": "AIAutofill",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 43,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AIListModels",
-      "kind": "registry-command",
-      "name": "AIListModels",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 44,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AIListSummary",
-      "kind": "registry-command",
-      "name": "AIListSummary",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 45,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AIObjectCreateFromUrl",
-      "kind": "registry-command",
-      "name": "AIObjectCreateFromUrl",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 46,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AIWritingTools",
-      "kind": "registry-command",
-      "name": "AIWritingTools",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 47,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountChangeJsonApiAddr",
-      "kind": "registry-command",
-      "name": "AccountChangeJsonApiAddr",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 20,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountChangeNetworkConfigAndRestart",
-      "kind": "registry-command",
-      "name": "AccountChangeNetworkConfigAndRestart",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 21,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountConfigUpdate",
-      "kind": "registry-command",
-      "name": "AccountConfigUpdate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 22,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountCreate",
-      "kind": "registry-command",
-      "name": "AccountCreate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 23,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountDelete",
-      "kind": "registry-command",
-      "name": "AccountDelete",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 24,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountEnableLocalNetworkSync",
-      "kind": "registry-command",
-      "name": "AccountEnableLocalNetworkSync",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 25,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountLocalLinkApproveChallenge",
-      "kind": "registry-command",
-      "name": "AccountLocalLinkApproveChallenge",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 26,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountLocalLinkCreateApp",
-      "kind": "registry-command",
-      "name": "AccountLocalLinkCreateApp",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 27,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountLocalLinkListApps",
-      "kind": "registry-command",
-      "name": "AccountLocalLinkListApps",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 28,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountLocalLinkNewChallenge",
-      "kind": "registry-command",
-      "name": "AccountLocalLinkNewChallenge",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 29,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountLocalLinkRevokeApp",
-      "kind": "registry-command",
-      "name": "AccountLocalLinkRevokeApp",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 30,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountLocalLinkSolveChallenge",
-      "kind": "registry-command",
-      "name": "AccountLocalLinkSolveChallenge",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 31,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountLocalLinkUpdateApp",
-      "kind": "registry-command",
-      "name": "AccountLocalLinkUpdateApp",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 32,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountMigrate",
-      "kind": "registry-command",
-      "name": "AccountMigrate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 33,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountMigrateCancel",
-      "kind": "registry-command",
-      "name": "AccountMigrateCancel",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 34,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountMove",
-      "kind": "registry-command",
-      "name": "AccountMove",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 35,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountPreloadRemainingSpaces",
-      "kind": "registry-command",
-      "name": "AccountPreloadRemainingSpaces",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 36,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountRecover",
-      "kind": "registry-command",
-      "name": "AccountRecover",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 37,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountRecoverFromLegacyExport",
-      "kind": "registry-command",
-      "name": "AccountRecoverFromLegacyExport",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 38,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountRecoveryState",
-      "kind": "registry-command",
-      "name": "AccountRecoveryState",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 39,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountRevertDeletion",
-      "kind": "registry-command",
-      "name": "AccountRevertDeletion",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 40,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountSelect",
-      "kind": "registry-command",
-      "name": "AccountSelect",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 41,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AccountStop",
-      "kind": "registry-command",
-      "name": "AccountStop",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 42,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AppGetVersion",
-      "kind": "registry-command",
-      "name": "AppGetVersion",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 48,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AppSetDeviceState",
-      "kind": "registry-command",
-      "name": "AppSetDeviceState",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 49,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:AppShutdown",
-      "kind": "registry-command",
-      "name": "AppShutdown",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 50,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockBookmarkCreateAndFetch",
-      "kind": "registry-command",
-      "name": "BlockBookmarkCreateAndFetch",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 51,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockBookmarkFetch",
-      "kind": "registry-command",
-      "name": "BlockBookmarkFetch",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 52,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockCopy",
-      "kind": "registry-command",
-      "name": "BlockCopy",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 53,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockCreate",
-      "kind": "registry-command",
-      "name": "BlockCreate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 54,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockCreateWidget",
-      "kind": "registry-command",
-      "name": "BlockCreateWidget",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 55,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockCut",
-      "kind": "registry-command",
-      "name": "BlockCut",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 56,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewCreateFromExistingObject",
-      "kind": "registry-command",
-      "name": "BlockDataviewCreateFromExistingObject",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 57,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewFilterAdd",
-      "kind": "registry-command",
-      "name": "BlockDataviewFilterAdd",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 58,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewFilterRemove",
-      "kind": "registry-command",
-      "name": "BlockDataviewFilterRemove",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 59,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewFilterReplace",
-      "kind": "registry-command",
-      "name": "BlockDataviewFilterReplace",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 60,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewFilterSort",
-      "kind": "registry-command",
-      "name": "BlockDataviewFilterSort",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 61,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewGroupOrderUpdate",
-      "kind": "registry-command",
-      "name": "BlockDataviewGroupOrderUpdate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 62,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewObjectOrderMove",
-      "kind": "registry-command",
-      "name": "BlockDataviewObjectOrderMove",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 63,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewObjectOrderUpdate",
-      "kind": "registry-command",
-      "name": "BlockDataviewObjectOrderUpdate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 64,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewRelationAdd",
-      "kind": "registry-command",
-      "name": "BlockDataviewRelationAdd",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 65,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewRelationDelete",
-      "kind": "registry-command",
-      "name": "BlockDataviewRelationDelete",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 66,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewRelationSet",
-      "kind": "registry-command",
-      "name": "BlockDataviewRelationSet",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 67,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewSetSource",
-      "kind": "registry-command",
-      "name": "BlockDataviewSetSource",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 68,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewSortAdd",
-      "kind": "registry-command",
-      "name": "BlockDataviewSortAdd",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 69,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewSortRemove",
-      "kind": "registry-command",
-      "name": "BlockDataviewSortRemove",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 70,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewSortReplace",
-      "kind": "registry-command",
-      "name": "BlockDataviewSortReplace",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 71,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewSortSort",
-      "kind": "registry-command",
-      "name": "BlockDataviewSortSort",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 72,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewViewCreate",
-      "kind": "registry-command",
-      "name": "BlockDataviewViewCreate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 73,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewViewDelete",
-      "kind": "registry-command",
-      "name": "BlockDataviewViewDelete",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 74,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewViewRelationAdd",
-      "kind": "registry-command",
-      "name": "BlockDataviewViewRelationAdd",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 75,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewViewRelationRemove",
-      "kind": "registry-command",
-      "name": "BlockDataviewViewRelationRemove",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 76,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewViewRelationReplace",
-      "kind": "registry-command",
-      "name": "BlockDataviewViewRelationReplace",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 77,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewViewRelationSort",
-      "kind": "registry-command",
-      "name": "BlockDataviewViewRelationSort",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 78,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewViewSetActive",
-      "kind": "registry-command",
-      "name": "BlockDataviewViewSetActive",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 79,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewViewSetPosition",
-      "kind": "registry-command",
-      "name": "BlockDataviewViewSetPosition",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 80,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDataviewViewUpdate",
-      "kind": "registry-command",
-      "name": "BlockDataviewViewUpdate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 81,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockDivListSetStyle",
-      "kind": "registry-command",
-      "name": "BlockDivListSetStyle",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 82,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockExport",
-      "kind": "registry-command",
-      "name": "BlockExport",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 83,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockFileCreateAndUpload",
-      "kind": "registry-command",
-      "name": "BlockFileCreateAndUpload",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 84,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockFileListSetStyle",
-      "kind": "registry-command",
-      "name": "BlockFileListSetStyle",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 85,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockFileSetName",
-      "kind": "registry-command",
-      "name": "BlockFileSetName",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 86,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockFileSetTargetObjectId",
-      "kind": "registry-command",
-      "name": "BlockFileSetTargetObjectId",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 87,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockImageSetName",
-      "kind": "registry-command",
-      "name": "BlockImageSetName",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 88,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockLatexSetText",
-      "kind": "registry-command",
-      "name": "BlockLatexSetText",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 89,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockLinkCreateWithObject",
-      "kind": "registry-command",
-      "name": "BlockLinkCreateWithObject",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 90,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockLinkListSetAppearance",
-      "kind": "registry-command",
-      "name": "BlockLinkListSetAppearance",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 91,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockListConvertToObjects",
-      "kind": "registry-command",
-      "name": "BlockListConvertToObjects",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 92,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockListDelete",
-      "kind": "registry-command",
-      "name": "BlockListDelete",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 93,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockListDuplicate",
-      "kind": "registry-command",
-      "name": "BlockListDuplicate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 94,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockListMoveToExistingObject",
-      "kind": "registry-command",
-      "name": "BlockListMoveToExistingObject",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 95,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockListMoveToNewObject",
-      "kind": "registry-command",
-      "name": "BlockListMoveToNewObject",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 96,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockListSetAlign",
-      "kind": "registry-command",
-      "name": "BlockListSetAlign",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 97,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockListSetBackgroundColor",
-      "kind": "registry-command",
-      "name": "BlockListSetBackgroundColor",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 98,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockListSetFields",
-      "kind": "registry-command",
-      "name": "BlockListSetFields",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 99,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockListSetVerticalAlign",
-      "kind": "registry-command",
-      "name": "BlockListSetVerticalAlign",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 100,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockListTurnInto",
-      "kind": "registry-command",
-      "name": "BlockListTurnInto",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 101,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockMerge",
-      "kind": "registry-command",
-      "name": "BlockMerge",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 102,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockPaste",
-      "kind": "registry-command",
-      "name": "BlockPaste",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 103,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockPreview",
-      "kind": "registry-command",
-      "name": "BlockPreview",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 104,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockRelationAdd",
-      "kind": "registry-command",
-      "name": "BlockRelationAdd",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 105,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockRelationSetKey",
-      "kind": "registry-command",
-      "name": "BlockRelationSetKey",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 106,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockReplace",
-      "kind": "registry-command",
-      "name": "BlockReplace",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 107,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockSetCarriage",
-      "kind": "registry-command",
-      "name": "BlockSetCarriage",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 108,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockSetFields",
-      "kind": "registry-command",
-      "name": "BlockSetFields",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 109,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockSplit",
-      "kind": "registry-command",
-      "name": "BlockSplit",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 110,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableColumnCreate",
-      "kind": "registry-command",
-      "name": "BlockTableColumnCreate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 111,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableColumnDelete",
-      "kind": "registry-command",
-      "name": "BlockTableColumnDelete",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 112,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableColumnDuplicate",
-      "kind": "registry-command",
-      "name": "BlockTableColumnDuplicate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 113,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableColumnListFill",
-      "kind": "registry-command",
-      "name": "BlockTableColumnListFill",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 114,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableColumnMove",
-      "kind": "registry-command",
-      "name": "BlockTableColumnMove",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 115,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableCreate",
-      "kind": "registry-command",
-      "name": "BlockTableCreate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 116,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableExpand",
-      "kind": "registry-command",
-      "name": "BlockTableExpand",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 117,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableRowCreate",
-      "kind": "registry-command",
-      "name": "BlockTableRowCreate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 118,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableRowDelete",
-      "kind": "registry-command",
-      "name": "BlockTableRowDelete",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 119,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableRowDuplicate",
-      "kind": "registry-command",
-      "name": "BlockTableRowDuplicate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 120,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableRowListClean",
-      "kind": "registry-command",
-      "name": "BlockTableRowListClean",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 121,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableRowListFill",
-      "kind": "registry-command",
-      "name": "BlockTableRowListFill",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 122,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableRowSetHeader",
-      "kind": "registry-command",
-      "name": "BlockTableRowSetHeader",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 123,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTableSort",
-      "kind": "registry-command",
-      "name": "BlockTableSort",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 124,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTextListClearContent",
-      "kind": "registry-command",
-      "name": "BlockTextListClearContent",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 125,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTextListClearStyle",
-      "kind": "registry-command",
-      "name": "BlockTextListClearStyle",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 126,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTextListSetColor",
-      "kind": "registry-command",
-      "name": "BlockTextListSetColor",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 127,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTextListSetMark",
-      "kind": "registry-command",
-      "name": "BlockTextListSetMark",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 128,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTextListSetStyle",
-      "kind": "registry-command",
-      "name": "BlockTextListSetStyle",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 129,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTextSetChecked",
-      "kind": "registry-command",
-      "name": "BlockTextSetChecked",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 130,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTextSetColor",
-      "kind": "registry-command",
-      "name": "BlockTextSetColor",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 131,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTextSetIcon",
-      "kind": "registry-command",
-      "name": "BlockTextSetIcon",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 132,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTextSetStyle",
-      "kind": "registry-command",
-      "name": "BlockTextSetStyle",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 133,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockTextSetText",
-      "kind": "registry-command",
-      "name": "BlockTextSetText",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 134,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockUpload",
-      "kind": "registry-command",
-      "name": "BlockUpload",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 135,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockVideoSetName",
-      "kind": "registry-command",
-      "name": "BlockVideoSetName",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 136,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockWidgetSetLayout",
-      "kind": "registry-command",
-      "name": "BlockWidgetSetLayout",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 137,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockWidgetSetLimit",
-      "kind": "registry-command",
-      "name": "BlockWidgetSetLimit",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 138,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockWidgetSetTargetId",
-      "kind": "registry-command",
-      "name": "BlockWidgetSetTargetId",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 139,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BlockWidgetSetViewId",
-      "kind": "registry-command",
-      "name": "BlockWidgetSetViewId",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 140,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:BroadcastPayloadEvent",
-      "kind": "registry-command",
-      "name": "BroadcastPayloadEvent",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 141,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatAddMessage",
-      "kind": "registry-command",
-      "name": "ChatAddMessage",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 142,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatAddNotificationSubscriber",
-      "kind": "registry-command",
-      "name": "ChatAddNotificationSubscriber",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 143,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatDeleteMessage",
-      "kind": "registry-command",
-      "name": "ChatDeleteMessage",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 144,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatEditMessageContent",
-      "kind": "registry-command",
-      "name": "ChatEditMessageContent",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 145,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatGetMessages",
-      "kind": "registry-command",
-      "name": "ChatGetMessages",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 146,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatGetMessagesByIds",
-      "kind": "registry-command",
-      "name": "ChatGetMessagesByIds",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 147,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatGetPinnedMessages",
-      "kind": "registry-command",
-      "name": "ChatGetPinnedMessages",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 148,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatReadAll",
-      "kind": "registry-command",
-      "name": "ChatReadAll",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 149,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatReadMessages",
-      "kind": "registry-command",
-      "name": "ChatReadMessages",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 150,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatReadReactions",
-      "kind": "registry-command",
-      "name": "ChatReadReactions",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 151,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatRemoveNotificationSubscriber",
-      "kind": "registry-command",
-      "name": "ChatRemoveNotificationSubscriber",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 152,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatSearch",
-      "kind": "registry-command",
-      "name": "ChatSearch",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 153,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatSetPinnedMessages",
-      "kind": "registry-command",
-      "name": "ChatSetPinnedMessages",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 154,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatSubscribeLastMessages",
-      "kind": "registry-command",
-      "name": "ChatSubscribeLastMessages",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 155,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatSubscribeToMessagePreviews",
-      "kind": "registry-command",
-      "name": "ChatSubscribeToMessagePreviews",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 156,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatToggleMessageReaction",
-      "kind": "registry-command",
-      "name": "ChatToggleMessageReaction",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 157,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatUnreadMessages",
-      "kind": "registry-command",
-      "name": "ChatUnreadMessages",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 158,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatUnsubscribe",
-      "kind": "registry-command",
-      "name": "ChatUnsubscribe",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 159,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ChatUnsubscribeFromMessagePreviews",
-      "kind": "registry-command",
-      "name": "ChatUnsubscribeFromMessagePreviews",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 160,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugAccountSelectTrace",
-      "kind": "registry-command",
-      "name": "DebugAccountSelectTrace",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 161,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugAnystoreObjectChanges",
-      "kind": "registry-command",
-      "name": "DebugAnystoreObjectChanges",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 162,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugCleanupReport",
-      "kind": "registry-command",
-      "name": "DebugCleanupReport",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 163,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugExportLocalstore",
-      "kind": "registry-command",
-      "name": "DebugExportLocalstore",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 164,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugExportReport",
-      "kind": "registry-command",
-      "name": "DebugExportReport",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 165,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugNetCheck",
-      "kind": "registry-command",
-      "name": "DebugNetCheck",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 166,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugOpenedObjects",
-      "kind": "registry-command",
-      "name": "DebugOpenedObjects",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 167,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugPing",
-      "kind": "registry-command",
-      "name": "DebugPing",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 168,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugRunProfiler",
-      "kind": "registry-command",
-      "name": "DebugRunProfiler",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 169,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugSpaceSummary",
-      "kind": "registry-command",
-      "name": "DebugSpaceSummary",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 170,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugStackGoroutines",
-      "kind": "registry-command",
-      "name": "DebugStackGoroutines",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 171,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugStat",
-      "kind": "registry-command",
-      "name": "DebugStat",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 172,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugSubscriptions",
-      "kind": "registry-command",
-      "name": "DebugSubscriptions",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 173,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugTree",
-      "kind": "registry-command",
-      "name": "DebugTree",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 174,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DebugTreeHeads",
-      "kind": "registry-command",
-      "name": "DebugTreeHeads",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 175,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DeviceList",
-      "kind": "registry-command",
-      "name": "DeviceList",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 176,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DeviceNetworkStateSet",
-      "kind": "registry-command",
-      "name": "DeviceNetworkStateSet",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 177,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:DeviceSetName",
-      "kind": "registry-command",
-      "name": "DeviceSetName",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 178,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:FileAutoDownloadSetLimit",
-      "kind": "registry-command",
-      "name": "FileAutoDownloadSetLimit",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 179,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:FileCacheCancelDownload",
-      "kind": "registry-command",
-      "name": "FileCacheCancelDownload",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 180,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:FileCacheDownload",
-      "kind": "registry-command",
-      "name": "FileCacheDownload",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 181,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:FileDiscardPreload",
-      "kind": "registry-command",
-      "name": "FileDiscardPreload",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 182,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:FileDownload",
-      "kind": "registry-command",
-      "name": "FileDownload",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 183,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:FileDrop",
-      "kind": "registry-command",
-      "name": "FileDrop",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 184,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:FileListOffload",
-      "kind": "registry-command",
-      "name": "FileListOffload",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 185,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:FileNodeUsage",
-      "kind": "registry-command",
-      "name": "FileNodeUsage",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 186,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:FileReconcile",
-      "kind": "registry-command",
-      "name": "FileReconcile",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 187,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:FileSetAutoDownload",
-      "kind": "registry-command",
-      "name": "FileSetAutoDownload",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 188,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:FileSpaceOffload",
-      "kind": "registry-command",
-      "name": "FileSpaceOffload",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 189,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:FileSpaceUsage",
-      "kind": "registry-command",
-      "name": "FileSpaceUsage",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 190,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:FileUpload",
-      "kind": "registry-command",
-      "name": "FileUpload",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 191,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:GalleryDownloadIndex",
-      "kind": "registry-command",
-      "name": "GalleryDownloadIndex",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 192,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:GalleryDownloadManifest",
-      "kind": "registry-command",
-      "name": "GalleryDownloadManifest",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 193,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:HistoryDiffVersions",
-      "kind": "registry-command",
-      "name": "HistoryDiffVersions",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 194,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:HistoryGetVersions",
-      "kind": "registry-command",
-      "name": "HistoryGetVersions",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 195,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:HistorySetVersion",
-      "kind": "registry-command",
-      "name": "HistorySetVersion",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 196,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:HistoryShowVersion",
-      "kind": "registry-command",
-      "name": "HistoryShowVersion",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 197,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:InitialSetParameters",
-      "kind": "registry-command",
-      "name": "InitialSetParameters",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 198,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:LinkPreview",
-      "kind": "registry-command",
-      "name": "LinkPreview",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 199,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:LogSend",
-      "kind": "registry-command",
-      "name": "LogSend",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 200,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipCodeGetInfo",
-      "kind": "registry-command",
-      "name": "MembershipCodeGetInfo",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 201,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipCodeRedeem",
-      "kind": "registry-command",
-      "name": "MembershipCodeRedeem",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 202,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipFinalize",
-      "kind": "registry-command",
-      "name": "MembershipFinalize",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 203,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipGetPortalLinkUrl",
-      "kind": "registry-command",
-      "name": "MembershipGetPortalLinkUrl",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 204,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipGetStatus",
-      "kind": "registry-command",
-      "name": "MembershipGetStatus",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 205,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipGetTiers",
-      "kind": "registry-command",
-      "name": "MembershipGetTiers",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 206,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipGetVerificationEmail",
-      "kind": "registry-command",
-      "name": "MembershipGetVerificationEmail",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 207,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipGetVerificationEmailStatus",
-      "kind": "registry-command",
-      "name": "MembershipGetVerificationEmailStatus",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 208,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipIsNameValid",
-      "kind": "registry-command",
-      "name": "MembershipIsNameValid",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 209,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipRegisterPaymentRequest",
-      "kind": "registry-command",
-      "name": "MembershipRegisterPaymentRequest",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 210,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipV2AnyNameAllocate",
-      "kind": "registry-command",
-      "name": "MembershipV2AnyNameAllocate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 211,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipV2AnyNameIsValid",
-      "kind": "registry-command",
-      "name": "MembershipV2AnyNameIsValid",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 212,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipV2CartGet",
-      "kind": "registry-command",
-      "name": "MembershipV2CartGet",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 213,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipV2CartUpdate",
-      "kind": "registry-command",
-      "name": "MembershipV2CartUpdate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 214,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipV2GetPortalLink",
-      "kind": "registry-command",
-      "name": "MembershipV2GetPortalLink",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 215,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipV2GetProducts",
-      "kind": "registry-command",
-      "name": "MembershipV2GetProducts",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 216,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipV2GetStatus",
-      "kind": "registry-command",
-      "name": "MembershipV2GetStatus",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 217,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipV2SubscribeToUpdates",
-      "kind": "registry-command",
-      "name": "MembershipV2SubscribeToUpdates",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 218,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipVerifyAppStoreReceipt",
-      "kind": "registry-command",
-      "name": "MembershipVerifyAppStoreReceipt",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 219,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:MembershipVerifyEmailCode",
-      "kind": "registry-command",
-      "name": "MembershipVerifyEmailCode",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 220,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:NameServiceResolveAnyId",
-      "kind": "registry-command",
-      "name": "NameServiceResolveAnyId",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 221,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:NameServiceResolveName",
-      "kind": "registry-command",
-      "name": "NameServiceResolveName",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 222,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:NameServiceUserAccountGet",
-      "kind": "registry-command",
-      "name": "NameServiceUserAccountGet",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 223,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:NavigationGetObjectInfoWithLinks",
-      "kind": "registry-command",
-      "name": "NavigationGetObjectInfoWithLinks",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 224,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:NavigationListObjects",
-      "kind": "registry-command",
-      "name": "NavigationListObjects",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 225,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:NotificationList",
-      "kind": "registry-command",
-      "name": "NotificationList",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 226,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:NotificationReply",
-      "kind": "registry-command",
-      "name": "NotificationReply",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 227,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:NotificationTest",
-      "kind": "registry-command",
-      "name": "NotificationTest",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 228,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectAddDiscussion",
-      "kind": "registry-command",
-      "name": "ObjectAddDiscussion",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 229,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectApplyTemplate",
-      "kind": "registry-command",
-      "name": "ObjectApplyTemplate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 230,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectBookmarkFetch",
-      "kind": "registry-command",
-      "name": "ObjectBookmarkFetch",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 231,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectChatAdd",
-      "kind": "registry-command",
-      "name": "ObjectChatAdd",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 232,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCleanupSuggestionIgnore",
-      "kind": "registry-command",
-      "name": "ObjectCleanupSuggestionIgnore",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 233,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCleanupSuggestions",
-      "kind": "registry-command",
-      "name": "ObjectCleanupSuggestions",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 234,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectClose",
-      "kind": "registry-command",
-      "name": "ObjectClose",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 235,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCollectionAdd",
-      "kind": "registry-command",
-      "name": "ObjectCollectionAdd",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 236,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCollectionRemove",
-      "kind": "registry-command",
-      "name": "ObjectCollectionRemove",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 237,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCollectionSort",
-      "kind": "registry-command",
-      "name": "ObjectCollectionSort",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 238,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCreate",
-      "kind": "registry-command",
-      "name": "ObjectCreate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 239,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCreateBookmark",
-      "kind": "registry-command",
-      "name": "ObjectCreateBookmark",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 240,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCreateFromUrl",
-      "kind": "registry-command",
-      "name": "ObjectCreateFromUrl",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 241,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCreateObjectType",
-      "kind": "registry-command",
-      "name": "ObjectCreateObjectType",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 242,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCreateRelation",
-      "kind": "registry-command",
-      "name": "ObjectCreateRelation",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 243,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCreateRelationOption",
-      "kind": "registry-command",
-      "name": "ObjectCreateRelationOption",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 244,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCreateSet",
-      "kind": "registry-command",
-      "name": "ObjectCreateSet",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 245,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCrossSpaceSearch",
-      "kind": "registry-command",
-      "name": "ObjectCrossSpaceSearch",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 246,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCrossSpaceSearchSubscribe",
-      "kind": "registry-command",
-      "name": "ObjectCrossSpaceSearchSubscribe",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 247,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectCrossSpaceSearchUnsubscribe",
-      "kind": "registry-command",
-      "name": "ObjectCrossSpaceSearchUnsubscribe",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 248,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectDateByTimestamp",
-      "kind": "registry-command",
-      "name": "ObjectDateByTimestamp",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 249,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectDeletionAudit",
-      "kind": "registry-command",
-      "name": "ObjectDeletionAudit",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 250,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectDuplicate",
-      "kind": "registry-command",
-      "name": "ObjectDuplicate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 251,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectExport",
-      "kind": "registry-command",
-      "name": "ObjectExport",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 252,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectGraph",
-      "kind": "registry-command",
-      "name": "ObjectGraph",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 253,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectGroupsSubscribe",
-      "kind": "registry-command",
-      "name": "ObjectGroupsSubscribe",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 254,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectImport",
-      "kind": "registry-command",
-      "name": "ObjectImport",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 255,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectImportExperience",
-      "kind": "registry-command",
-      "name": "ObjectImportExperience",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 256,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectImportList",
-      "kind": "registry-command",
-      "name": "ObjectImportList",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 257,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectImportNotionValidateToken",
-      "kind": "registry-command",
-      "name": "ObjectImportNotionValidateToken",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 258,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectImportRunList",
-      "kind": "registry-command",
-      "name": "ObjectImportRunList",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 259,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectImportRunStatus",
-      "kind": "registry-command",
-      "name": "ObjectImportRunStatus",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 260,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectImportUseCase",
-      "kind": "registry-command",
-      "name": "ObjectImportUseCase",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 261,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectListDelete",
-      "kind": "registry-command",
-      "name": "ObjectListDelete",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 262,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectListDuplicate",
-      "kind": "registry-command",
-      "name": "ObjectListDuplicate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 263,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectListExport",
-      "kind": "registry-command",
-      "name": "ObjectListExport",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 264,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectListModifyDetailValues",
-      "kind": "registry-command",
-      "name": "ObjectListModifyDetailValues",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 265,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectListSetDetails",
-      "kind": "registry-command",
-      "name": "ObjectListSetDetails",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 266,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectListSetIsArchived",
-      "kind": "registry-command",
-      "name": "ObjectListSetIsArchived",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 267,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectListSetIsFavorite",
-      "kind": "registry-command",
-      "name": "ObjectListSetIsFavorite",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 268,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectListSetObjectType",
-      "kind": "registry-command",
-      "name": "ObjectListSetObjectType",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 269,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectOpen",
-      "kind": "registry-command",
-      "name": "ObjectOpen",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 270,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectRedo",
-      "kind": "registry-command",
-      "name": "ObjectRedo",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 271,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectRefresh",
-      "kind": "registry-command",
-      "name": "ObjectRefresh",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 272,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectRelationAdd",
-      "kind": "registry-command",
-      "name": "ObjectRelationAdd",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 273,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectRelationAddFeatured",
-      "kind": "registry-command",
-      "name": "ObjectRelationAddFeatured",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 274,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectRelationDelete",
-      "kind": "registry-command",
-      "name": "ObjectRelationDelete",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 275,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectRelationListAvailable",
-      "kind": "registry-command",
-      "name": "ObjectRelationListAvailable",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 276,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectRelationRemoveFeatured",
-      "kind": "registry-command",
-      "name": "ObjectRelationRemoveFeatured",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 277,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectSearch",
-      "kind": "registry-command",
-      "name": "ObjectSearch",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 278,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectSearchSubscribe",
-      "kind": "registry-command",
-      "name": "ObjectSearchSubscribe",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 279,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectSearchUnsubscribe",
-      "kind": "registry-command",
-      "name": "ObjectSearchUnsubscribe",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 280,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectSearchWithMeta",
-      "kind": "registry-command",
-      "name": "ObjectSearchWithMeta",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 281,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectSetDetails",
-      "kind": "registry-command",
-      "name": "ObjectSetDetails",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 282,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectSetInternalFlags",
-      "kind": "registry-command",
-      "name": "ObjectSetInternalFlags",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 283,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectSetIsArchived",
-      "kind": "registry-command",
-      "name": "ObjectSetIsArchived",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 284,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectSetIsFavorite",
-      "kind": "registry-command",
-      "name": "ObjectSetIsFavorite",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 285,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectSetLayout",
-      "kind": "registry-command",
-      "name": "ObjectSetLayout",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 286,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectSetObjectType",
-      "kind": "registry-command",
-      "name": "ObjectSetObjectType",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 287,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectSetSource",
-      "kind": "registry-command",
-      "name": "ObjectSetSource",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 288,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectShareByLink",
-      "kind": "registry-command",
-      "name": "ObjectShareByLink",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 289,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectShow",
-      "kind": "registry-command",
-      "name": "ObjectShow",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 290,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectSubscribeIds",
-      "kind": "registry-command",
-      "name": "ObjectSubscribeIds",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 291,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectToCollection",
-      "kind": "registry-command",
-      "name": "ObjectToCollection",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 292,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectToSet",
-      "kind": "registry-command",
-      "name": "ObjectToSet",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 293,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectTypeListConflictingRelations",
-      "kind": "registry-command",
-      "name": "ObjectTypeListConflictingRelations",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 294,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectTypePropertyAdd",
-      "kind": "registry-command",
-      "name": "ObjectTypePropertyAdd",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 295,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectTypePropertyRemove",
-      "kind": "registry-command",
-      "name": "ObjectTypePropertyRemove",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 296,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectTypeRecommendedFeaturedRelationsSet",
-      "kind": "registry-command",
-      "name": "ObjectTypeRecommendedFeaturedRelationsSet",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 297,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectTypeRecommendedRelationsSet",
-      "kind": "registry-command",
-      "name": "ObjectTypeRecommendedRelationsSet",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 298,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectTypeResolveLayoutConflicts",
-      "kind": "registry-command",
-      "name": "ObjectTypeResolveLayoutConflicts",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 299,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectTypeSetOrder",
-      "kind": "registry-command",
-      "name": "ObjectTypeSetOrder",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 300,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ObjectUndo",
-      "kind": "registry-command",
-      "name": "ObjectUndo",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 301,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ProcessCancel",
-      "kind": "registry-command",
-      "name": "ProcessCancel",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 302,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ProcessSubscribe",
-      "kind": "registry-command",
-      "name": "ProcessSubscribe",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 303,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:ProcessUnsubscribe",
-      "kind": "registry-command",
-      "name": "ProcessUnsubscribe",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 304,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:PublishingCreate",
-      "kind": "registry-command",
-      "name": "PublishingCreate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 305,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:PublishingGetStatus",
-      "kind": "registry-command",
-      "name": "PublishingGetStatus",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 306,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:PublishingList",
-      "kind": "registry-command",
-      "name": "PublishingList",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 307,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:PublishingRemove",
-      "kind": "registry-command",
-      "name": "PublishingRemove",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 308,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:PublishingResolveUri",
-      "kind": "registry-command",
-      "name": "PublishingResolveUri",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 309,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:PubsubPublish",
-      "kind": "registry-command",
-      "name": "PubsubPublish",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 310,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:PubsubSubscribe",
-      "kind": "registry-command",
-      "name": "PubsubSubscribe",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 311,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:PubsubUnsubscribe",
-      "kind": "registry-command",
-      "name": "PubsubUnsubscribe",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 312,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:PushNotificationRegisterToken",
-      "kind": "registry-command",
-      "name": "PushNotificationRegisterToken",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 313,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:PushNotificationResetIds",
-      "kind": "registry-command",
-      "name": "PushNotificationResetIds",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 314,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:PushNotificationSetForceModeIds",
-      "kind": "registry-command",
-      "name": "PushNotificationSetForceModeIds",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 315,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:PushNotificationSetSpaceMode",
-      "kind": "registry-command",
-      "name": "PushNotificationSetSpaceMode",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 316,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:RelationListRemoveOption",
-      "kind": "registry-command",
-      "name": "RelationListRemoveOption",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 317,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:RelationListWithValue",
-      "kind": "registry-command",
-      "name": "RelationListWithValue",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 318,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:RelationOptionSetOrder",
-      "kind": "registry-command",
-      "name": "RelationOptionSetOrder",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 320,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:RelationOptions",
-      "kind": "registry-command",
-      "name": "RelationOptions",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 319,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceChangeOwnership",
-      "kind": "registry-command",
-      "name": "SpaceChangeOwnership",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 321,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceDelete",
-      "kind": "registry-command",
-      "name": "SpaceDelete",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 322,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceDeleteCorruptedBackup",
-      "kind": "registry-command",
-      "name": "SpaceDeleteCorruptedBackup",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 323,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceInviteChange",
-      "kind": "registry-command",
-      "name": "SpaceInviteChange",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 324,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceInviteGenerate",
-      "kind": "registry-command",
-      "name": "SpaceInviteGenerate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 325,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceInviteGetCurrent",
-      "kind": "registry-command",
-      "name": "SpaceInviteGetCurrent",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 326,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceInviteGetGuest",
-      "kind": "registry-command",
-      "name": "SpaceInviteGetGuest",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 327,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceInviteRevoke",
-      "kind": "registry-command",
-      "name": "SpaceInviteRevoke",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 328,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceInviteView",
-      "kind": "registry-command",
-      "name": "SpaceInviteView",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 329,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceJoin",
-      "kind": "registry-command",
-      "name": "SpaceJoin",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 330,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceJoinCancel",
-      "kind": "registry-command",
-      "name": "SpaceJoinCancel",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 331,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceLeaveApprove",
-      "kind": "registry-command",
-      "name": "SpaceLeaveApprove",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 332,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceMakeShareable",
-      "kind": "registry-command",
-      "name": "SpaceMakeShareable",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 333,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceParticipantPermissionsChange",
-      "kind": "registry-command",
-      "name": "SpaceParticipantPermissionsChange",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 334,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceParticipantRemove",
-      "kind": "registry-command",
-      "name": "SpaceParticipantRemove",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 335,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceParticipantsAddList",
-      "kind": "registry-command",
-      "name": "SpaceParticipantsAddList",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 336,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceRequestApprove",
-      "kind": "registry-command",
-      "name": "SpaceRequestApprove",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 337,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceRequestDecline",
-      "kind": "registry-command",
-      "name": "SpaceRequestDecline",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 338,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceSetOrder",
-      "kind": "registry-command",
-      "name": "SpaceSetOrder",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 339,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceStopSharing",
-      "kind": "registry-command",
-      "name": "SpaceStopSharing",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 340,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:SpaceUnsetOrder",
-      "kind": "registry-command",
-      "name": "SpaceUnsetOrder",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 341,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:TemplateClone",
-      "kind": "registry-command",
-      "name": "TemplateClone",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 342,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:TemplateCreateFromObject",
-      "kind": "registry-command",
-      "name": "TemplateCreateFromObject",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 343,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:TemplateDeletePlaceholders",
-      "kind": "registry-command",
-      "name": "TemplateDeletePlaceholders",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 344,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:TemplateExportAll",
-      "kind": "registry-command",
-      "name": "TemplateExportAll",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 345,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:TemplateGetPlaceholders",
-      "kind": "registry-command",
-      "name": "TemplateGetPlaceholders",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 346,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:TemplateSetPlaceholders",
-      "kind": "registry-command",
-      "name": "TemplateSetPlaceholders",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 347,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:UnsplashDownload",
-      "kind": "registry-command",
-      "name": "UnsplashDownload",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 348,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:UnsplashSearch",
-      "kind": "registry-command",
-      "name": "UnsplashSearch",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 349,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WalletCloseSession",
-      "kind": "registry-command",
-      "name": "WalletCloseSession",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 350,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WalletConvert",
-      "kind": "registry-command",
-      "name": "WalletConvert",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 351,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WalletCreate",
-      "kind": "registry-command",
-      "name": "WalletCreate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 352,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WalletCreateSession",
-      "kind": "registry-command",
-      "name": "WalletCreateSession",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 353,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WalletRecover",
-      "kind": "registry-command",
-      "name": "WalletRecover",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 354,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WorkspaceCreate",
-      "kind": "registry-command",
-      "name": "WorkspaceCreate",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 355,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WorkspaceExport",
-      "kind": "registry-command",
-      "name": "WorkspaceExport",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 356,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WorkspaceGetAll",
-      "kind": "registry-command",
-      "name": "WorkspaceGetAll",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 357,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WorkspaceGetCurrent",
-      "kind": "registry-command",
-      "name": "WorkspaceGetCurrent",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 358,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WorkspaceObjectAdd",
-      "kind": "registry-command",
-      "name": "WorkspaceObjectAdd",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 359,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WorkspaceObjectListAdd",
-      "kind": "registry-command",
-      "name": "WorkspaceObjectListAdd",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 360,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WorkspaceObjectListRemove",
-      "kind": "registry-command",
-      "name": "WorkspaceObjectListRemove",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 361,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WorkspaceOpen",
-      "kind": "registry-command",
-      "name": "WorkspaceOpen",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 362,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WorkspaceSelect",
-      "kind": "registry-command",
-      "name": "WorkspaceSelect",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 363,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WorkspaceSetHomepage",
-      "kind": "registry-command",
-      "name": "WorkspaceSetHomepage",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 364,
-          "column": 2
-        }
-      ]
-    },
-    {
-      "id": "registry-command:WorkspaceSetInfo",
-      "kind": "registry-command",
-      "name": "WorkspaceSetInfo",
-      "protocol": "grpc-web/unary",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/lib/api/service.ts",
-          "line": 365,
-          "column": 2
-        }
-      ]
-    },
-    {
       "id": "renderer-command:checkDiskSpace",
       "kind": "renderer-command",
       "name": "checkDiskSpace",
@@ -40871,7 +35675,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 608,
+          "line": 623,
           "column": 3,
           "expression": "Renderer.send"
         }
@@ -40887,7 +35691,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 400,
+          "line": 396,
           "column": 6,
           "expression": "Renderer.send"
         }
@@ -40977,7 +35781,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 612,
+          "line": 627,
           "column": 5,
           "expression": "Renderer.send"
         },
@@ -41051,7 +35855,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 775,
+          "line": 790,
           "column": 4,
           "expression": "Renderer.send"
         }
@@ -41067,7 +35871,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 792,
+          "line": 807,
           "column": 14,
           "expression": "Renderer.send"
         }
@@ -41131,19 +35935,19 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1157,
+          "line": 1153,
           "column": 7,
           "expression": "Renderer.send"
         },
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1285,
+          "line": 1281,
           "column": 8,
           "expression": "Renderer.send"
         },
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1460,
+          "line": 1456,
           "column": 10,
           "expression": "Renderer.send"
         }
@@ -41337,7 +36141,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 1187,
+          "line": 1183,
           "column": 6,
           "expression": "Renderer.send"
         }
@@ -41563,7 +36367,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 332,
+          "line": 328,
           "column": 6,
           "expression": "Renderer.send"
         }
@@ -41847,7 +36651,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/api/dispatcher.ts",
-          "line": 347,
+          "line": 343,
           "column": 6,
           "expression": "Renderer.send"
         }
@@ -41927,7 +36731,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 645,
+          "line": 660,
           "column": 4,
           "expression": "Renderer.sendIpc"
         }
@@ -41975,7 +36779,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 741,
+          "line": 756,
           "column": 6,
           "expression": "Renderer.send"
         },
@@ -42047,7 +36851,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 738,
+          "line": 753,
           "column": 6,
           "expression": "Renderer.send"
         }
@@ -43085,7 +37889,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 587,
+          "line": 602,
           "column": 26,
           "expression": "'/auth/better-login'"
         },
@@ -43217,13 +38021,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 447,
+          "line": 452,
           "column": 4,
           "expression": "'/auth/select'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 604,
+          "line": 619,
           "column": 4,
           "expression": "'/auth/select'"
         },
@@ -43317,37 +38121,37 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 477,
+          "line": 482,
           "column": 5,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 501,
+          "line": 506,
           "column": 6,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 510,
+          "line": 515,
           "column": 6,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 618,
+          "line": 633,
           "column": 7,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 625,
+          "line": 640,
           "column": 8,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 634,
+          "line": 649,
           "column": 6,
           "expression": "'/auth/setup/init'"
         },
@@ -43391,7 +38195,7 @@
         },
         {
           "file": "front_web/src/ts/lib/util/space.ts",
-          "line": 40,
+          "line": 41,
           "column": 4,
           "expression": "'/main/void/empty'"
         }
@@ -43435,7 +38239,7 @@
         },
         {
           "file": "front_web/src/ts/lib/util/space.ts",
-          "line": 63,
+          "line": 64,
           "column": 4,
           "expression": "'/main/void/select'"
         }
@@ -43451,7 +38255,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/util/space.ts",
-          "line": 135,
+          "line": 136,
           "column": 4,
           "expression": "S.Recovery.isPending ? '/main/void/loading' : '/main/void/error'"
         }
@@ -43591,7 +38395,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 760,
+          "line": 775,
           "column": 4,
           "expression": "route"
         },
@@ -43862,7 +38666,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/app.tsx",
-        "line": 760,
+        "line": 775,
         "column": 16,
         "expression": "route"
       }
@@ -43873,7 +38677,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/app.tsx",
-        "line": 834,
+        "line": 849,
         "column": 23,
         "expression": "path"
       }
@@ -44038,7 +38842,7 @@
       "reason": "Computed expression; no data-flow or alias resolution is attempted.",
       "reference": {
         "file": "front_web/src/ts/lib/api/dispatcher.ts",
-        "line": 309,
+        "line": 305,
         "column": 19,
         "expression": "Mapper.Event[type]"
       }
@@ -44049,7 +38853,7 @@
       "reason": "Computed expression; no data-flow or alias resolution is attempted.",
       "reference": {
         "file": "front_web/src/ts/lib/api/dispatcher.ts",
-        "line": 309,
+        "line": 305,
         "column": 40,
         "expression": "Mapper.Event[type]"
       }
@@ -44082,7 +38886,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/lib/api/service.ts",
-        "line": 433,
+        "line": 23,
         "column": 9,
         "expression": "`${commandBase()}/command/${commandName}`"
       }
@@ -44093,7 +38897,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/lib/api/service.ts",
-        "line": 461,
+        "line": 51,
         "column": 34,
         "expression": "`${commandBase()}/events`"
       }
@@ -44104,7 +38908,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/lib/api/spaces.ts",
-        "line": 34,
+        "line": 29,
         "column": 31,
         "expression": "`${apiBase()}${path}`"
       }
@@ -44368,7 +39172,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/lib/util/space.ts",
-        "line": 135,
+        "line": 136,
         "column": 16,
         "expression": "S.Recovery.isPending ? '/main/void/loading' : '/main/void/error'"
       }
@@ -44497,46 +39301,458 @@
   ],
   "drift": {
     "dispatchWithoutRegistry": [
+      "AIListModels",
+      "AccountChangeJsonApiAddr",
+      "AccountCreate",
+      "AccountDelete",
+      "AccountLocalLinkApproveChallenge",
+      "AccountLocalLinkCreateApp",
+      "AccountLocalLinkListApps",
+      "AccountLocalLinkNewChallenge",
+      "AccountLocalLinkRevokeApp",
+      "AccountLocalLinkSolveChallenge",
+      "AccountLocalLinkUpdateApp",
+      "AccountMigrate",
+      "AccountMigrateCancel",
+      "AccountPreloadRemainingSpaces",
+      "AccountRecover",
+      "AccountRecoverFromLegacyExport",
+      "AccountRecoveryState",
+      "AccountRevertDeletion",
+      "AccountSelect",
+      "AccountStop",
+      "AppGetVersion",
+      "AppSetDeviceState",
+      "AppShutdown",
+      "BlockBookmarkCreateAndFetch",
+      "BlockBookmarkFetch",
+      "BlockCopy",
+      "BlockCreate",
+      "BlockCreateWidget",
+      "BlockCut",
+      "BlockDataviewCreateFromExistingObject",
+      "BlockDataviewFilterAdd",
+      "BlockDataviewFilterRemove",
+      "BlockDataviewFilterReplace",
+      "BlockDataviewFilterSort",
+      "BlockDataviewGroupOrderUpdate",
+      "BlockDataviewObjectOrderUpdate",
+      "BlockDataviewRelationAdd",
+      "BlockDataviewRelationDelete",
+      "BlockDataviewRelationSet",
+      "BlockDataviewSetSource",
+      "BlockDataviewSortAdd",
+      "BlockDataviewSortRemove",
+      "BlockDataviewSortReplace",
+      "BlockDataviewSortSort",
+      "BlockDataviewViewCreate",
+      "BlockDataviewViewDelete",
+      "BlockDataviewViewRelationRemove",
+      "BlockDataviewViewRelationReplace",
+      "BlockDataviewViewRelationSort",
+      "BlockDataviewViewSetActive",
+      "BlockDataviewViewSetPosition",
+      "BlockDataviewViewUpdate",
+      "BlockDivListSetStyle",
+      "BlockFileCreateAndUpload",
+      "BlockFileListSetStyle",
+      "BlockFileSetTargetObjectId",
+      "BlockLatexSetText",
+      "BlockLinkCreateWithObject",
+      "BlockLinkListSetAppearance",
+      "BlockListConvertToObjects",
+      "BlockListDelete",
+      "BlockListDuplicate",
+      "BlockListMoveToExistingObject",
+      "BlockListSetAlign",
+      "BlockListSetBackgroundColor",
+      "BlockListSetFields",
+      "BlockListSetVerticalAlign",
+      "BlockListTurnInto",
+      "BlockMerge",
+      "BlockPaste",
+      "BlockPreview",
+      "BlockRelationSetKey",
+      "BlockReplace",
+      "BlockSetCarriage",
+      "BlockSetFields",
+      "BlockSplit",
+      "BlockTableColumnCreate",
+      "BlockTableColumnDelete",
+      "BlockTableColumnDuplicate",
+      "BlockTableColumnListFill",
+      "BlockTableColumnMove",
+      "BlockTableCreate",
+      "BlockTableExpand",
+      "BlockTableRowCreate",
+      "BlockTableRowDuplicate",
+      "BlockTableRowListClean",
+      "BlockTableRowListFill",
+      "BlockTableRowSetHeader",
+      "BlockTableSort",
+      "BlockTextListClearContent",
+      "BlockTextListClearStyle",
+      "BlockTextListSetColor",
+      "BlockTextListSetMark",
+      "BlockTextListSetStyle",
+      "BlockTextSetChecked",
+      "BlockTextSetIcon",
+      "BlockTextSetText",
+      "BlockUpload",
+      "BlockWidgetSetLayout",
+      "BlockWidgetSetLimit",
+      "BlockWidgetSetTargetId",
+      "BlockWidgetSetViewId",
+      "BroadcastPayloadEvent",
+      "ChatAddMessage",
+      "ChatDeleteMessage",
+      "ChatEditMessageContent",
+      "ChatGetMessages",
+      "ChatGetMessagesByIds",
+      "ChatGetPinnedMessages",
+      "ChatReadAll",
+      "ChatReadMessages",
+      "ChatReadReactions",
+      "ChatSearch",
+      "ChatSetPinnedMessages",
+      "ChatSubscribeLastMessages",
+      "ChatSubscribeToMessagePreviews",
+      "ChatToggleMessageReaction",
+      "ChatUnreadMessages",
+      "ChatUnsubscribe",
+      "DebugCleanupReport",
+      "DebugExportLocalstore",
       "DebugExportLog",
+      "DebugExportReport",
+      "DebugNetCheck",
+      "DebugRunProfiler",
+      "DebugSpaceSummary",
+      "DebugStackGoroutines",
+      "DebugStat",
+      "DebugTree",
+      "DeviceList",
+      "FileAutoDownloadSetLimit",
+      "FileDiscardPreload",
+      "FileDownload",
+      "FileDrop",
+      "FileListOffload",
+      "FileNodeUsage",
+      "FileReconcile",
+      "FileSetAutoDownload",
+      "FileUpload",
+      "GalleryDownloadIndex",
+      "GalleryDownloadManifest",
+      "HistoryDiffVersions",
+      "HistoryGetVersions",
+      "HistorySetVersion",
+      "HistoryShowVersion",
+      "InitialSetParameters",
+      "LinkPreview",
+      "MembershipCodeGetInfo",
+      "MembershipCodeRedeem",
+      "MembershipV2AnyNameAllocate",
+      "MembershipV2AnyNameIsValid",
+      "MembershipV2CartUpdate",
+      "MembershipV2GetPortalLink",
+      "MembershipV2GetProducts",
+      "MembershipV2GetStatus",
+      "MembershipV2SubscribeToUpdates",
+      "NavigationGetObjectInfoWithLinks",
+      "NotificationList",
+      "NotificationReply",
+      "ObjectAddDiscussion",
+      "ObjectApplyTemplate",
+      "ObjectBookmarkFetch",
+      "ObjectChatAdd",
+      "ObjectCleanupSuggestionIgnore",
+      "ObjectCleanupSuggestions",
+      "ObjectClose",
+      "ObjectCollectionAdd",
+      "ObjectCollectionRemove",
+      "ObjectCollectionSort",
+      "ObjectCreate",
+      "ObjectCreateBookmark",
+      "ObjectCreateFromUrl",
+      "ObjectCreateObjectType",
+      "ObjectCreateRelation",
+      "ObjectCreateRelationOption",
+      "ObjectCreateSet",
+      "ObjectCrossSpaceSearch",
+      "ObjectCrossSpaceSearchSubscribe",
+      "ObjectDateByTimestamp",
+      "ObjectDeletionAudit",
+      "ObjectDuplicate",
+      "ObjectGraph",
+      "ObjectGroupsSubscribe",
+      "ObjectImport",
+      "ObjectImportExperience",
+      "ObjectImportNotionValidateToken",
+      "ObjectImportUseCase",
+      "ObjectListDelete",
+      "ObjectListDuplicate",
+      "ObjectListExport",
+      "ObjectListModifyDetailValues",
+      "ObjectListSetDetails",
+      "ObjectListSetIsArchived",
+      "ObjectListSetObjectType",
+      "ObjectOpen",
+      "ObjectRedo",
+      "ObjectRelationAdd",
+      "ObjectRelationAddFeatured",
+      "ObjectRelationDelete",
+      "ObjectRelationRemoveFeatured",
+      "ObjectSearch",
+      "ObjectSearchSubscribe",
+      "ObjectSearchUnsubscribe",
+      "ObjectSearchWithMeta",
+      "ObjectSetObjectType",
+      "ObjectSetSource",
+      "ObjectShareByLink",
+      "ObjectShow",
+      "ObjectSubscribeIds",
+      "ObjectToCollection",
+      "ObjectToSet",
+      "ObjectTypeListConflictingRelations",
       "ObjectTypeRelationAdd",
-      "ObjectTypeRelationRemove"
+      "ObjectTypeRelationRemove",
+      "ObjectTypeResolveLayoutConflicts",
+      "ObjectTypeSetOrder",
+      "ObjectUndo",
+      "ProcessCancel",
+      "PublishingCreate",
+      "PublishingGetStatus",
+      "PublishingList",
+      "PublishingRemove",
+      "PublishingResolveUri",
+      "PubsubPublish",
+      "PubsubSubscribe",
+      "PubsubUnsubscribe",
+      "PushNotificationResetIds",
+      "PushNotificationSetForceModeIds",
+      "PushNotificationSetSpaceMode",
+      "RelationListRemoveOption",
+      "RelationListWithValue",
+      "RelationOptionSetOrder",
+      "SpaceChangeOwnership",
+      "SpaceDelete",
+      "SpaceInviteChange",
+      "SpaceInviteGenerate",
+      "SpaceInviteGetCurrent",
+      "SpaceInviteRevoke",
+      "SpaceInviteView",
+      "SpaceJoin",
+      "SpaceJoinCancel",
+      "SpaceMakeShareable",
+      "SpaceParticipantPermissionsChange",
+      "SpaceParticipantRemove",
+      "SpaceParticipantsAddList",
+      "SpaceRequestApprove",
+      "SpaceRequestDecline",
+      "SpaceSetOrder",
+      "SpaceStopSharing",
+      "SpaceUnsetOrder",
+      "TemplateCreateFromObject",
+      "TemplateExportAll",
+      "UnsplashDownload",
+      "UnsplashSearch",
+      "WalletCloseSession",
+      "WalletConvert",
+      "WalletCreate",
+      "WalletCreateSession",
+      "WalletRecover",
+      "WorkspaceCreate",
+      "WorkspaceObjectAdd",
+      "WorkspaceObjectListRemove",
+      "WorkspaceOpen",
+      "WorkspaceSetHomepage",
+      "WorkspaceSetInfo"
     ],
-    "registryWithoutLiteralDispatch": [
+    "registryWithoutLiteralDispatch": [],
+    "registryWithoutProto": [],
+    "protoUnaryWithoutRegistry": [
       "AIAutofill",
+      "AIListModels",
       "AIListSummary",
       "AIObjectCreateFromUrl",
       "AIWritingTools",
+      "AccountChangeJsonApiAddr",
       "AccountChangeNetworkConfigAndRestart",
       "AccountConfigUpdate",
+      "AccountCreate",
+      "AccountDelete",
       "AccountEnableLocalNetworkSync",
+      "AccountLocalLinkApproveChallenge",
+      "AccountLocalLinkCreateApp",
+      "AccountLocalLinkListApps",
+      "AccountLocalLinkNewChallenge",
+      "AccountLocalLinkRevokeApp",
+      "AccountLocalLinkSolveChallenge",
+      "AccountLocalLinkUpdateApp",
+      "AccountMigrate",
+      "AccountMigrateCancel",
       "AccountMove",
+      "AccountPreloadRemainingSpaces",
+      "AccountRecover",
+      "AccountRecoverFromLegacyExport",
+      "AccountRecoveryState",
+      "AccountRevertDeletion",
+      "AccountSelect",
+      "AccountStop",
+      "AppGetVersion",
+      "AppSetDeviceState",
+      "AppShutdown",
+      "BlockBookmarkCreateAndFetch",
+      "BlockBookmarkFetch",
+      "BlockCopy",
+      "BlockCreate",
+      "BlockCreateWidget",
+      "BlockCut",
+      "BlockDataviewCreateFromExistingObject",
+      "BlockDataviewFilterAdd",
+      "BlockDataviewFilterRemove",
+      "BlockDataviewFilterReplace",
+      "BlockDataviewFilterSort",
+      "BlockDataviewGroupOrderUpdate",
       "BlockDataviewObjectOrderMove",
+      "BlockDataviewObjectOrderUpdate",
+      "BlockDataviewRelationAdd",
+      "BlockDataviewRelationDelete",
+      "BlockDataviewRelationSet",
+      "BlockDataviewSetSource",
+      "BlockDataviewSortAdd",
+      "BlockDataviewSortRemove",
+      "BlockDataviewSortReplace",
+      "BlockDataviewSortSort",
+      "BlockDataviewViewCreate",
+      "BlockDataviewViewDelete",
       "BlockDataviewViewRelationAdd",
+      "BlockDataviewViewRelationRemove",
+      "BlockDataviewViewRelationReplace",
+      "BlockDataviewViewRelationSort",
+      "BlockDataviewViewSetActive",
+      "BlockDataviewViewSetPosition",
+      "BlockDataviewViewUpdate",
+      "BlockDivListSetStyle",
       "BlockExport",
+      "BlockFileCreateAndUpload",
+      "BlockFileListSetStyle",
       "BlockFileSetName",
+      "BlockFileSetTargetObjectId",
       "BlockImageSetName",
+      "BlockLatexSetText",
+      "BlockLinkCreateWithObject",
+      "BlockLinkListSetAppearance",
+      "BlockListConvertToObjects",
+      "BlockListDelete",
+      "BlockListDuplicate",
+      "BlockListMoveToExistingObject",
       "BlockListMoveToNewObject",
+      "BlockListSetAlign",
+      "BlockListSetBackgroundColor",
+      "BlockListSetFields",
+      "BlockListSetVerticalAlign",
+      "BlockListTurnInto",
+      "BlockMerge",
+      "BlockPaste",
+      "BlockPreview",
       "BlockRelationAdd",
+      "BlockRelationSetKey",
+      "BlockReplace",
+      "BlockSetCarriage",
+      "BlockSetFields",
+      "BlockSplit",
+      "BlockTableColumnCreate",
+      "BlockTableColumnDelete",
+      "BlockTableColumnDuplicate",
+      "BlockTableColumnListFill",
+      "BlockTableColumnMove",
+      "BlockTableCreate",
+      "BlockTableExpand",
+      "BlockTableRowCreate",
       "BlockTableRowDelete",
+      "BlockTableRowDuplicate",
+      "BlockTableRowListClean",
+      "BlockTableRowListFill",
+      "BlockTableRowSetHeader",
+      "BlockTableSort",
+      "BlockTextListClearContent",
+      "BlockTextListClearStyle",
+      "BlockTextListSetColor",
+      "BlockTextListSetMark",
+      "BlockTextListSetStyle",
+      "BlockTextSetChecked",
       "BlockTextSetColor",
+      "BlockTextSetIcon",
       "BlockTextSetStyle",
+      "BlockTextSetText",
+      "BlockUpload",
       "BlockVideoSetName",
+      "BlockWidgetSetLayout",
+      "BlockWidgetSetLimit",
+      "BlockWidgetSetTargetId",
+      "BlockWidgetSetViewId",
+      "BroadcastPayloadEvent",
+      "ChatAddMessage",
       "ChatAddNotificationSubscriber",
+      "ChatDeleteMessage",
+      "ChatEditMessageContent",
+      "ChatGetMessages",
+      "ChatGetMessagesByIds",
+      "ChatGetPinnedMessages",
+      "ChatReadAll",
+      "ChatReadMessages",
+      "ChatReadReactions",
       "ChatRemoveNotificationSubscriber",
+      "ChatSearch",
+      "ChatSetPinnedMessages",
+      "ChatSubscribeLastMessages",
+      "ChatSubscribeToMessagePreviews",
+      "ChatToggleMessageReaction",
+      "ChatUnreadMessages",
+      "ChatUnsubscribe",
       "ChatUnsubscribeFromMessagePreviews",
       "DebugAccountSelectTrace",
       "DebugAnystoreObjectChanges",
+      "DebugCleanupReport",
+      "DebugExportLocalstore",
+      "DebugExportReport",
+      "DebugNetCheck",
       "DebugOpenedObjects",
       "DebugPing",
+      "DebugRunProfiler",
+      "DebugSpaceSummary",
+      "DebugStackGoroutines",
+      "DebugStat",
       "DebugSubscriptions",
+      "DebugTree",
       "DebugTreeHeads",
+      "DeviceList",
       "DeviceNetworkStateSet",
       "DeviceSetName",
+      "FileAutoDownloadSetLimit",
       "FileCacheCancelDownload",
       "FileCacheDownload",
+      "FileDiscardPreload",
+      "FileDownload",
+      "FileDrop",
+      "FileListOffload",
+      "FileNodeUsage",
+      "FileReconcile",
+      "FileSetAutoDownload",
       "FileSpaceOffload",
       "FileSpaceUsage",
+      "FileUpload",
+      "GalleryDownloadIndex",
+      "GalleryDownloadManifest",
+      "HistoryDiffVersions",
+      "HistoryGetVersions",
+      "HistorySetVersion",
+      "HistoryShowVersion",
+      "InitialSetParameters",
+      "LinkPreview",
       "LogSend",
+      "MembershipCodeGetInfo",
+      "MembershipCodeRedeem",
       "MembershipFinalize",
       "MembershipGetPortalLinkUrl",
       "MembershipGetStatus",
@@ -44545,50 +39761,162 @@
       "MembershipGetVerificationEmailStatus",
       "MembershipIsNameValid",
       "MembershipRegisterPaymentRequest",
+      "MembershipV2AnyNameAllocate",
+      "MembershipV2AnyNameIsValid",
       "MembershipV2CartGet",
+      "MembershipV2CartUpdate",
+      "MembershipV2GetPortalLink",
+      "MembershipV2GetProducts",
+      "MembershipV2GetStatus",
+      "MembershipV2SubscribeToUpdates",
       "MembershipVerifyAppStoreReceipt",
       "MembershipVerifyEmailCode",
       "NameServiceResolveAnyId",
       "NameServiceResolveName",
       "NameServiceUserAccountGet",
+      "NavigationGetObjectInfoWithLinks",
       "NavigationListObjects",
+      "NotificationList",
+      "NotificationReply",
       "NotificationTest",
+      "ObjectAddDiscussion",
+      "ObjectApplyTemplate",
+      "ObjectBookmarkFetch",
+      "ObjectChatAdd",
+      "ObjectCleanupSuggestionIgnore",
+      "ObjectCleanupSuggestions",
+      "ObjectClose",
+      "ObjectCollectionAdd",
+      "ObjectCollectionRemove",
+      "ObjectCollectionSort",
+      "ObjectCreate",
+      "ObjectCreateBookmark",
+      "ObjectCreateFromUrl",
+      "ObjectCreateObjectType",
+      "ObjectCreateRelation",
+      "ObjectCreateRelationOption",
+      "ObjectCreateSet",
+      "ObjectCrossSpaceSearch",
+      "ObjectCrossSpaceSearchSubscribe",
       "ObjectCrossSpaceSearchUnsubscribe",
+      "ObjectDateByTimestamp",
+      "ObjectDeletionAudit",
+      "ObjectDuplicate",
       "ObjectExport",
+      "ObjectGraph",
+      "ObjectGroupsSubscribe",
+      "ObjectImport",
+      "ObjectImportExperience",
       "ObjectImportList",
+      "ObjectImportNotionValidateToken",
       "ObjectImportRunList",
       "ObjectImportRunStatus",
+      "ObjectImportUseCase",
+      "ObjectListDelete",
+      "ObjectListDuplicate",
+      "ObjectListExport",
+      "ObjectListModifyDetailValues",
+      "ObjectListSetDetails",
+      "ObjectListSetIsArchived",
       "ObjectListSetIsFavorite",
+      "ObjectListSetObjectType",
+      "ObjectOpen",
+      "ObjectRedo",
       "ObjectRefresh",
+      "ObjectRelationAdd",
+      "ObjectRelationAddFeatured",
+      "ObjectRelationDelete",
       "ObjectRelationListAvailable",
+      "ObjectRelationRemoveFeatured",
+      "ObjectSearch",
+      "ObjectSearchSubscribe",
+      "ObjectSearchUnsubscribe",
+      "ObjectSearchWithMeta",
       "ObjectSetDetails",
       "ObjectSetInternalFlags",
       "ObjectSetIsArchived",
       "ObjectSetIsFavorite",
       "ObjectSetLayout",
+      "ObjectSetObjectType",
+      "ObjectSetSource",
+      "ObjectShareByLink",
+      "ObjectShow",
+      "ObjectSubscribeIds",
+      "ObjectToCollection",
+      "ObjectToSet",
+      "ObjectTypeListConflictingRelations",
       "ObjectTypePropertyAdd",
       "ObjectTypePropertyRemove",
       "ObjectTypeRecommendedFeaturedRelationsSet",
       "ObjectTypeRecommendedRelationsSet",
+      "ObjectTypeResolveLayoutConflicts",
+      "ObjectTypeSetOrder",
+      "ObjectUndo",
+      "ProcessCancel",
       "ProcessSubscribe",
       "ProcessUnsubscribe",
+      "PublishingCreate",
+      "PublishingGetStatus",
+      "PublishingList",
+      "PublishingRemove",
+      "PublishingResolveUri",
+      "PubsubPublish",
+      "PubsubSubscribe",
+      "PubsubUnsubscribe",
       "PushNotificationRegisterToken",
+      "PushNotificationResetIds",
+      "PushNotificationSetForceModeIds",
+      "PushNotificationSetSpaceMode",
+      "RelationListRemoveOption",
+      "RelationListWithValue",
+      "RelationOptionSetOrder",
       "RelationOptions",
+      "SpaceChangeOwnership",
+      "SpaceDelete",
       "SpaceDeleteCorruptedBackup",
+      "SpaceInviteChange",
+      "SpaceInviteGenerate",
+      "SpaceInviteGetCurrent",
       "SpaceInviteGetGuest",
+      "SpaceInviteRevoke",
+      "SpaceInviteView",
+      "SpaceJoin",
+      "SpaceJoinCancel",
       "SpaceLeaveApprove",
+      "SpaceMakeShareable",
+      "SpaceParticipantPermissionsChange",
+      "SpaceParticipantRemove",
+      "SpaceParticipantsAddList",
+      "SpaceRequestApprove",
+      "SpaceRequestDecline",
+      "SpaceSetOrder",
+      "SpaceStopSharing",
+      "SpaceUnsetOrder",
       "TemplateClone",
+      "TemplateCreateFromObject",
       "TemplateDeletePlaceholders",
+      "TemplateExportAll",
       "TemplateGetPlaceholders",
       "TemplateSetPlaceholders",
+      "UnsplashDownload",
+      "UnsplashSearch",
+      "WalletCloseSession",
+      "WalletConvert",
+      "WalletCreate",
+      "WalletCreateSession",
+      "WalletRecover",
+      "WorkspaceCreate",
       "WorkspaceExport",
       "WorkspaceGetAll",
       "WorkspaceGetCurrent",
+      "WorkspaceObjectAdd",
       "WorkspaceObjectListAdd",
-      "WorkspaceSelect"
+      "WorkspaceObjectListRemove",
+      "WorkspaceOpen",
+      "WorkspaceSelect",
+      "WorkspaceSetHomepage",
+      "WorkspaceSetInfo"
     ],
-    "registryWithoutProto": [],
-    "protoUnaryWithoutRegistry": [],
     "wrapperRequestNameDifferences": [],
     "nameComparisons": [
       {
@@ -44618,11 +39946,6 @@
             "line": 361,
             "column": 5,
             "expression": "rpc LogSend (anytype.Rpc.Log.Send.Request) returns (anytype.Rpc.Log.Send.Response)"
-          },
-          {
-            "file": "front_web/src/ts/lib/api/service.ts",
-            "line": 200,
-            "column": 2
           }
         ]
       },
@@ -44647,11 +39970,6 @@
             "line": 189,
             "column": 5,
             "expression": "rpc ObjectTypePropertyAdd (anytype.Rpc.ObjectType.Property.Add.Request) returns (anytype.Rpc.ObjectType.Property.Add.Response)"
-          },
-          {
-            "file": "front_web/src/ts/lib/api/service.ts",
-            "line": 295,
-            "column": 2
           }
         ]
       },
@@ -44676,11 +39994,6 @@
             "line": 190,
             "column": 5,
             "expression": "rpc ObjectTypePropertyRemove (anytype.Rpc.ObjectType.Property.Remove.Request) returns (anytype.Rpc.ObjectType.Property.Remove.Response)"
-          },
-          {
-            "file": "front_web/src/ts/lib/api/service.ts",
-            "line": 296,
-            "column": 2
           }
         ]
       }
