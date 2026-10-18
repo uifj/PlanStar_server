@@ -519,7 +519,24 @@ export async function run(
 					return { error: FORBIDDEN, event: null };
 				}
 
-				const records = await REGISTRY_SOURCES[registry](spaceId, user.id);
+				const source = REGISTRY_SOURCES[registry];
+				const records = await source(spaceId, user.id);
+
+				// The Recent widgets list live objects, so they reconcile like any other
+				// query-backed view. The registry sources (types, relations, options,
+				// participants) and the deleted/archived bins stay unregistered: their rows are
+				// not the object projections a delta addresses, and a delete must not pull an
+				// object out of the very list that exists to show deleted ones.
+				if (registry === "recentEditAll" || registry === "recentEditMe") {
+					subscriptionRegistry.register(
+						subId,
+						user.id,
+						spaceId,
+						records.map((record) => record.id as string),
+						"",
+						() => source(spaceId, user.id),
+					);
+				}
 
 				return {
 					error: OK,

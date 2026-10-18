@@ -362,5 +362,49 @@ describe.skipIf(!databaseAvailable)(
 				),
 			).toBe(true);
 		});
+
+		it("gains a newly-created object in a peer's Recent list subscription", async () => {
+			const { spaceId } = await provision();
+			const subId = `recentEditAll-${spaceId}`;
+
+			const received: SessionEvent[] = [];
+			closes.push(spaceEvents.connect(peer, (event) => received.push(event)));
+			closes.push(() => subscriptionRegistry.remove(subId));
+
+			signInAs(peer);
+			const subscribed = await (
+				await post("/api/command/ObjectSearchSubscribe", {
+					spaceId,
+					subId,
+					filters: [],
+					sorts: [],
+					keys: [],
+					offset: 0,
+					limit: 10,
+				})
+			).json();
+			expect(subscribed.error).toEqual({ code: 0, description: "" });
+			const before = received.length;
+
+			signInAs(owner);
+			const created = await (
+				await post("/api/command/ObjectCreate", {
+					spaceId,
+					details: { name: "Recent live" },
+				})
+			).json();
+			expect(created.error).toEqual({ code: 0, description: "" });
+
+			const messages = received
+				.slice(before)
+				.flatMap((e) => e.messages as Array<Record<string, any>>);
+			expect(
+				messages.some(
+					(m) =>
+						m.subscriptionAdd?.id === created.objectId &&
+						m.subscriptionAdd?.subId === subId,
+				),
+			).toBe(true);
+		});
 	},
 );
