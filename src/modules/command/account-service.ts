@@ -491,7 +491,7 @@ export function spaceViewRecord(account: ResolvedAccount) {
 		fileExt: "",
 		fileMimeType: "",
 		sizeInBytes: 0,
-		restrictions: {},
+		restrictions: [],
 		defaultTemplateId: "",
 		createdDate: account.createdDate,
 		timestamp: account.createdDate,

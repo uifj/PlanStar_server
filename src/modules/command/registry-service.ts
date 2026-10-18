@@ -79,7 +79,7 @@ function typeRecord(type: {
 		fileExt: "",
 		fileMimeType: "",
 		sizeInBytes: 0,
-		restrictions: {},
+		restrictions: [],
 		defaultTemplateId: "",
 		createdDate,
 		timestamp: createdDate,
@@ -201,6 +201,33 @@ function matchesCondition(
 	}
 }
 
+// Narrow a registry projection by the client's wire filters. A registry record is not an Obj row the
+// column-backed compiler can compare against, so every condition is tested in memory over the
+// projected fields; a filter on a field the projection does not carry simply does not match, which
+// is why unhandled conditions keep the row rather than wrongly dropping it.
+function matchesFilters(
+	record: Record<string, unknown>,
+	wireFilters: unknown[],
+): boolean {
+	return wireFilters.every((raw) => {
+		const filter = raw as {
+			RelationKey?: unknown;
+			condition?: unknown;
+			value?: unknown;
+		};
+		if (typeof filter.RelationKey !== "string") {
+			return true;
+		}
+		const condition =
+			typeof filter.condition === "number" ? filter.condition : 0;
+		return matchesCondition(
+			condition,
+			filter.value,
+			record[filter.RelationKey],
+		);
+	});
+}
+
 // ObjectSearch for the type picker: the registry projection narrowed in memory, because a type
 // record is not an Obj row the column-backed filter compiler can compare against. The picker sends
 // no text when it opens, so without this the create menu has nothing to list.
@@ -224,21 +251,43 @@ export async function searchTypeRecords(
 			}
 		}
 
-		return filters.every((filter) => {
-			if (typeof filter.RelationKey !== "string") {
-				return true;
-			}
-			const condition =
-				typeof filter.condition === "number" ? filter.condition : 0;
-			return matchesCondition(
-				condition,
-				filter.value,
-				record[filter.RelationKey],
-			);
-		});
+		return matchesFilters(record, filters);
 	});
 
 	return matched.slice(offset, offset + limit);
+}
+
+// The settings content-model rail (component/sidebar/page/settings/library.tsx) lists the space's
+// types or its properties under the bare `library` subId, filtered by resolvedLayout. Those records
+// are registry rows — the type/relation mirror rows are deliberately hidden from the object lists,
+// so the general object-list branch cannot serve this rail and it renders empty. Pick the registry
+// the layout filter names and narrow it by the rest of the filters (the rail's search sends an
+// `id In [...]`, and its own guard excludes the Type object by uniqueKey).
+export async function libraryRecords(spaceId: string, wireFilters: unknown) {
+	const filters = Array.isArray(wireFilters) ? wireFilters : [];
+	const layouts = new Set(
+		filters
+			.filter(
+				(raw) =>
+					(raw as { RelationKey?: unknown }).RelationKey === "resolvedLayout",
+			)
+			.map((raw) => (raw as { value?: unknown }).value)
+			.filter((value): value is number => typeof value === "number"),
+	);
+
+	const records: Record<string, unknown>[] = [];
+	if (layouts.has(LAYOUT_TYPE)) {
+		records.push(
+			...((await typeRecords(spaceId)) as Record<string, unknown>[]),
+		);
+	}
+	if (layouts.has(LAYOUT_RELATION)) {
+		records.push(
+			...((await relationRecords(spaceId)) as Record<string, unknown>[]),
+		);
+	}
+
+	return records.filter((record) => matchesFilters(record, filters));
 }
 
 // The same registry projection for a single freshly created type, so the create
@@ -368,7 +417,7 @@ function relationRecord(relation: {
 		fileExt: "",
 		fileMimeType: "",
 		sizeInBytes: 0,
-		restrictions: {},
+		restrictions: [],
 		defaultTemplateId: "",
 		sourceObject: "",
 		createdDate,
@@ -433,7 +482,7 @@ function optionRecord(option: {
 		fileExt: "",
 		fileMimeType: "",
 		sizeInBytes: 0,
-		restrictions: {},
+		restrictions: [],
 		defaultTemplateId: "",
 		sourceObject: "",
 		createdDate,
@@ -601,7 +650,7 @@ function participantRecord(member: {
 		fileExt: "",
 		fileMimeType: "",
 		sizeInBytes: 0,
-		restrictions: {},
+		restrictions: [],
 		defaultTemplateId: "",
 		sourceObject: "",
 		discussionId: "",
@@ -749,7 +798,10 @@ function objectRecord(obj: {
 			typeof custom.fileMimeType === "string" ? custom.fileMimeType : "",
 		sizeInBytes:
 			typeof custom.sizeInBytes === "number" ? custom.sizeInBytes : 0,
-		restrictions: {},
+		// A list of numeric flags, not an object: S.Block.isAllowed reads it with
+		// restrictions.indexOf(), so "no restrictions" is [] and never {} — an object there
+		// throws inside the widget and library rows that check it.
+		restrictions: [],
 		defaultTemplateId: "",
 		createdDate,
 		timestamp: lastModifiedDate,

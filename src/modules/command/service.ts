@@ -117,6 +117,7 @@ import {
 	historyDiffEvents,
 	historyVersions,
 	isTypePickerQuery,
+	libraryRecords,
 	navigationObjectInfo,
 	objectRecords,
 	objectSpaceId,
@@ -201,12 +202,12 @@ const REGISTRY_SOURCES: Record<
 // Subscription ids (J.Constant.subId, keyed by their `<prefix>-<spaceId>` head) that are NOT
 // general object lists and must stay empty rather than be answered with Obj rows: the chat /
 // discussion message feeds, the type/relation/store registries read through their own subIds,
-// the graph tree-edge probes, the library, the file-manager views and the template list (which
+// the graph tree-edge probes, the file-manager views and the template list (which
 // needs a type.uniqueKey join a later slice adds — until then it must not leak every object).
 // Anything else that names a space is an object-list widget subscription (All objects /
 // Favorites / Bin and the per-widget tree/list subIds), which the general branch below answers.
-// `subSpace` is neither: it has its own branch, because the client resolves a space's people and
-// homepage from it and every ownership gate reads that answer.
+// `subSpace` and `library` are neither: each has its own branch, because the client resolves a
+// space's people from the first and its content-model rail from the registries behind the second.
 const EMPTY_SUB_IDS = new Set<string>([
 	"profile",
 	"typeStore",
@@ -214,7 +215,6 @@ const EMPTY_SUB_IDS = new Set<string>([
 	"store",
 	"archive",
 	"sidebar",
-	"library",
 	"lastMessage",
 	"fileManagerSynced",
 	"fileManagerNotSynced",
@@ -558,6 +558,34 @@ export async function run(
 					spaceId,
 					idFilterValues(body.filters),
 				);
+
+				return {
+					error: OK,
+					event: null,
+					counters: { total: records.length, nextCount: 0, prevCount: 0 },
+					records,
+					dependencies: [],
+				};
+			}
+
+			// The settings content-model rail lists the space's types or properties out of the
+			// registries, not out of the object table, so it is answered the same way the type
+			// picker is rather than left empty.
+			if (registry === "library") {
+				let spaceId =
+					typeof body.spaceId === "string" && body.spaceId ? body.spaceId : "";
+				if (!spaceId) {
+					const account = await ensureAccount(user);
+					spaceId = account.spaceId;
+				}
+
+				try {
+					await ensureSpaceAccess(user.id, spaceId, "reader");
+				} catch {
+					return { error: FORBIDDEN, event: null };
+				}
+
+				const records = await libraryRecords(spaceId, body.filters);
 
 				return {
 					error: OK,
