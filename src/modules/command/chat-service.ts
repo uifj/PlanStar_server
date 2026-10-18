@@ -127,7 +127,11 @@ export async function addMessage(
 						? wire.replyToMessageId
 						: "",
 				createdAt: now,
-				modifiedAt: now,
+				// 0 = never edited. The client's "(edited)" label fires for ANY non-zero
+				// modifiedAt (block/chat/message/index.tsx:261), so stamping the creation time
+				// here would mark every message edited the moment it is posted; only
+				// editMessage sets it.
+				modifiedAt: 0n,
 				pinned: Boolean(wire.pinned),
 			},
 		});
@@ -566,7 +570,6 @@ export async function getMessages(
 // must not come back as a live row).
 export async function getMessagesByIds(
 	chatObjectId: string,
-	spaceId: string,
 	messageIds: string[],
 ): Promise<ChatRecord[]> {
 	if (messageIds.length === 0) {
@@ -723,7 +726,6 @@ export async function toggleReaction(
 // updated rows are projected back so the command can emit one ChatUpdatePinnedStatus event per id.
 export async function setPinned(
 	chatObjectId: string,
-	spaceId: string,
 	messageIds: string[],
 	pinned: boolean,
 ): Promise<ChatRecord[]> {
@@ -743,10 +745,7 @@ export async function setPinned(
 }
 
 // The chat block's pinned bar (block/chat.tsx:919): every live pinned message, ascending by orderId.
-export async function getPinned(
-	chatObjectId: string,
-	spaceId: string,
-): Promise<ChatRecord[]> {
+export async function getPinned(chatObjectId: string): Promise<ChatRecord[]> {
 	const rows = await prisma.chatMessage.findMany({
 		where: { chatId: chatObjectId, pinned: true, deleted: false },
 		orderBy: { orderId: "asc" },

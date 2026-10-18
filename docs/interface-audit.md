@@ -197,6 +197,14 @@ transport never implemented, see §5).
     list". It is one, so every Bin came back "Your Bin is empty" and Restore was unreachable. Live:
     archiving an object now puts a named row with its date in the Bin, and restoring empties it again.
 
+20. **Every message was born "edited"** — **fixed**. `addMessage` stamped `modifiedAt` with the
+    creation time, and the bubble labels a message edited for *any* non-zero value
+    (`block/chat/message/index.tsx:261`) — so a freshly posted chat message and every comment carried
+    the "(edited)" tag before anyone could edit it. `modifiedAt` is now 0 until `ChatEditMessageContent`
+    sets it. Live: a new post renders "text 22:38" with no label, and editing it still produces the
+    projected `modifiedAt` and the label. (Rows written before this fix keep the badge until they are
+    edited; no back-fill was run on the dev database.)
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,

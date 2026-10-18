@@ -1794,7 +1794,6 @@ export async function run(
 
 			const messages = await getMessagesByIds(
 				chatObjectId,
-				spaceId,
 				Array.isArray(body.messageIds)
 					? body.messageIds.filter((id): id is string => typeof id === "string")
 					: [],
@@ -1989,12 +1988,7 @@ export async function run(
 				: [];
 			const pinned = body.pinned === true;
 
-			const updated = await setPinned(
-				chatObjectId,
-				spaceId,
-				messageIds,
-				pinned,
-			);
+			const updated = await setPinned(chatObjectId, messageIds, pinned);
 
 			// One ChatUpdatePinnedStatus message per touched row, addressed to what each session has open.
 			const pinnedMessages = (userId: string) =>
@@ -2041,7 +2035,7 @@ export async function run(
 				return { error: FORBIDDEN, event: null };
 			}
 
-			const messages = await getPinned(chatObjectId, spaceId);
+			const messages = await getPinned(chatObjectId);
 			return { error: OK, event: null, messages };
 		}
 

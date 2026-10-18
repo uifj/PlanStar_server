@@ -64,8 +64,9 @@
 | 空间聊天页 | 打开 `/main/chat/<chatId>/spaceId/<s>` → 发消息 → 截图 | 修复：spaceview.chatId 恒为空且空间没有 chat 对象，页面只剩输入框、读取全返回 NOT_FOUND；现在每个空间引导一个 chat 系统对象（layout 22），消息可读可写并渲染。`creator`/表情回应 id 改为账号 id（客户端 `creator == account.id`），自己的消息已按 isSelf 右对齐、作者名可解析 |
 | 聊天已读状态 | 打开聊天页后观察 `ChatReadState.order` 是否停止增长 | 修复：无变化的读取也递增 order → 客户端每次都套用状态并重新触发读取，两分钟内打出约 2.8 万次 `ChatReadMessages`（order 到 57058）并卡死标签页；水位未动的读取现在原样返回 |
 | 表情回应实时渲染 | 悬停消息 → 点回应 → 气泡出现 `.reaction.isSelf` | 修复：所有 chat 事件的 `subIds: []`，而客户端按 subId 派发，事件谁也没送达；现在打开聊天即登记 subId（ChatUnsubscribe 释放），删除/编辑/回应/置顶也向同空间成员推送 |
+| 「已编辑」标记 | 发一条新消息 → 刷新 → 看气泡是否带 edited | 修复：`addMessage` 把 `modifiedAt` 直接戳成创建时间，而客户端只要 `modifiedAt` 非 0 就显示 "(edited)"（`block/chat/message/index.tsx:261`）→ 每条消息一落地即被标记。现在新建为 0，只有 `ChatEditMessageContent` 会写它；改动前写入的开发数据仍带标记，未做回填 |
 
-尚未验收：讨论 / 图谱屏、成员邀请的**双账号端到端**（第二个账号点链接加入）、正文内联 dataview 块（#257）、AI 流式与命令级撤销（#254）。
+尚未验收：对象页讨论/评论屏已实盘验证（见 testing.md）；仍待验收的是成员邀请的**双账号端到端**（第二个账号点链接加入）、通知面板、collection 页、模板套用、正文内联 dataview 块（#257）、AI 流式与命令级撤销（#254）。
 
 > 教训：`EMPTY_SUB_IDS` 里「不是对象列表」的判断必须由客户端实际解析路径反证。`subSpace` 与 `library` 都曾以「非对象列表」名义被留空，结果分别是所有权闸门全灭与内容模型 rail 空白。
 

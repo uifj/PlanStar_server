@@ -150,6 +150,10 @@ describe.skipIf(!databaseAvailable)("POST /api/command/ChatAddMessage", () => {
 		});
 		expect(chatAdd?.message?.creator).toBe(owner);
 		expect(chatAdd?.message?.createdAt).toBeGreaterThan(0);
+		// block/chat/message/index.tsx:261 renders the "(edited)" label for ANY non-zero
+		// modifiedAt, so a message that has never been edited must project 0 — otherwise every
+		// message in the app looks edited.
+		expect(chatAdd?.message?.modifiedAt).toBe(0);
 	});
 
 	it("refuses a member below the writer floor", async () => {

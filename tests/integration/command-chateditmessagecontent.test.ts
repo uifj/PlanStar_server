@@ -139,6 +139,11 @@ describe.skipIf(!databaseAvailable)(
 				marks: [],
 			});
 			expect(body.event.messages[0].chatUpdate.subIds).toEqual([]);
+			// An edit is what turns the client's "(edited)" label on (index.tsx:261 reads any
+			// non-zero modifiedAt), so the projected record must carry the new stamp.
+			expect(
+				body.event.messages[0].chatUpdate.message.modifiedAt,
+			).toBeGreaterThan(1_700_000_000);
 
 			const row = await prisma.chatMessage.findUnique({ where: { id } });
 			expect(row?.content).toEqual({ text: "after", style: 0, marks: [] });
