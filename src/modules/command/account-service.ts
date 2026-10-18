@@ -47,6 +47,13 @@ const LAYOUT_SPACE_VIEW = 18;
 const SPACE_ACCOUNT_STATUS_ACTIVE = 8;
 const SPACE_LOCAL_STATUS_OK = 2;
 
+// This server sells no membership plan, so a space's seat count is not capped. The number still has
+// to be large rather than absent: the request popup subtracts its active participants from
+// readersLimit/writersLimit (popup/invite/confirm.tsx:67) and reads a non-positive remainder as "plan
+// exhausted", replacing Accept/Reject with the hosted upsell — so a space view without room for seats
+// leaves an owner unable to approve a join request at all.
+const UNLIMITED_SEATS = 1000;
+
 export interface ResolvedAccount {
 	spaceId: string;
 	spaceName: string;
@@ -505,8 +512,8 @@ export function spaceViewRecord(account: ResolvedAccount) {
 		spaceAccountStatus: SPACE_ACCOUNT_STATUS_ACTIVE,
 		spaceLocalStatus: SPACE_LOCAL_STATUS_OK,
 		spaceAccessType: account.spaceAccessType,
-		readersLimit: 0,
-		writersLimit: 0,
+		readersLimit: UNLIMITED_SEATS,
+		writersLimit: UNLIMITED_SEATS,
 		creator: participantId(account.spaceId, account.creatorId),
 		chatId: account.chatId,
 		spaceType: 0,

@@ -65,6 +65,25 @@ describe.skipIf(!databaseAvailable)("space sharing state", () => {
 		return record ? Number(record.spaceAccessType) : null;
 	};
 
+	// The confirm popup derives the slots it can still hand out from the space view's seat limits
+	// (popup/invite/confirm.tsx:67-68). When that subtraction is not a positive number it drops
+	// Accept/Reject entirely and offers the hosted plan's "add more members" upsell instead — so a
+	// self-hosted space that reports no seats leaves its owner unable to approve a join request from
+	// the very notification that asks them to. A space here has no seat cap.
+	const spaceViewSeats = async (spaceId: string) => {
+		signInAs(owner);
+		const body = await (
+			await post("/api/command/ObjectSearchSubscribe", { subId: "space" })
+		).json();
+		const record = (body.records as any[]).find(
+			(it) => it.targetSpaceId === spaceId,
+		);
+		return {
+			readers: Number(record?.readersLimit),
+			writers: Number(record?.writersLimit),
+		};
+	};
+
 	const makeShareable = async (spaceId: string, as = owner) => {
 		signInAs(as);
 		return (await post("/api/command/SpaceMakeShareable", { spaceId })).json();
@@ -85,6 +104,21 @@ describe.skipIf(!databaseAvailable)("space sharing state", () => {
 		expect(row?.spaceAccessType).toBe(2); // Shared
 
 		expect(await spaceViewAccessType(spaceId)).toBe(2);
+	});
+
+	it("gives the space view room for more members", async () => {
+		const spaceId = await provisionSpace();
+		await makeShareable(spaceId);
+
+		// The owner is the space's only member, so the client's subtraction is limit - 1.
+		const members = await prisma.spaceMember.count({
+			where: { spaceId, status: "active" },
+		});
+		expect(members).toBe(1);
+
+		const seats = await spaceViewSeats(spaceId);
+		expect(seats.readers - members).toBeGreaterThan(0);
+		expect(seats.writers - members).toBeGreaterThan(0);
 	});
 
 	it("stops sharing, revoking the invite and returning the space to private", async () => {

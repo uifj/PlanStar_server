@@ -205,6 +205,17 @@ transport never implemented, see §5).
     projected `modifiedAt` and the label. (Rows written before this fix keep the badge until they are
     edited; no back-fill was run on the dev database.)
 
+21. **A join request could not be approved** — **fixed**. `popup/invite/confirm.tsx:67-68` subtracts
+    the space's active participants from `spaceview.readersLimit` / `writersLimit` and, when the
+    remainder is not a positive number, replaces Accept/Reject with the hosted plan's
+    "✦ Add more channel members" upsell (`Action.membershipUpgrade`). The space view projected
+    `readersLimit: 0, writersLimit: 0` — "this server sells no membership" — which the store
+    normalizes to a number, so the subtraction came out non-positive and the sheet's **only** Approve
+    path was gone, including from the notification that asks the owner to approve. A self-hosted space
+    now reports 1000 seats of each kind (the value also keeps the members upsell banner hidden).
+    Found only by running the two-account flow: every command on that path answered OK while the UI
+    offered nothing.
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,

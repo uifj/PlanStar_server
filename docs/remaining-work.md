@@ -65,8 +65,9 @@
 | 聊天已读状态 | 打开聊天页后观察 `ChatReadState.order` 是否停止增长 | 修复：无变化的读取也递增 order → 客户端每次都套用状态并重新触发读取，两分钟内打出约 2.8 万次 `ChatReadMessages`（order 到 57058）并卡死标签页；水位未动的读取现在原样返回 |
 | 表情回应实时渲染 | 悬停消息 → 点回应 → 气泡出现 `.reaction.isSelf` | 修复：所有 chat 事件的 `subIds: []`，而客户端按 subId 派发，事件谁也没送达；现在打开聊天即登记 subId（ChatUnsubscribe 释放），删除/编辑/回应/置顶也向同空间成员推送 |
 | 「已编辑」标记 | 发一条新消息 → 刷新 → 看气泡是否带 edited | 修复：`addMessage` 把 `modifiedAt` 直接戳成创建时间，而客户端只要 `modifiedAt` 非 0 就显示 "(edited)"（`block/chat/message/index.tsx:261`）→ 每条消息一落地即被标记。现在新建为 0，只有 `ChatEditMessageContent` 会写它；改动前写入的开发数据仍带标记，未做回填 |
+| 双账号邀请加入 + 通知面板 | 第二个账号 SpaceInviteView/SpaceJoin(WithApprove) → 拥有者刷新看通知卡 → View request → Editor access → 请求者收到批准通知 | 通过：请求行 status=joining、拥有者收到 requestToJoin 卡片（"Probe Requester has requested to join 'My Space'"）、批准后成员转 active、请求者收到 participantRequestApproved（文案把 permissions=1 渲染成 Editor），participant 订阅两人各带 participantStatus=1。缺陷：space view 的 readersLimit/writersLimit 为 0，使确认弹层把 Accept/Reject 换成会员升级按钮（#21），已修复为 1000 席 |
 
-尚未验收：对象页讨论/评论屏已实盘验证（见 testing.md）；仍待验收的是成员邀请的**双账号端到端**（第二个账号点链接加入）、通知面板、collection 页、模板套用、正文内联 dataview 块（#257）、AI 流式与命令级撤销（#254）。
+尚未验收：collection 页、模板套用、通知面板的双账号第二实例可见性（仅以 API + 客户端模型验证）、正文内联 dataview 块（#257）、AI 流式与命令级撤销（#254）。
 
 > 教训：`EMPTY_SUB_IDS` 里「不是对象列表」的判断必须由客户端实际解析路径反证。`subSpace` 与 `library` 都曾以「非对象列表」名义被留空，结果分别是所有权闸门全灭与内容模型 rail 空白。
 
