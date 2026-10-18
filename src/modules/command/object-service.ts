@@ -1052,6 +1052,47 @@ export async function loadObjectView(user: AuthUser, objectId: string) {
 	};
 }
 
+// The client's personal widgets object is synthetic: its id is derived from the space id
+// (`_personalWidgets_<spaceId with dots as underscores>`, util/object.ts:28) and no Obj row is
+// ever written for it. ObjectOpen still owes the caller a view for a member of that space, or
+// every space switch logs "ObjectOpen code: 3 Object not found". The space is taken from the
+// request when present — decoding the id back with `_`→`.` is lossy for ids that contain
+// underscores — and only then from the id itself.
+const PERSONAL_WIDGETS_PREFIX = "_personalWidgets_";
+
+export function isPersonalWidgetsId(objectId: string) {
+	return objectId.startsWith(PERSONAL_WIDGETS_PREFIX);
+}
+
+export async function personalWidgetsView(
+	user: AuthUser,
+	objectId: string,
+	spaceId: string,
+) {
+	const resolvedSpaceId =
+		spaceId ||
+		objectId.slice(PERSONAL_WIDGETS_PREFIX.length).replace(/_/g, ".");
+
+	await ensureSpaceAccess(user.id, resolvedSpaceId, "reader");
+
+	return {
+		rootId: objectId,
+		blocks: [{ id: objectId, childrenIds: [], fields: {}, smartblock: {} }],
+		details: [
+			{
+				id: objectId,
+				details: {
+					id: objectId,
+					space: resolvedSpaceId,
+					name: "Personal widgets",
+				},
+			},
+		],
+		restrictions: { object: [], dataview: [] },
+		blockParticipants: [],
+	};
+}
+
 // ObjectListDelete / ObjectListSetIsArchived can target objects across several
 // spaces, so every distinct space behind the batch must grant the caller writer
 // access before any row is touched. ensureSpaceAccess throws on the first space the

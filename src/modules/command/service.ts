@@ -73,9 +73,11 @@ import {
 	duplicateObjects,
 	fetchBookmarkFor,
 	findOrCreateDateObject,
+	isPersonalWidgetsId,
 	loadObjectView,
 	modifyObjectDetailValues,
 	objectDetails,
+	personalWidgetsView,
 	relationOptionDetails,
 	removeCollectionMembers,
 	removeObjectRelations,
@@ -2518,6 +2520,26 @@ export async function run(
 		case "ObjectOpen":
 		case "ObjectShow": {
 			const objectId = typeof body.objectId === "string" ? body.objectId : "";
+
+			// The client opens its synthetic personal widgets object on every space switch;
+			// it has no Obj row, so answer its view instead of failing the open.
+			if (isPersonalWidgetsId(objectId)) {
+				const requestedSpaceId =
+					typeof body.spaceId === "string" ? body.spaceId : "";
+
+				let widgetsView: Awaited<ReturnType<typeof personalWidgetsView>> | null;
+				try {
+					widgetsView = await personalWidgetsView(
+						user,
+						objectId,
+						requestedSpaceId,
+					);
+				} catch {
+					return { error: FORBIDDEN, event: null };
+				}
+
+				return { error: OK, event: null, objectView: widgetsView };
+			}
 
 			let view: Awaited<ReturnType<typeof loadObjectView>>;
 			try {
