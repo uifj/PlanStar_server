@@ -30,15 +30,15 @@ deliberately records every capability as `pending` — it joins the client's sur
 migration is done — so the answered/pending split below comes from diffing it against the shim.
 
 - 259 exported wrappers in `command.ts`; **231 of them are called** from client code.
-- The shim answers **128** distinct command names (105 at the audit's first pass, plus the 22
-  `BlockDataview*` writes added by task #250, plus the inline-block binding of item 24).
-- **107 called commands have no server case.** They are not one bucket — see §3.
+- The shim answers **129** distinct command names (105 at the audit's first pass, the 22
+  `BlockDataview*` writes added by task #250, the inline-block binding of item 24, and `AIListModels`).
+- **106 called commands have no server case.** They are not one bucket — see §3.
 - Only **2 answered commands are never called**: `ChatUnreadMessages` (the client's unread path uses
   `ChatSubscribeToMessagePreviews` counters instead) and `ObjectToSet` (see §4 — the set screen calls
   a *different* entry point). Both still have integration tests, so they are live-but-unreached
   rather than dead.
 
-## 3. The 107 unhandled commands, classified
+## 3. The 106 unhandled commands, classified
 
 **(a) Genuine feature gaps — the set/collection/board/gallery screens.** The client renders those
 screens from `component/page/main/set.tsx` and `media.tsx`, which mount the block tree and drive the
@@ -72,8 +72,17 @@ silently because the shim answers `NOT_SUPPORTED`, not because the interface is 
 push-notification registration, `Debug*` (keyboard-only), `Unsplash*` and `Gallery*` (external
 services), `ObjectImport*`/`ObjectListExport` (P5-f), `FileDrop` (P5-e), `FileNodeUsage`/
 `FileSetAutoDownload`/`FileAutoDownloadSetLimit` (already documented as code 12), and the AI stream
-commands (`AIListModels` and friends — the client opens those over `streamClient`, which the shim
-transport never implemented, see §5).
+commands (`AIListModels` is answered now, item 25; the streaming `AI*` family has no call site left in
+this build at all — the `streamClient` it used to ride was deleted with the transport, so nothing in
+`src/ts` asks for a stream).
+
+**`ObjectUndo`/`ObjectRedo` (keyboard.ts:1298/1323) are a deliberate boundary, not a missing
+transport.** Body undo and redo work — the Yjs document's own `UndoManager` handles Cmd+Z in the
+editor, verified during the live body-sync round. What the commands would add is *detail-level* undo
+(reverting a featured-relation edit or a property change), which needs a per-object change log every
+write command would have to record; that is a feature, not an interface gap, so the commands answer
+code 12 rather than faking a success. Do not re-litigate this as "no transport": the transport exists,
+the state it would need to replay does not.
 
 ## 4. Outstanding defects found by this audit
 
@@ -250,6 +259,19 @@ transport never implemented, see §5).
     dangling `toId: ""`. Verified live: binding a set through the client's own command returns a Grid
     view with the Name column.
 
+25. **Settings → AI could not validate a provider** — **fixed**. `AIListModels` was unanswered, so the
+    screen's one AI call — the call that *is* its config check, since a returned list simultaneously
+    proves the endpoint reachable, the token valid and the models present
+    (`settings/import/aiSettings.tsx:58`) — failed with code 12 and the model dropdown stayed empty.
+    It now asks the configured OpenAI-compatible `<endpoint>/models` with the caller's bearer token and
+    answers `models: [{id, ownedBy}]`, or the `I.AiListModelsErrorCode` the screen renders
+    (103 rejected token, 101 unreachable, 100 rate limited, 2 invalid config, 1 malformed answer).
+    Because the fetch leaves the server, the endpoint host goes through the same classification a link
+    preview uses, with one deliberate exception: loopback stays allowed, since the local providers this
+    screen offers (Ollama, LM Studio) live there. Redirects are not followed — the guard vetted the
+    host the caller typed, not whatever it points at next. Verified live: an unreachable local provider
+    comes back through the client transport as code 101 with a description.
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,
@@ -270,8 +292,10 @@ is now the whole seam: a JSON `fetch` to `<base>/command/<Name>` plus an `EventS
 `service-registry.ts`, `lib/api/grpc-devtools.ts` + its `.d.ts` and the interceptor options
 `dispatcher.init` passed, and `electronMock`'s `GRPC_SERVER_ADDRESS` fallback. The generated proto
 bindings under `middleware/` stay (the message types the shell maps are built from them) and
-`package.json` still lists `grpc-web` as an installed-but-unimported dependency — dropping it is a
-dependency change, so it is left for an explicit decision. Pinned by
+`package.json` no longer lists `grpc-web` or `google-protobuf`: nothing imported them once the
+transport was hand-written, `scripts/generate-protos.sh` runs ts-proto alone (no grpc-web plugin), and
+removal was an explicitly approved dependency change. Gates after it: the client's own `pnpm typecheck`
+and 1397 tests pass, and the web app boots unchanged. Pinned by
 `src/ts/lib/api/service.transport.test.ts` (command fetch, HTTP-failure callback, SSE frame wrapper
 with its base64 payload decoded, `cancel` closing the source).
 

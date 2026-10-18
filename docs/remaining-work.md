@@ -74,7 +74,10 @@
 
 | 正文内联 dataview 绑定（#257） | C.ObjectCreateSet → C.BlockDataviewCreateFromExistingObject(页, 块id, set) → 读回调 message.views | 通过：命令此前完全无答案（code 12），内联块的目标选择器一点就静默失败；现在按 host 页写权限设闸、目标限同空间、补齐默认视图并回 `{blockId,targetObjectId,view}`。实盘回调拿到 Grid 视图含 Name 列。顺带修掉两处衍生缺陷：无源 set 每次打开都新建视图（幂等判断错把 sourceTypeId 当必要条件），以及视图仓库总会写一条 `toId: ""` 的悬空 source 边 |
 
-尚未验收：collection 页的网格行渲染（需可见浏览器面）、AI 流式与命令级撤销（#254）。
+| 设置 → AI 提供商 | C.AIListModels 指向一个不存在的本地 provider → 看回调错误码 | 通过：命令此前返回 code 12，模型下拉永远空；现在按 OpenAI 兼容协议请求 `<endpoint>/models` 并带 bearer token，失败映射成客户端自己的 `AiListModelsErrorCode`。实盘返回 101 NotReachable（带 description）。出站地址受 link-preview 同一套分类器管制，只额外放行 loopback（Ollama/LM Studio 在本机），且不跟随重定向。测试用本地假 provider（127.0.0.1 随机端口）跑通 200/401/拒连/私网/坏 URL/非模型列表 7 条 |
+| 旧传输依赖 | front_web `pnpm typecheck` + `pnpm test` + 应用启动 | 已删：`grpc-web`、`google-protobuf` 两项（确认全仓无 import、codegen 只用 ts-proto），install 减少 2 个包；客户端 1397 项测试与 typecheck 全过，Vite 页面照常启动并恢复空间 |
+
+尚未验收：collection 页的网格行渲染（需可见浏览器面）。
 
 > 教训：`EMPTY_SUB_IDS` 里「不是对象列表」的判断必须由客户端实际解析路径反证。`subSpace` 与 `library` 都曾以「非对象列表」名义被留空，结果分别是所有权闸门全灭与内容模型 rail 空白。
 

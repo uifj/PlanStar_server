@@ -27,6 +27,7 @@ import {
 	spaceViewRecord,
 	unsetSpaceOrder,
 } from "./account-service.js";
+import { listAiModels } from "./ai-provider-service.js";
 import {
 	addMessage,
 	type ChatRecord,
@@ -2248,6 +2249,33 @@ export async function run(
 				}
 				return { error: NOT_FOUND, event: null };
 			}
+		}
+
+		// AIListModels { config: {provider, endpoint, token} } (command.ts:31): Settings → AI's only AI
+		// call, and its entire validation step in one round trip — a list that arrives proves the
+		// endpoint, the token and the model availability together. The request leaves this server, so the
+		// caller's endpoint host is classified by the same rules a link preview uses, except that loopback
+		// stays allowed because the local providers this screen offers live there. A failure rides on the
+		// error code, which is what the screen renders (I.AiListModelsErrorCode).
+		case "AIListModels": {
+			const raw = body.config;
+			const config =
+				raw && typeof raw === "object" && !Array.isArray(raw)
+					? (raw as Record<string, unknown>)
+					: {};
+			const text = (value: unknown) => (typeof value === "string" ? value : "");
+
+			const listed = await listAiModels({
+				provider: text(config.provider),
+				endpoint: text(config.endpoint),
+				token: text(config.token),
+			});
+
+			return {
+				error: { code: listed.code, description: listed.description },
+				event: null,
+				models: listed.models,
+			};
 		}
 
 		case "ObjectListSetIsArchived": {
