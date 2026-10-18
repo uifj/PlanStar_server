@@ -102,10 +102,11 @@ the state it would need to replay does not.
    created view now appears in the client's store under the answered id, a filter added to it lands in
    the store without a reload, and the view survives a reload and comes back with the same id.
    `BlockDataviewCreateFromExistingObject` (§3a) is now answered too — see item 24.
-4. **The AI writing tools cannot stream** — the gRPC-web machinery was deleted with the transport
-   (`81419c2`), so the `C.AI*` calls that expect a server-streaming response have no transport at all
-   (task #254). Unary commands ride `fetch`; a stream would need a second seam (SSE or a chunked
-   `POST`) rather than a resurrected `streamClient`.
+4. **The AI writing tools cannot stream** — **not a defect in this build**. Re-checked against the
+   vendored shell: `command.ts` exports exactly one AI wrapper, `AIListModels` (answered, item 25), and
+   the transport's only stream seam is `listenSessionEvents` (`lib/api/service.ts:41`), which carries
+   session events, not AI. There is no `C.AI*` streaming call site left to give a transport to, so the
+   gRPC-web deletion removed nothing the AI feature used (task #254 closed on this evidence).
 5. **Publish links pointed off-box** — **fixed**. `U.Space.getPublishDomain` built the link from the
    participant identity (`J.Url.publish` = `any.coop/%s`), so every published page's link led to the
    hosted service while this harness serves `GET /api/publish/:uri` itself. The link is now
@@ -114,7 +115,8 @@ the state it would need to replay does not.
    same helper `ServiceClient.commandBase` now delegates to, which removes one of the three duplicate
    base-URL implementations §5 lists. Verified live: `PublishingCreate` → the link the client shows
    returns 200 with the object's name, and after `PublishingRemove` the same link 404s.
-6. **`?width=` is ignored** on `/image/:id` (P5-g, known).
+6. **`?width=` is ignored** on `/image/:id` — **deferred by decision** (task #154): full-size bytes
+   reach the screen today, so this is bandwidth, not a broken feature.
 7. **A reload loses the object it was asked for** — **fixed**. Reloading
    `/main/set/<id>/spaceId/<spaceId>` ended on `/main/edit/<widgets object>` (tab title "Widgets"): the
    web boot (`front_web/src/ts/app.tsx`, `bootWebAccount`) called
