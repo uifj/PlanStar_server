@@ -1,21 +1,30 @@
-import path from "node:path";
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-	test: {
-		environment: "jsdom",
-		include: ["src/**/*.test.{ts,tsx}"],
-		setupFiles: ["./src/test/setup.ts"],
-		clearMocks: true,
-		restoreMocks: true,
-		globals: false,
-		env: {
-			VITE_API_BASE_URL: "/api",
-		},
-	},
 	resolve: {
-		alias: {
-			"@": path.resolve(import.meta.dirname, "./src"),
-		},
+		extensions: ['.ts', '.tsx', '.js', '.jsx'],
+		alias: [
+			{ find: 'dist', replacement: path.resolve(__dirname, 'dist') },
+			{ find: 'protobuf', replacement: path.resolve(__dirname, 'dist/lib') },
+			{ find: 'json', replacement: path.resolve(__dirname, 'src/json') },
+			{ find: 'Lib', replacement: path.resolve(__dirname, 'src/ts/lib') },
+			{ find: 'Store', replacement: path.resolve(__dirname, 'src/ts/store') },
+			{ find: 'Component', replacement: path.resolve(__dirname, 'src/ts/component') },
+			{ find: 'Interface', replacement: path.resolve(__dirname, 'src/ts/interface') },
+			{ find: 'Model', replacement: path.resolve(__dirname, 'src/ts/model') },
+			{ find: 'Docs', replacement: path.resolve(__dirname, 'src/ts/docs') },
+			{ find: 'Hook', replacement: path.resolve(__dirname, 'src/ts/hook') },
+			{ find: 'Proto', replacement: path.resolve(__dirname, 'middleware') },
+		],
+	},
+	test: {
+		include: ['src/**/*.test.ts'],
+		globals: true,
+		environment: 'node',
+		setupFiles: ['src/ts/test/setup.ts'],
 	},
 });

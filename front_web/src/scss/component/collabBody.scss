@@ -1,0 +1,190 @@
+@import "~scss/_mixins";
+
+// The Tiptap collab body (ADR-0018). The legacy .editorWrapper block styles do
+// not apply here; this covers the empty-block placeholder and the drag handle.
+.collabBody {
+	.ProseMirror {
+		outline: none;
+
+		// Empty-block hint: the Placeholder extension marks empty nodes with
+		// .is-empty + data-placeholder; the text is painted through ::before so
+		// it never enters the document model.
+		p.is-empty::before,
+		.is-empty[data-placeholder]::before {
+			content: attr(data-placeholder);
+			color: var(--color-text-tertiary);
+			float: left;
+			height: 0;
+			pointer-events: none;
+		}
+	}
+}
+
+// Block reorder grip floated beside the hovered block by @tiptap/extension-drag-handle.
+// The extension owns positioning/visibility; this only styles the affordance.
+.dragHandle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	border-radius: 4px;
+	color: var(--color-icon);
+	cursor: grab;
+	user-select: none;
+	font-size: 16px;
+	line-height: 1;
+
+	&:hover {
+		background: var(--color-shape-secondary);
+		color: var(--color-icon-hover);
+	}
+
+	&:active {
+		cursor: grabbing;
+	}
+}
+
+// Anytype callout: a highlighted block with a clickable emoji icon beside editable content.
+.collabBody .ProseMirror .callout {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	margin: 4px 0;
+	padding: 16px;
+	background: var(--color-shape-secondary);
+	border-radius: 8px;
+
+	.callout-icon {
+		flex: none;
+		font-size: 20px;
+		line-height: 1.4;
+		cursor: pointer;
+		user-select: none;
+	}
+
+	.callout-content {
+		flex: 1;
+		min-width: 0;
+
+		> * + * {
+			margin-top: 4px;
+		}
+	}
+}
+
+// Anytype toggle/collapsible: a caret flips the body's visibility, kept in the node's
+// open attribute so it persists. When closed, only the header line shows.
+.collabBody .ProseMirror .toggle {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	margin: 4px 0;
+
+	.toggle-caret {
+		flex: none;
+		min-width: 18px;
+		color: var(--color-icon);
+		cursor: pointer;
+		user-select: none;
+		line-height: 1.5;
+	}
+
+	.toggle-inner {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.toggle-header {
+		font-weight: 600;
+	}
+
+	&[data-open="false"] .toggle-body {
+		display: none;
+	}
+}
+
+// Inline body image: constrained to the content width so it never overflows the page.
+.collabBody .ProseMirror img.bodyImage {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+// File attachment: a download chip pointing at the file store.
+.collabBody .ProseMirror .fileAttachment {
+	display: inline-block;
+	padding: 6px 10px;
+	border: 1px solid var(--color-shape-tertiary, #dbdbdb);
+	border-radius: 6px;
+	color: var(--color-text-primary);
+	text-decoration: none;
+
+	&:hover {
+		background: var(--color-shape-secondary);
+	}
+}
+
+// Embed: a link card for an external source (rendered as a link, not a live iframe).
+.collabBody .ProseMirror .embed {
+	margin: 4px 0;
+
+	.embed-link {
+		display: block;
+		padding: 12px 14px;
+		border: 1px solid var(--color-shape-tertiary, #dbdbdb);
+		border-radius: 8px;
+		color: var(--color-text-primary);
+		text-decoration: none;
+
+		&:hover {
+			background: var(--color-shape-secondary);
+		}
+	}
+}
+
+// Dataview block placeholder: a card standing where the embedded view renders its rows.
+.collabBody .ProseMirror .dataviewBlock {
+	margin: 4px 0;
+	padding: 24px;
+	border: 1px dashed var(--color-shape-tertiary, #dbdbdb);
+	border-radius: 8px;
+	color: var(--color-text-secondary);
+	text-align: center;
+}
+
+// Table blocks (TableKit): bordered cells with a shaded header row. The extension manages
+// selection/resizing behaviour; this gives the grid its visible structure.
+.collabBody .ProseMirror {
+	table {
+		border-collapse: collapse;
+		table-layout: fixed;
+		width: 100%;
+		margin: 4px 0;
+		overflow: hidden;
+	}
+
+	th,
+	td {
+		position: relative;
+		box-sizing: border-box;
+		min-width: 60px;
+		padding: 8px 10px;
+		border: 1px solid var(--color-shape-tertiary, #dbdbdb);
+		vertical-align: top;
+	}
+
+	th {
+		background: var(--color-shape-secondary);
+		font-weight: 600;
+		text-align: left;
+	}
+
+	.selectedCell::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: rgba(37, 134, 244, 0.1);
+		pointer-events: none;
+	}
+}

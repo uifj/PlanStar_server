@@ -11,16 +11,22 @@ lerna-debug.log*
 node_modules
 .pnpm-store
 
-# Build output
-dist
-dist-ssr
+# Build output (vite build writes here)
+dist-web
 
-# Environment files
+# Generated protobuf bindings + service registry (pnpm generate:protos)
+middleware/
+src/ts/lib/api/service.ts
+
+# Previous VanLife frontend, kept locally for reference
+_archive_src/
+
+# Generated / local-only
+dist/tsconfig.tsbuildinfo
+dist/css/style.css
 .env
 .env.*
 !.env.example
-
-# Local configuration
 *.local
 
 # Editor directories and files
