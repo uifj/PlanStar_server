@@ -117,6 +117,130 @@ export async function typeRecords(spaceId: string) {
 	return types.map(typeRecord);
 }
 
+// The relations only a type record carries. The shell's type picker
+// (component/menu/type/suggest.tsx) asks ObjectSearch for the space's types by filtering on these,
+// so a query naming one is a request for the registry rather than for the space's objects.
+const TYPE_RELATIONS = new Set([
+	"uniqueKey",
+	"recommendedLayout",
+	"recommendedRelations",
+	"recommendedFeaturedRelations",
+	"recommendedHiddenRelations",
+	"recommendedFileRelations",
+	"defaultTemplateId",
+	"sourceObject",
+	"pluralName",
+]);
+
+// I.FilterCondition (interface/block/dataview.ts:60).
+const CONDITION_EQUAL = 1;
+const CONDITION_NOT_EQUAL = 2;
+const CONDITION_LIKE = 7;
+const CONDITION_IN = 9;
+const CONDITION_NOT_IN = 10;
+
+interface PickerFilter {
+	RelationKey?: unknown;
+	condition?: unknown;
+	value?: unknown;
+}
+
+function pickerFilters(wireFilters: unknown): PickerFilter[] {
+	if (!Array.isArray(wireFilters)) {
+		return [];
+	}
+	return wireFilters.filter(
+		(raw): raw is PickerFilter => !!raw && typeof raw === "object",
+	);
+}
+
+export function isTypePickerQuery(wireFilters: unknown) {
+	return pickerFilters(wireFilters).some(
+		(filter) =>
+			typeof filter.RelationKey === "string" &&
+			!filter.RelationKey.includes(".") &&
+			TYPE_RELATIONS.has(filter.RelationKey),
+	);
+}
+
+function sameValue(expected: unknown, actual: unknown): boolean {
+	if (Array.isArray(actual)) {
+		return actual.some((item) => sameValue(expected, item));
+	}
+	if (
+		typeof expected === "number" ||
+		typeof expected === "boolean" ||
+		typeof expected === "string"
+	) {
+		return expected === actual;
+	}
+	return false;
+}
+
+function matchesCondition(
+	condition: number,
+	expected: unknown,
+	actual: unknown,
+): boolean {
+	const list = Array.isArray(expected) ? expected : [expected];
+
+	switch (condition) {
+		case CONDITION_EQUAL:
+		case CONDITION_IN:
+			return list.some((item) => sameValue(item, actual));
+		case CONDITION_NOT_EQUAL:
+		case CONDITION_NOT_IN:
+			return !list.some((item) => sameValue(item, actual));
+		case CONDITION_LIKE:
+			return String(actual ?? "")
+				.toLowerCase()
+				.includes(String(list[0] ?? "").toLowerCase());
+		default:
+			// An unhandled condition contributes no constraint rather than wrongly narrowing.
+			return true;
+	}
+}
+
+// ObjectSearch for the type picker: the registry projection narrowed in memory, because a type
+// record is not an Obj row the column-backed filter compiler can compare against. The picker sends
+// no text when it opens, so without this the create menu has nothing to list.
+export async function searchTypeRecords(
+	spaceId: string,
+	wireFilters: unknown,
+	fullText: string,
+	limit: number,
+	offset: number,
+) {
+	const records: Record<string, unknown>[] = await typeRecords(spaceId);
+	const filters = pickerFilters(wireFilters);
+	const query = fullText.trim().toLowerCase();
+
+	const matched = records.filter((record) => {
+		if (query) {
+			const name = String(record.name ?? "").toLowerCase();
+			const uniqueKey = String(record.uniqueKey ?? "").toLowerCase();
+			if (!name.includes(query) && !uniqueKey.includes(query)) {
+				return false;
+			}
+		}
+
+		return filters.every((filter) => {
+			if (typeof filter.RelationKey !== "string") {
+				return true;
+			}
+			const condition =
+				typeof filter.condition === "number" ? filter.condition : 0;
+			return matchesCondition(
+				condition,
+				filter.value,
+				record[filter.RelationKey],
+			);
+		});
+	});
+
+	return matched.slice(offset, offset + limit);
+}
+
 // The same registry projection for a single freshly created type, so the create
 // command answers with exactly the record the type subscription will later carry
 // (layout 4, uniqueKey, recommendedRelations). Returns null when the id is gone.

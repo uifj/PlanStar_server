@@ -111,6 +111,7 @@ import {
 	graphRecords,
 	historyDiffEvents,
 	historyVersions,
+	isTypePickerQuery,
 	navigationObjectInfo,
 	objectRecords,
 	objectSpaceId,
@@ -122,6 +123,7 @@ import {
 	relationsWithValue,
 	searchRecords,
 	searchRecordsWithMeta,
+	searchTypeRecords,
 	setCleanupIgnored,
 	setRecords,
 	setRelationOptionOrder,
@@ -2596,7 +2598,17 @@ export async function run(
 			const offset =
 				typeof body.offset === "number" && body.offset > 0 ? body.offset : 0;
 
-			const records = await searchRecords(spaceId, fullText, limit, offset);
+			// A filter naming a type-only relation is the shell's type picker asking for the
+			// space's registry, which is not an Obj row the column-backed search can compare.
+			const records = isTypePickerQuery(body.filters)
+				? await searchTypeRecords(
+						spaceId,
+						body.filters,
+						fullText,
+						limit,
+						offset,
+					)
+				: await searchRecords(spaceId, fullText, limit, offset);
 			return { error: OK, event: null, records };
 		}
 
