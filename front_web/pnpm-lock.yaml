@@ -141,12 +141,6 @@ importers:
       framer-motion:
         specifier: ^12.23.24
         version: 12.43.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      google-protobuf:
-        specifier: ^3.21.4
-        version: 3.21.4
-      grpc-web:
-        specifier: ^1.5.0
-        version: 1.5.0
       history:
         specifier: ^4.10.1
         version: 4.10.1
@@ -2487,14 +2481,8 @@ packages:
   good-listener@1.2.2:
     resolution: {integrity: sha512-goW1b+d9q/HIwbVYZzZ6SsTr4IgE+WA44A0GmPIQstuOrgsFcT7VEJ48nmr9GaRtNu0XTKacFLGnBPAM6Afouw==}
 
-  google-protobuf@3.21.4:
-    resolution: {integrity: sha512-MnG7N936zcKTco4Jd2PX2U96Kf9PxygAPKBug+74LHzmHXmceN16MmRcdgZv+DGef/S9YvQAfRsNCn4cjf9yyQ==}
-
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
-
-  grpc-web@1.5.0:
-    resolution: {integrity: sha512-y1tS3BBIoiVSzKTDF3Hm7E8hV2n7YY7pO0Uo7depfWJqKzWE+SKr0jvHNIJsJJYILQlpYShpi/DRJJMbosgDMQ==}
 
   hachure-fill@0.5.2:
     resolution: {integrity: sha512-3GKBOn+m2LX9iq+JC1064cSFprJY4jL1jCXTcpnfER5HYE2l/4EfWSGzkPa/ZDBmYI0ZOEj5VHV/eKnPGkHuOg==}
@@ -5572,11 +5560,7 @@ snapshots:
       delegate: 3.2.0
     optional: true
 
-  google-protobuf@3.21.4: {}
-
   graceful-fs@4.2.11: {}
-
-  grpc-web@1.5.0: {}
 
   hachure-fill@0.5.2: {}
 
