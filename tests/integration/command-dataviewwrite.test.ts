@@ -134,6 +134,13 @@ describe.skipIf(!databaseAvailable)(
 			expect(typeof created.viewId).toBe("string");
 			expect(created.viewId).not.toBe("");
 
+			// The screen looks the new view up by the answered id (controls.tsx:342), so the event that
+			// feeds its store has to name the same view.
+			expect(created.event.messages[0].blockDataviewViewSet).toMatchObject({
+				id: "dataview",
+				view: { id: created.viewId, name: "Gallery", type: 2 },
+			});
+
 			const dataview = await openDataview();
 			const names = dataview.views.map((it: any) => it.name);
 			expect(names).toContain("Grid");

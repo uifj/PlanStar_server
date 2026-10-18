@@ -294,16 +294,17 @@ export async function dataviewWrite(
 	const contextId = text(body.contextId);
 
 	switch (name) {
-		// The screen's "Create view" sends the whole view object it built locally, so the server
-		// mints the row id, stamps it into that object and makes the new view the active one.
+		// The screen's "Create view" sends the whole view object it built locally. The row mints its
+		// own id and the projection stamps it onto the view, so the response, the event and a later
+		// ObjectOpen all name the same view — the screen looks the new one up by response.viewId
+		// (controls.tsx:342) and switches to it only if that lookup succeeds.
 		case "BlockDataviewViewCreate": {
 			const owner = await resolveHolder(user, contextId);
 			if (!owner) {
 				return null;
 			}
 
-			const viewId = crypto.randomUUID();
-			const view: Details = { ...object(body.view), id: viewId };
+			const view: Details = { ...object(body.view) };
 			const sources = strings(body.source);
 			const sourceTypeId =
 				sources[0] ?? strings(owner.details.setOf)[0] ?? owner.typeId ?? "";
@@ -328,7 +329,9 @@ export async function dataviewWrite(
 			});
 
 			return {
-				event: eventFor(owner, blockId, "blockDataviewViewSet", { view }),
+				event: eventFor(owner, blockId, "blockDataviewViewSet", {
+					view: { ...view, id: created.id },
+				}),
 				response: { viewId: created.id },
 			};
 		}
