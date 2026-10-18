@@ -1,5 +1,6 @@
 import * as I from 'Interface';
 import Storage from 'Lib/storage';
+import { serverAddress } from 'Lib/web/serverAddress';
 
 const OPEN_ATTEMPTS_MAX = 2;
 
@@ -866,20 +867,13 @@ class UtilSpace {
 	};
 
 	/**
-	 * Gets the publish domain for the current space.
-	 * @returns {string} The publish domain.
+	 * Gets the publish base for a self-hosted harness: this server serves the public page itself
+	 * at GET <api base>/publish/:uri, so a published object's link names this server rather than
+	 * the hosted any.coop domain the participant identity would build.
+	 * @returns {string} The publish base.
 	 */
 	getPublishDomain (): string {
-		const participant = this.getMyParticipant();
-
-		let domain = '';
-		if (participant?.globalName) {
-			domain = U.String.sprintf(J.Url.publishDomain, participant.globalName);
-		} else {
-			domain = U.String.sprintf(J.Url.publish, participant.identity);
-		};
-
-		return domain;
+		return `${serverAddress()}/publish`;
 	};
 
 	/**
@@ -888,7 +882,7 @@ class UtilSpace {
 	 * @returns {string} The publish URL.
 	 */
 	getPublishUrl (slug: string): string {
-		return [ 'https:/', this.getPublishDomain(), slug ].join('/');
+		return [ this.getPublishDomain(), encodeURIComponent(slug) ].join('/');
 	};
 
 	/**

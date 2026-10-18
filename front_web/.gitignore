@@ -14,9 +14,11 @@ node_modules
 # Build output (vite build writes here)
 dist-web
 
-# Generated protobuf bindings + service registry (pnpm generate:protos)
+# Generated protobuf bindings + command registry (pnpm generate:protos). The transport in
+# src/ts/lib/api/service.ts is hand-written and tracked: regenerating it would restore the retired
+# gRPC-web client and drop the command-shim/SSE transport with it.
 middleware/
-src/ts/lib/api/service.ts
+src/ts/lib/api/service-registry.ts
 
 # Previous VanLife frontend, kept locally for reference
 _archive_src/

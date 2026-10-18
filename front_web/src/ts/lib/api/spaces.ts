@@ -2,6 +2,8 @@
 // authenticates with the Better Auth session cookie, so these calls run with
 // credentials:"include" against the same /api origin the auth client uses.
 
+import { serverAddress } from "../web/serverAddress";
+
 export interface Space {
 	id: string;
 	name: string;
@@ -18,16 +20,9 @@ interface Paginated<T> {
 
 export const DEFAULT_SPACE_NAME = "My Space";
 
-const apiBase = (): string => {
-	const configured = import.meta.env.VITE_API_BASE_URL as string | undefined;
-	if (configured) {
-		return configured.replace(/\/+$/, "");
-	}
-
-	const origin =
-		typeof window !== "undefined" ? window.location?.origin : undefined;
-	return `${origin ?? "http://localhost"}/api`;
-};
+// One base URL for the whole web build: the command shim, the SSE channel and these bootstrap
+// endpoints all resolve through serverAddress, so nothing can drift to a retired host.
+const apiBase = serverAddress;
 
 const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
 	const method = init?.method ?? "GET";

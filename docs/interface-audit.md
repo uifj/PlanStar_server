@@ -98,9 +98,14 @@ transport never implemented, see §5).
 4. **The AI writing tools cannot stream** — `service.ts:383-394` keeps `client`/`streamClient`
    instances that nothing uses, and `getDescriptor` (`:397-425`, path
    `/anytype.ClientCommands/<Name>`) is dead. Any `C.AI*` call that expects a stream has no transport.
-5. **Publish links point off-box** — `lib/util/space.ts:872` builds `https://<publishDomain>/<slug>`
-   from `src/json/url.ts` (`any.coop/%s`), while the server serves `GET /publish/:uri`. The settings
-   screen's link therefore never reaches this harness.
+5. **Publish links pointed off-box** — **fixed**. `U.Space.getPublishDomain` built the link from the
+   participant identity (`J.Url.publish` = `any.coop/%s`), so every published page's link led to the
+   hosted service while this harness serves `GET /api/publish/:uri` itself. The link is now
+   `<api base>/publish/<uri>` (`lib/util/space.ts`), with the slug encoded so it stays the single
+   addressable segment the route requires, and it reads its base from `lib/web/serverAddress` — the
+   same helper `ServiceClient.commandBase` now delegates to, which removes one of the three duplicate
+   base-URL implementations §5 lists. Verified live: `PublishingCreate` → the link the client shows
+   returns 200 with the object's name, and after `PublishingRemove` the same link 404s.
 6. **`?width=` is ignored** on `/image/:id` (P5-g, known).
 7. **A reload loses the object it was asked for** — **fixed**. Reloading
    `/main/set/<id>/spaceId/<spaceId>` ended on `/main/edit/<widgets object>` (tab title "Widgets"): the
@@ -125,12 +130,26 @@ mounted and mark the superseded operations deprecated** (ADR-0021, `src/openapi/
 `/api/ready`, `/api/spaces`, `/api/command/{name}` and `/api/agent/trip-planner/messages` — the agent
 mount stays unmarked because nothing supersedes it, it simply has no caller in this client.
 
-**Frontend:** the grpc-web residue — `lib/api/service.ts:3-9,383-425`, `lib/api/dispatcher.ts:7,62`,
-`lib/api/grpc-devtools.ts` + its `.d.ts`, `package.json:70` `grpc-web`, `electronMock.ts:477`
+**Frontend:** the grpc-web residue — `lib/api/dispatcher.ts:7,62`,
+`lib/api/grpc-devtools.ts` + its `.d.ts`, `package.json` `grpc-web`, `electronMock.ts:477`
 `window.GRPC_SERVER_ADDRESS`, `src/json/url.ts:29` `api: '127.0.0.1:31009'` feeding
-`store/auth.ts:22`; the duplicated base-URL helper (`lib/api/spaces.ts:21` and
-`lib/web/serverAddress.ts:24` re-implement `commandBase()`); and the unreachable legacy block-editor
-handlers named in §3b.
+`store/auth.ts:22`; and the unreachable legacy block-editor handlers named in §3b.
+
+Two of §5's items are now **closed**:
+
+- *The duplicated base-URL helper.* `lib/web/serverAddress.ts` is the one implementation; both
+  `ServiceClient.commandBase` and `lib/api/spaces.ts`'s `apiBase` delegate to it, so the command shim,
+  the SSE channel and the space bootstrap cannot drift to a retired host.
+- *The transport was not durable.* `lib/api/service.ts` was gitignored as a codegen artifact —
+  `scripts/generate-service-registry.js` wrote the whole file from an embedded template that still
+  emitted the **gRPC-web** client. So the REST/SSE transport lived only in the working copy: a fresh
+  clone had no client, and the documented `pnpm generate:protos` step silently reverted it. The
+  generated half is now `lib/api/service-registry.ts` (still ignored, reproduced byte-identically),
+  `service.ts` is hand-written and tracked, and the generator no longer touches it.
+
+`ServiceClient.getDescriptor` / `descriptorCache` / `client` / `streamClient` / `hostname` remain dead
+— they only feed the retired proto framing, and `service-registry.ts` is their sole consumer. Removing
+them is the rest of task #251.
 
 ## 6. Deepening candidates
 
