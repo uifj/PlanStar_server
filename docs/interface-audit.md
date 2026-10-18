@@ -30,28 +30,37 @@ deliberately records every capability as `pending` — it joins the client's sur
 migration is done — so the answered/pending split below comes from diffing it against the shim.
 
 - 259 exported wrappers in `command.ts`; **231 of them are called** from client code.
-- The shim answers **105** distinct command names.
-- **127 called commands have no server case.** They are not one bucket — see §3.
+- The shim answers **127** distinct command names (105 at the audit's first pass, plus the 22
+  `BlockDataview*` writes added by task #250).
+- **108 called commands have no server case.** They are not one bucket — see §3.
 - Only **2 answered commands are never called**: `ChatUnreadMessages` (the client's unread path uses
   `ChatSubscribeToMessagePreviews` counters instead) and `ObjectToSet` (see §4 — the set screen calls
   a *different* entry point). Both still have integration tests, so they are live-but-unreached
   rather than dead.
 
-## 3. The 127 unhandled commands, classified
+## 3. The 108 unhandled commands, classified
 
 **(a) Genuine feature gaps — the set/collection/board/gallery screens.** The client renders those
 screens from `component/page/main/set.tsx` and `media.tsx`, which mount the block tree and drive the
-dataview through 20 commands, none answered:
+dataview through 20 commands. **Nineteen of them are now answered** (task #250, `5001bc2`/`f585562`):
+`FilterAdd`/`FilterRemove`/`FilterReplace`/`FilterSort`, `SortAdd`/`SortRemove`/`SortReplace`/`SortSort`,
+`ViewCreate`/`ViewUpdate`/`ViewDelete`/`ViewSetActive`/`ViewSetPosition`,
+`ViewRelationRemove`/`ViewRelationReplace`/`ViewRelationSort`,
+`RelationAdd`/`RelationDelete`/`RelationSet`, `GroupOrderUpdate`, `ObjectOrderUpdate`, `SetSource`.
+Three of those 22 — `FilterSort`, `ViewRelationRemove`, `SetSource` — are wrapper-only today, with no
+call site in this build; they complete one seam rather than leaving the family partly answered.
 
-`BlockDataviewCreateFromExistingObject`, `FilterAdd`/`FilterRemove`/`FilterReplace`,
-`GroupOrderUpdate`, `ObjectOrderUpdate`, `RelationAdd`/`RelationDelete`/`RelationSet`,
-`SortAdd`/`SortRemove`/`SortReplace`/`SortSort`, `ViewCreate`/`ViewDelete`/`ViewUpdate`,
-`ViewRelationReplace`/`ViewRelationSort`/`ViewSetActive`/`ViewSetPosition`.
+The one remaining gap is **`BlockDataviewCreateFromExistingObject`** (`block/dataview.tsx:969`,
+`block/dataview/head.tsx:121/135/163`, `menu/block/action.tsx:578`): pointing a dataview block inside a
+page's body at an existing set, or converting that inline block into a collection. It needs the inline
+block to exist as a block with its own target object, which the body model does not yet project (the
+Yjs dataview node from task #229 lives only in the document), so it is tracked as its own task rather
+than half-implemented here.
 
-Call sites: `component/block/dataview/*`, `component/menu/dataview/*`, `lib/dataview.ts`, and
-`component/sidebar/page/widget.tsx` (the sidebar widget's sort menu). ADR-0012 stores a view as an
-object and the shim already reads views (`ObjectSearchSubscribe` honors a set's stored filters), so
-the read side exists and only the write side is missing.
+Call sites of the answered family: `component/block/dataview/*`, `component/menu/dataview/*`,
+`lib/dataview.ts`, and `component/sidebar/page/widget.tsx` (the sidebar widget's sort menu). ADR-0012
+stores a view as an object and the shim already reads views (`ObjectSearchSubscribe` honors a set's
+stored filters), so the read side exists and only the write side is missing.
 
 **(b) Dead call sites left by the Tiptap body port.** ~45 `Block*` commands (`BlockTextSetText`,
 `BlockList*`, `BlockTable*`, `BlockCopy`/`BlockPaste`/`BlockSplit`/`BlockMerge`, `BlockCreate`, …) are
@@ -79,8 +88,13 @@ transport never implemented, see §5).
    installs the default types: `name`, `done`, `description`, `createdDate`, `lastModifiedDate`,
    writer-gated like the types. Before this, `relation-<spaceId>` answered `total: 0` for a real
    space while `type-<spaceId>` answered 4.
-3. **Dataview writes are unsupported** (§3a) — open. View create/switch, filter, sort, relation and
-   column-order edits cannot persist.
+3. **Dataview writes are unsupported** (§3a) — **fixed** for the whole set-screen family (`5001bc2`,
+   `f585562`). Live verification caught a defect the tests had missed: `ViewCreate` answered the row id
+   while the event it pushed carried a separately minted one, so the screen's lookup by the answered id
+   (`controls.tsx:342`) found nothing and the new view never opened. Verified live in the browser: a
+   created view now appears in the client's store under the answered id, a filter added to it lands in
+   the store without a reload, and the view survives a reload and comes back with the same id.
+   Remaining: `BlockDataviewCreateFromExistingObject` (§3a) for dataview blocks inside a page body.
 4. **The AI writing tools cannot stream** — `service.ts:383-394` keeps `client`/`streamClient`
    instances that nothing uses, and `getDescriptor` (`:397-425`, path
    `/anytype.ClientCommands/<Name>`) is dead. Any `C.AI*` call that expects a stream has no transport.
@@ -88,6 +102,14 @@ transport never implemented, see §5).
    from `src/json/url.ts` (`any.coop/%s`), while the server serves `GET /publish/:uri`. The settings
    screen's link therefore never reaches this harness.
 6. **`?width=` is ignored** on `/image/:id` (P5-g, known).
+7. **A reload loses the object it was asked for** — found while verifying §3a live. Reloading
+   `/main/set/<id>/spaceId/<spaceId>` ends on `/main/edit/<widgets object>` (tab title "Widgets"): while
+   the space is still opening the app renders the void, whose auto-open calls
+   `U.Router.switchSpace(spaceId, '', false, { replace: true }, useFallback)`
+   (`front_web/src/ts/component/page/main/void.tsx:33`) with an **empty object id**, so the route that
+   was in the URL is replaced by the space's fallback object. Same for a shared deep link: the target
+   object never opens. The server side is not at fault — `ObjectOpen` for the requested set answers the
+   full dataview block both times.
 
 ## 5. Dead code and obsolete surface to prune
 
