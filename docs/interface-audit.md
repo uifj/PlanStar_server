@@ -145,6 +145,19 @@ transport never implemented, see §5).
     backlinks. Live: 29 nodes, 0 edges. It now unions both stores and de-duplicates a pair written to
     each. The existing test passed throughout because it seeded `prisma.link` directly instead of using
     the write path it claims to cover.
+13. **The space Chat page had no chat** — **fixed**. `block/chat.tsx` resolves what it reads as
+    `spaceview.chatId || rootId`, and the space view projected `chatId: ""` with no chat object behind
+    it: the page rendered a composer over an empty room and every read answered NOT_FOUND. A space now
+    provisions a chat system object (layout 22, hidden like the other three) and names it in its space
+    view; `numericLayout` lets the details marker decide when the column can only be reporting its
+    `basic` default, since the `ObjectLayout` enum has no name for a chat.
+14. **Chat messages never look like they are yours** — **open** (task #263). The client computes
+    `isSelf = message.creator == account.id` and derives the author with
+    `getParticipantId(space, creator)`, so `creator` is an account id; `chat-service.ts` projects a
+    participant id, which double-prefixes the lookup. Live, my own message rendered as someone else's
+    with the author "Untitled". Reaction buckets and `ChatSearch`'s `creators` filter are separate
+    fields — their convention has to be checked in the same pass, because the chat tests currently
+    assert the participant-id form for `creator`.
 
 ## 5. Dead code and obsolete surface to prune
 

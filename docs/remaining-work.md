@@ -59,6 +59,7 @@
 | 记录形状契约 | 白屏崩溃定位 | 修复：`restrictions` 必须是**数组**——`S.Block.isAllowed` 用 `indexOf` 读它，`{}` 会让整棵 React 树白屏；spaceview 的 `creator` 必须是 participant id，`U.Space.getCreator` 才能解析 |
 | `id` 过滤器 | 实盘 + 集成测试 | 修复：`id In [...]` 此前被静默丢弃，一次订阅返回全空间 46 行；`id` 已登记为系统关系（#260） |
 | 图谱屏 | `/main/graph/...` → `ObjectGraph` 实盘 | 修复：edges 只读 Link 表，而命令写入路径把对象关系存在 details JSONB（ADR-0002）→ 29 节点 0 连线；现两表并读并去重 |
+| 空间聊天页 | 打开 `/main/chat/<chatId>/spaceId/<s>` → 发消息 → 截图 | 修复：spaceview.chatId 恒为空且空间没有 chat 对象，页面只剩输入框、读取全返回 NOT_FOUND；现在每个空间引导一个 chat 系统对象（layout 22），消息可读可写并渲染。**遗留**：消息 `creator` 仍投影为 participant id，而客户端用 `creator == account.id` 判定 isSelf → 自己的消息显示成他人且作者为 "Untitled"（#263） |
 
 尚未验收：讨论 / 图谱屏、成员邀请的**双账号端到端**（第二个账号点链接加入）、正文内联 dataview 块（#257）、AI 流式与命令级撤销（#254）。
 
