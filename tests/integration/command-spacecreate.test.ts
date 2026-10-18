@@ -58,7 +58,9 @@ describe.skipIf(!databaseAvailable)("POST /api/command/WorkspaceCreate", () => {
 		expect(body.error).toEqual({ code: 0, description: "" });
 		expect(typeof body.spaceId).toBe("string");
 
-		const space = await prisma.space.findUnique({ where: { id: body.spaceId } });
+		const space = await prisma.space.findUnique({
+			where: { id: body.spaceId },
+		});
 		expect(space?.createdBy).toBe(userId);
 		expect(space?.name).toBe("Road Trip");
 
@@ -68,9 +70,11 @@ describe.skipIf(!databaseAvailable)("POST /api/command/WorkspaceCreate", () => {
 		expect(member?.permission).toBe("owner");
 		expect(member?.status).toBe("active");
 
-		// The space boots with the same three system objects AccountSelect provisions.
+		// The space boots with the same three system objects AccountSelect provisions. They
+		// carry their layout inside details, while the default type mirrors (ot-page /
+		// ot-task / ot-collection) set the layout column, so the mirrors are not counted here.
 		const systemObjects = await prisma.obj.count({
-			where: { spaceId: body.spaceId },
+			where: { spaceId: body.spaceId, layout: null },
 		});
 		expect(systemObjects).toBe(3);
 	});
@@ -106,9 +110,7 @@ describe.skipIf(!databaseAvailable)("POST /api/command/WorkspaceCreate", () => {
 		).json();
 		expect(sub.error).toEqual({ code: 0, description: "" });
 
-		const record = sub.records.find(
-			(it: any) => it.targetSpaceId === spaceId,
-		);
+		const record = sub.records.find((it: any) => it.targetSpaceId === spaceId);
 		expect(record).toBeDefined();
 		expect(record.name).toBe("Mountain Loop");
 		// ObjectLayout.SpaceView === 18; auto-openable statuses.
@@ -132,7 +134,10 @@ describe.skipIf(!databaseAvailable)("POST /api/command/WorkspaceCreate", () => {
 			details: { name: "Hijacked" },
 		});
 		const body = await res.json();
-		expect(body.error).toEqual({ code: 2, description: "Object access denied." });
+		expect(body.error).toEqual({
+			code: 2,
+			description: "Object access denied.",
+		});
 
 		const space = await prisma.space.findUnique({ where: { id: spaceId } });
 		expect(space?.name).toBe("Private");

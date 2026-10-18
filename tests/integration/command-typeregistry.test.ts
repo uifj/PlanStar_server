@@ -59,8 +59,8 @@ describe.skipIf(!databaseAvailable)(
 
 			await prisma.objectType.createMany({
 				data: [
-					{ spaceId, uniqueKey: "ot-page", name: "Page" },
 					{ spaceId, uniqueKey: "ot-note", name: "Note" },
+					{ spaceId, uniqueKey: "ot-report", name: "Report" },
 				],
 			});
 
@@ -75,21 +75,22 @@ describe.skipIf(!databaseAvailable)(
 			).json();
 
 			expect(body.error).toEqual({ code: 0, description: "" });
-			expect(body.counters.total).toBe(2);
-			expect(body.records).toHaveLength(2);
+			// The two custom rows plus the three defaults every space boots with.
+			expect(body.counters.total).toBe(5);
+			expect(body.records).toHaveLength(5);
 
 			const byKey = Object.fromEntries(
 				body.records.map((record: any) => [record.uniqueKey, record]),
 			);
-			const page = byKey["ot-page"];
-			expect(page).toBeDefined();
-			expect(page.name).toBe("Page");
-			expect(page.spaceId).toBe(spaceId);
-			expect(typeof page.id).toBe("string");
+			const note = byKey["ot-note"];
+			expect(note).toBeDefined();
+			expect(note.name).toBe("Note");
+			expect(note.spaceId).toBe(spaceId);
+			expect(typeof note.id).toBe("string");
 			// ObjectLayout.Type === 4 in the client enum.
-			expect(page.resolvedLayout).toBe(4);
-			expect(page.isArchived).toBe(false);
-			expect(page.isDeleted).toBe(false);
+			expect(note.resolvedLayout).toBe(4);
+			expect(note.isArchived).toBe(false);
+			expect(note.isDeleted).toBe(false);
 		});
 
 		it("denies a non-member subscribing to another space's type registry", async () => {

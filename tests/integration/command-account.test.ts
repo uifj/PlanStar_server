@@ -75,8 +75,13 @@ describe.skipIf(!databaseAvailable)("POST /command/:name", () => {
 		);
 		expect(second.account.info.widgetsId).toBe(first.account.info.widgetsId);
 
+		// The three system objects carry their layout inside details; the default type mirrors
+		// the boot installs have their own layout column, so they are not counted here.
 		const systemObjects = await prisma.obj.count({
-			where: { spaceId: first.account.info.accountSpaceId },
+			where: {
+				spaceId: first.account.info.accountSpaceId,
+				layout: null,
+			},
 		});
 		expect(systemObjects).toBe(3);
 	});
@@ -131,7 +136,7 @@ describe.skipIf(!databaseAvailable)("POST /command/:name", () => {
 		const otherSub = await (
 			await post("/api/command/ObjectSearchSubscribe", {
 				spaceId,
-				subId: "type",
+				subId: "typeStore",
 				filters: [],
 				sorts: [],
 				keys: [],
@@ -141,7 +146,9 @@ describe.skipIf(!databaseAvailable)("POST /command/:name", () => {
 		expect(otherSub.records).toEqual([]);
 
 		const unsubscribed = await (
-			await post("/api/command/ObjectSearchUnsubscribe", { subIds: ["type"] })
+			await post("/api/command/ObjectSearchUnsubscribe", {
+				subIds: ["typeStore"],
+			})
 		).json();
 		expect(unsubscribed.error.code).toBe(0);
 

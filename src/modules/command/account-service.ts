@@ -1,8 +1,10 @@
+import { PERMISSION_RANK } from "../../auth/space-access.js";
 import { API_PREFIX } from "../../config/constants.js";
 import { env } from "../../config/env.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import type { AuthUser } from "../../lib/auth.js";
 import { prisma } from "../../lib/prisma.js";
+import { objectTypeService } from "../object-types/service.js";
 
 // The ObjectLayout migration is deferred, so the shell's system objects are real
 // hidden Obj rows whose Anytype layout rides in details rather than in the enum.
@@ -15,6 +17,16 @@ const SYSTEM_OBJECTS = [
 type SystemLayout = (typeof SYSTEM_OBJECTS)[number]["layout"];
 
 const DEFAULT_SPACE_NAME = "My Space";
+
+// The types a fresh space installs for itself. The shell lists the space's type registry in
+// its create menu and in the sidebar's Type section, so a space with no types answers "No
+// Objects found" in both and gives the user no way to create an object as a type. These are
+// the keys U.Data.getWidgetTypes treats as creatable.
+const DEFAULT_TYPES = [
+	{ uniqueKey: "ot-page", name: "Page" },
+	{ uniqueKey: "ot-task", name: "Task" },
+	{ uniqueKey: "ot-collection", name: "Collection" },
+] as const;
 
 // Anytype's numeric layout/status enums the vendored shell reads off a record.
 const LAYOUT_SPACE_VIEW = 18;
@@ -140,6 +152,8 @@ async function accountForSpace(
 		);
 	}
 
+	await installDefaultTypes(userId, space.id);
+
 	// The caller's personal pin/reorder position for this space rides on their membership row
 	// (SpaceMember.orderId), not on the space's shared spaceView object, so two members of the
 	// same space each keep their own vault arrangement. Empty when never ordered -> not pinned.
@@ -195,6 +209,40 @@ export async function createSpace(
 ): Promise<ResolvedAccount> {
 	const space = await createSpaceRow(user.id, name || DEFAULT_SPACE_NAME);
 	return accountForSpace(space, user.id);
+}
+
+// objectTypeService.create also mirrors the type into Obj, so the space gets the same rows a
+// later ObjectCreateObjectType would. Existing keys are skipped rather than raised over, so a
+// space re-opened after a partial install stays usable. A reader cannot extend the registry,
+// so their boot leaves the space exactly as its owner installed it instead of failing.
+async function installDefaultTypes(userId: string, spaceId: string) {
+	const member = await prisma.spaceMember.findFirst({
+		where: { spaceId, userId, status: "active" },
+		select: { permission: true },
+	});
+	if (!member || PERMISSION_RANK[member.permission] < PERMISSION_RANK.writer) {
+		return;
+	}
+
+	const installed = await prisma.objectType.findMany({
+		where: {
+			spaceId,
+			uniqueKey: { in: DEFAULT_TYPES.map((it) => it.uniqueKey) },
+		},
+		select: { uniqueKey: true },
+	});
+	const present = new Set(installed.map((it) => it.uniqueKey));
+
+	for (const type of DEFAULT_TYPES) {
+		if (present.has(type.uniqueKey)) {
+			continue;
+		}
+
+		await objectTypeService.create({ id: userId }, spaceId, {
+			uniqueKey: type.uniqueKey,
+			name: type.name,
+		});
+	}
 }
 
 // Every active space the caller belongs to, oldest first — the source for the global
