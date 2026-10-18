@@ -123,9 +123,8 @@ describe.skipIf(!databaseAvailable)(
 			const body = await subscribe(chatObjectId, { limit: 2, subId: "chat-x" });
 			expect(body.error).toEqual({ code: 0, description: "" });
 			expect(texts(body)).toEqual(["four", "five"]);
-			expect(body.messages[0].creator).toBe(
-				`_participant_${spaceId.replace(/\./g, "_")}_${owner}`,
-			);
+			// The wire creator is the account id (see block/chat/message/index.tsx isSelf check).
+			expect(body.messages[0].creator).toBe(owner);
 			expect(body.messages[0].createdAt).toBe(1_700_000_003);
 		});
 

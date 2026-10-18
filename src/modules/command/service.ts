@@ -45,6 +45,12 @@ import {
 	unreadMessages,
 } from "./chat-service.js";
 import {
+	chatDeltaFor,
+	chatEventFor,
+	dropChatWatches,
+	watchChat,
+} from "./chat-subscriptions.js";
+import {
 	DATAVIEW_WRITE_COMMANDS,
 	type DataviewWrite,
 	dataviewWrite,
@@ -1465,25 +1471,26 @@ export async function run(
 				wire,
 			);
 
-			const chatEvent = {
-				contextId: chatObjectId,
-				messages: [
-					{
-						spaceId,
-						chatAdd: {
-							id: record.id,
-							orderId: record.orderId,
-							message: record,
-							subIds: [],
-							dependencies: [],
-						},
-					},
-				],
+			const chatBody = {
+				id: record.id,
+				orderId: record.orderId,
+				message: record,
+				dependencies: [],
 			};
+			// Addressed per session: the caller's own open chat and each peer's are different subIds.
+			const chatEvent = chatEventFor(
+				chatObjectId,
+				spaceId,
+				user.id,
+				"chatAdd",
+				chatBody,
+			);
 
 			// Push the same ChatAdd delta to the space's other open tabs so a member sees a new
 			// message without reloading; the caller already receives it in this response.
-			spaceEvents.emit(spaceId, chatEvent, user.id);
+			spaceEvents.emitScoped(spaceId, user.id, (peer) =>
+				chatEventFor(chatObjectId, spaceId, peer, "chatAdd", chatBody),
+			);
 
 			return {
 				error: OK,
@@ -1531,8 +1538,9 @@ export async function run(
 
 		// ChatSubscribeLastMessages is the chat block's initial load (command.ts:2044): { chatObjectId,
 		// limit, subId }. The client reads the snapshot straight off the envelope — response.messages
-		// (From.ChatMessage) and response.chatState (From.ChatState) (response.ts:764) — not a
-		// subscription registry, so subId only names the client-side cache and needs no server state.
+		// (From.ChatMessage) and response.chatState (From.ChatState) (response.ts:764) — but the subId is
+		// not just a client-side cache name: it is the address every later delta for this chat has to be
+		// sent to (see chat-subscriptions.ts), so opening a chat registers the watch.
 		// It is the no-cursor page of the same history: the LAST `limit` messages, ascending. Reader-gated.
 		case "ChatSubscribeLastMessages": {
 			const chatObjectId =
@@ -1557,6 +1565,12 @@ export async function run(
 				"",
 				typeof body.limit === "number" ? body.limit : 50,
 				false,
+			);
+
+			watchChat(
+				chatObjectId,
+				typeof body.subId === "string" ? body.subId : "",
+				user.id,
 			);
 
 			return {
@@ -1601,7 +1615,11 @@ export async function run(
 				error: OK,
 				event: {
 					contextId: chatObjectId,
-					messages: [{ spaceId, chatStateUpdate: { state, subIds: [] } }],
+					messages: [
+						chatDeltaFor(chatObjectId, spaceId, user.id, "chatStateUpdate", {
+							state,
+						}),
+					],
 				},
 			};
 		}
@@ -1635,7 +1653,11 @@ export async function run(
 				error: OK,
 				event: {
 					contextId: chatObjectId,
-					messages: [{ spaceId, chatStateUpdate: { state, subIds: [] } }],
+					messages: [
+						chatDeltaFor(chatObjectId, spaceId, user.id, "chatStateUpdate", {
+							state,
+						}),
+					],
 				},
 			};
 		}
@@ -1670,7 +1692,11 @@ export async function run(
 				error: OK,
 				event: {
 					contextId: chatObjectId,
-					messages: [{ spaceId, chatStateUpdate: { state, subIds: [] } }],
+					messages: [
+						chatDeltaFor(chatObjectId, spaceId, user.id, "chatStateUpdate", {
+							state,
+						}),
+					],
 				},
 			};
 		}
@@ -1693,12 +1719,17 @@ export async function run(
 			return { error: OK, event: null, previews };
 		}
 
-		// ChatUnsubscribe { chatObjectId, subId } (command.ts:2056) tears down a chat subscription. The web
-		// backend holds no server-side subscription handles — chat subscriptions live in the client's
-		// S.Chat store and every chat read is a plain request/response — so there is nothing to release and
-		// it answers OK unconditionally, mirroring ObjectSearchUnsubscribe above.
-		case "ChatUnsubscribe":
+		// ChatUnsubscribe { chatObjectId, subId } (command.ts:2056) tears down a chat subscription: the
+		// watch that gives this chat's later deltas an address is released, so a closed view stops being
+		// written to. Nothing else is held server-side — every chat read is a plain request/response —
+		// so it answers OK unconditionally, mirroring ObjectSearchUnsubscribe above.
+		case "ChatUnsubscribe": {
+			dropChatWatches(
+				typeof body.chatObjectId === "string" ? body.chatObjectId : "",
+				typeof body.subId === "string" ? [body.subId] : [],
+			);
 			return { error: OK, event: null };
+		}
 
 		// PubsubSubscribe { spaceId, topics[], subId } registers the caller's account as a
 		// listener of those space topics. Presence + chat typing status ride this: the shell
@@ -1812,12 +1843,20 @@ export async function run(
 				return { error: FORBIDDEN, event: null };
 			}
 
+			const deleteBody = { id: messageId };
+			spaceEvents.emitScoped(spaceId, user.id, (peer) =>
+				chatEventFor(chatObjectId, spaceId, peer, "chatDelete", deleteBody),
+			);
+
 			return {
 				error: OK,
-				event: {
-					contextId: chatObjectId,
-					messages: [{ spaceId, chatDelete: { id: messageId, subIds: [] } }],
-				},
+				event: chatEventFor(
+					chatObjectId,
+					spaceId,
+					user.id,
+					"chatDelete",
+					deleteBody,
+				),
 			};
 		}
 
@@ -1855,21 +1894,20 @@ export async function run(
 				return { error: FORBIDDEN, event: null };
 			}
 
+			const editBody = { id: messageId, message: result.record };
+			spaceEvents.emitScoped(spaceId, user.id, (peer) =>
+				chatEventFor(chatObjectId, spaceId, peer, "chatUpdate", editBody),
+			);
+
 			return {
 				error: OK,
-				event: {
-					contextId: chatObjectId,
-					messages: [
-						{
-							spaceId,
-							chatUpdate: {
-								id: messageId,
-								message: result.record,
-								subIds: [],
-							},
-						},
-					],
-				},
+				event: chatEventFor(
+					chatObjectId,
+					spaceId,
+					user.id,
+					"chatUpdate",
+					editBody,
+				),
 			};
 		}
 
@@ -1898,7 +1936,6 @@ export async function run(
 
 			const result = await toggleReaction(
 				chatObjectId,
-				spaceId,
 				messageId,
 				user.id,
 				emoji,
@@ -1907,21 +1944,26 @@ export async function run(
 				return { error: NOT_FOUND, event: null };
 			}
 
+			const reactionBody = { id: messageId, reactions: result.reactions };
+			spaceEvents.emitScoped(spaceId, user.id, (peer) =>
+				chatEventFor(
+					chatObjectId,
+					spaceId,
+					peer,
+					"chatUpdateReactions",
+					reactionBody,
+				),
+			);
+
 			return {
 				error: OK,
-				event: {
-					contextId: chatObjectId,
-					messages: [
-						{
-							spaceId,
-							chatUpdateReactions: {
-								id: messageId,
-								reactions: result.reactions,
-								subIds: [],
-							},
-						},
-					],
-				},
+				event: chatEventFor(
+					chatObjectId,
+					spaceId,
+					user.id,
+					"chatUpdateReactions",
+					reactionBody,
+				),
 			};
 		}
 
@@ -1955,18 +1997,30 @@ export async function run(
 				pinned,
 			);
 
+			// One ChatUpdatePinnedStatus message per touched row, addressed to what each session has open.
+			const pinnedMessages = (userId: string) =>
+				updated.map((record) =>
+					chatDeltaFor(
+						chatObjectId,
+						spaceId,
+						userId,
+						"chatUpdatePinnedStatus",
+						{
+							message: record,
+							isPinned: pinned,
+						},
+					),
+				);
+			spaceEvents.emitScoped(spaceId, user.id, (peer) => ({
+				contextId: chatObjectId,
+				messages: pinnedMessages(peer),
+			}));
+
 			return {
 				error: OK,
 				event: {
 					contextId: chatObjectId,
-					messages: updated.map((record) => ({
-						spaceId,
-						chatUpdatePinnedStatus: {
-							message: record,
-							isPinned: pinned,
-							subIds: [],
-						},
-					})),
+					messages: pinnedMessages(user.id),
 				},
 			};
 		}

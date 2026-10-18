@@ -142,15 +142,13 @@ describe.skipIf(!databaseAvailable)("POST /api/command/ChatAddMessage", () => {
 		expect(chatAdd?.id).toBe(body.messageId);
 		expect(chatAdd?.orderId).toBe("000000000001");
 		// The event's message is the wire shape From.ChatMessage reads: body text under `message`,
-		// creator projected to a participant id, timestamps in unix seconds.
+		// creator as the account id the client compares with account.id, timestamps in unix seconds.
 		expect(chatAdd?.message?.message).toEqual({
 			text: "event payload",
 			style: 0,
 			marks: [],
 		});
-		expect(chatAdd?.message?.creator).toBe(
-			`_participant_${spaceId.replace(/\./g, "_")}_${owner}`,
-		);
+		expect(chatAdd?.message?.creator).toBe(owner);
 		expect(chatAdd?.message?.createdAt).toBeGreaterThan(0);
 	});
 

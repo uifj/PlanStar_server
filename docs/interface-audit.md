@@ -151,13 +151,30 @@ transport never implemented, see §5).
     provisions a chat system object (layout 22, hidden like the other three) and names it in its space
     view; `numericLayout` lets the details marker decide when the column can only be reporting its
     `basic` default, since the `ObjectLayout` enum has no name for a chat.
-14. **Chat messages never look like they are yours** — **open** (task #263). The client computes
+14. **Chat messages never look like they are yours** — **fixed**. The client computes
     `isSelf = message.creator == account.id` and derives the author with
-    `getParticipantId(space, creator)`, so `creator` is an account id; `chat-service.ts` projects a
-    participant id, which double-prefixes the lookup. Live, my own message rendered as someone else's
-    with the author "Untitled". Reaction buckets and `ChatSearch`'s `creators` filter are separate
-    fields — their convention has to be checked in the same pass, because the chat tests currently
-    assert the participant-id form for `creator`.
+    `getParticipantId(space, creator)`, so `creator` is an account id; `chat-service.ts` projected a
+    participant id, which double-prefixed the lookup. Live, my own message rendered as someone else's
+    with the author "Untitled". The same convention turned out to govern the two sibling fields:
+    reaction buckets (`message/reaction.tsx:19` tests `authors.includes(account.id)`) and
+    `ChatSearch`'s `creators`, which the search bar sends as a bare identity
+    (`popup/search.tsx:2202`) while the object-search token sends both forms — so a filter that only
+    decoded participant ids matched nothing. `creator`, reaction ids and the read-state mention
+    lookups now speak account ids, and the creator filter accepts either form.
+15. **The Chat page stormed `ChatReadMessages` forever** — **fixed**. Opening the space chat fired
+    ~28 000 read requests in two minutes (the dev row's `order` reached 57 058), saturating the tab so
+    every other fetch failed. `store/chat.ts:432` applies a `ChatStateUpdate` only when its `order` is
+    *greater* than the one it holds, and every read — including one that moved no watermark — minted a
+    fresh order. The resulting store write re-rendered the block, whose no-overflow scroll path calls
+    `readScrolledMessages` again (block/chat.tsx:1564), which reads again. A read that changes nothing
+    now returns the state untouched, so the cycle has no second turn.
+16. **No chat delta ever reached an open list** — **fixed**. Every chat event was emitted with
+    `subIds: []`, and the dispatcher routes each one *by* subId (`checkVaultSubscriptionIds`,
+    dispatcher.ts:1222/:1333/:1398) — an empty list resolves to nothing, so a reaction pill never
+    rendered even for the person who clicked it, and a peer's open chat applied no push. Opening a
+    chat now registers its subId as a watch (released by `ChatUnsubscribe`, dropped when it goes quiet,
+    since a closed tab sends no teardown), each session receives its own addresses, and delete/edit/
+    reaction/pin fan out to peers the way ChatAdd already did.
 
 ## 5. Dead code and obsolete surface to prune
 

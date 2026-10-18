@@ -124,9 +124,8 @@ describe.skipIf(!databaseAvailable)(
 				"one",
 			]);
 			expect(body.messages.map((m: any) => m.id)).toEqual([c, a]);
-			expect(body.messages[0].creator).toBe(
-				`_participant_${spaceId.replace(/\./g, "_")}_${owner}`,
-			);
+			// The wire creator is the account id (see block/chat/message/index.tsx isSelf check).
+			expect(body.messages[0].creator).toBe(owner);
 			expect(b).toBeTruthy();
 		});
 

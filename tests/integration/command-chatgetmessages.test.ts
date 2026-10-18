@@ -116,9 +116,10 @@ describe.skipIf(!databaseAvailable)("POST /api/command/ChatGetMessages", () => {
 			"two",
 			"three",
 		]);
-		expect(body.messages[0].creator).toBe(
-			`_participant_${spaceId.replace(/\./g, "_")}_${owner}`,
-		);
+		// block/chat/message/index.tsx:89 reads `isSelf = creator == account.id` and :250 wraps the
+		// value again in U.Space.getParticipantId(space, creator) — so the wire creator is the
+		// ACCOUNT id, never a participant id.
+		expect(body.messages[0].creator).toBe(owner);
 		expect(body.messages[0].createdAt).toBe(1_700_000_000);
 	});
 

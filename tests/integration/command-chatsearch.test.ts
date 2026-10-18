@@ -148,7 +148,7 @@ describe.skipIf(!databaseAvailable)("POST /api/command/ChatSearch", () => {
 		expect(hit.chatId).toBe(chatObjectId);
 		expect(hit.messageId).toBeTruthy();
 		expect(hit.message.message.text).toBe("The Quick Brown Fox");
-		expect(hit.message.creator).toBe(pid(spaceId, owner));
+		expect(hit.message.creator).toBe(owner);
 	});
 
 	it("returns no results when nothing matches", async () => {
@@ -194,12 +194,55 @@ describe.skipIf(!databaseAvailable)("POST /api/command/ChatSearch", () => {
 			{ text: "hello from member", creatorId: member },
 		]);
 
+		// popup/search.tsx:2202 sends [getTokenIdentity(token)] — the bare ACCOUNT id, resolved from
+		// a participant id by U.Space.getAccountFromParticipantId (space.ts:491).
 		const body = await search(spaceId, chatObjectId, {
 			fullText: "hello",
-			creators: [pid(spaceId, member)],
+			creators: [member],
 		});
 		expect(body.results).toHaveLength(1);
 		expect(body.results[0].message.message.text).toBe("hello from member");
+	});
+
+	it("narrows equally when the caller addresses a creator by participant id", async () => {
+		const { spaceId, chatObjectId } = await provision();
+		await seed(chatObjectId, spaceId, [
+			{ text: "hello from owner", creatorId: owner },
+			{ text: "hello from member", creatorId: member },
+		]);
+
+		// The object-search creator token (search.tsx:2108) pushes both forms into one filter list;
+		// a chat query that carries either must narrow the same way.
+		const byParticipant = await search(spaceId, chatObjectId, {
+			fullText: "hello",
+			creators: [pid(spaceId, member)],
+		});
+		expect(byParticipant.results).toHaveLength(1);
+		expect(byParticipant.results[0].message.message.text).toBe(
+			"hello from member",
+		);
+
+		const both = await search(spaceId, chatObjectId, {
+			fullText: "hello",
+			creators: [owner, pid(spaceId, member)],
+		});
+		expect(
+			both.results
+				.map((r: any) => r.message.message.text)
+				.sort()
+				.join(),
+		).toBe("hello from member,hello from owner");
+	});
+
+	it("matches nothing for a creator outside this space", async () => {
+		const { spaceId, chatObjectId } = await provision();
+		await seed(chatObjectId, spaceId, [{ text: "hello", creatorId: owner }]);
+
+		const body = await search(spaceId, chatObjectId, {
+			fullText: "hello",
+			creators: [pid("someone.else.space", owner)],
+		});
+		expect(body.results).toEqual([]);
 	});
 
 	it("excludes soft-deleted messages", async () => {

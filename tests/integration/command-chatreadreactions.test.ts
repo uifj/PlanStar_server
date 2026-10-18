@@ -143,6 +143,22 @@ describe.skipIf(!databaseAvailable)(
 			expect(before.unreadReactionOrderId).toBe(orderId(2));
 		});
 
+		// The same rule as ChatReadMessages: a marker that does not move must not mint a fresh order,
+		// or the client re-applies the state (store/chat.ts:432), re-renders, and re-fires the read.
+		it("answers a reaction read that changes nothing with the unchanged state", async () => {
+			const { spaceId, chatObjectId } = await provision();
+			await seed(chatObjectId, spaceId, 4, [2, 3]);
+
+			const first = await readReactions(chatObjectId, orderId(3));
+			const older = await readReactions(chatObjectId, orderId(2));
+			expect(first.error).toEqual({ code: 0, description: "" });
+
+			const stateOf = (body: any) =>
+				body.event.messages[0].chatStateUpdate.state;
+			expect(stateOf(first).order).toBeGreaterThan(0);
+			expect(stateOf(older)).toEqual(stateOf(first));
+		});
+
 		it("advances the marker past reactions the caller has now seen", async () => {
 			const { spaceId, chatObjectId } = await provision();
 			await seed(chatObjectId, spaceId, 4, [2, 3]);

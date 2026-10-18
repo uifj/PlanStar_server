@@ -70,6 +70,27 @@ export function createSpaceEvents() {
 		}
 	}
 
+	// Same fan-out, but the caller builds the frame per recipient — for events whose payload is
+	// addressed (a chat delta carries the subIds that recipient has open), which one shared frame
+	// cannot express.
+	function emitScoped(
+		spaceId: string,
+		excludeUserId: string,
+		build: (userId: string) => SessionEvent,
+	): void {
+		const members = openers.get(spaceId);
+		if (!members) {
+			return;
+		}
+
+		for (const userId of members) {
+			if (userId === excludeUserId) {
+				continue;
+			}
+			deliverTo(userId, build(userId));
+		}
+	}
+
 	// Push an event to a single account's live connections. Used by the subscription
 	// registry, which knows exactly which account owns a given subId (unlike the space-wide
 	// emit, which fans to every opener).
@@ -83,7 +104,7 @@ export function createSpaceEvents() {
 		}
 	}
 
-	return { connect, track, leave, emit, deliverTo };
+	return { connect, track, leave, emit, emitScoped, deliverTo };
 }
 
 export const spaceEvents = createSpaceEvents();

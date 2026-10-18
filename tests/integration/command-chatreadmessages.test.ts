@@ -204,6 +204,40 @@ describe.skipIf(!databaseAvailable)(
 			expect(state.messages.counter).toBe(0);
 		});
 
+		// store/chat.ts:432 applies a ChatStateUpdate only when its order is GREATER than the stored
+		// one, so a read that mints a fresh order for a window it has already seen mutates the store on
+		// every reply. That re-render re-fires the read (block/chat.tsx:1564 → readScrolledMessages →
+		// onReadStop), and the chat page storms ChatReadMessages forever. A no-op read must answer with
+		// the state it already had.
+		it("answers a read that changes nothing with the unchanged state", async () => {
+			const { spaceId, chatObjectId } = await provision();
+			await seed(chatObjectId, spaceId, 5);
+
+			const first = await read(chatObjectId, {
+				afterOrderId: orderId(1),
+				beforeOrderId: orderId(5),
+				lastStateId: "",
+				type: 0,
+			});
+			const again = await read(chatObjectId, {
+				afterOrderId: orderId(1),
+				beforeOrderId: orderId(5),
+				lastStateId: "",
+				type: 0,
+			});
+			const older = await read(chatObjectId, {
+				afterOrderId: orderId(1),
+				beforeOrderId: orderId(2),
+				lastStateId: "",
+				type: 0,
+			});
+
+			const state = (body: any) => body.event.messages[0].chatStateUpdate.state;
+			expect(state(first).order).toBeGreaterThan(0);
+			expect(state(again)).toEqual(state(first));
+			expect(state(older)).toEqual(state(first));
+		});
+
 		it("counts only messages that mention the caller, and reads them separately", async () => {
 			const { spaceId, chatObjectId } = await provision();
 			await seed(chatObjectId, spaceId, 5, 2);

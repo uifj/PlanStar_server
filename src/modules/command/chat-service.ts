@@ -2,18 +2,31 @@ import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../../lib/prisma.js";
 import { participantId } from "./registry-service.js";
 
-// Inverse of participantId: the client addresses a reaction/search creator by participant id, so
-// decode it back to a userId. An id that does not carry this space's prefix decodes to "" and is
-// ignored (mirrors space-member-service's private helper).
-function userIdFromParticipant(spaceId: string, identity: string) {
+// A creator filter arrives in whichever form the client happens to hold: the global search bar sends
+// the bare account id (popup/search.tsx:2202 → getTokenIdentity), while the object-search token filter
+// (search.tsx:2108) also pushes this space's participant id alongside it. A participant id of THIS
+// space decodes to its account id; anything else is read as an account id as-is, so a foreign space's
+// participant id simply matches no creatorId here rather than silently widening the query.
+function creatorUserIds(spaceId: string, creators: string[]): string[] {
 	const prefix = `_participant_${spaceId.replace(/\./g, "_")}_`;
-	return identity.startsWith(prefix) ? identity.slice(prefix.length) : "";
+	const ids = new Set<string>();
+	for (const identity of creators) {
+		const userId = identity.startsWith(prefix)
+			? identity.slice(prefix.length)
+			: identity;
+		if (userId.length > 0) {
+			ids.add(userId);
+		}
+	}
+	return [...ids];
 }
 
 // A stored row projected to the wire ChatMessage shape Mapper.From.ChatMessage reads: the body text
 // lives under `message`, timestamps are unix seconds (the client's U.Date.date multiplies by 1000),
-// and the creator is a participant id. Read/mention/reaction flags default to the values a freshly
-// loaded message carries; read receipts are a later slice.
+// and the creator is the ACCOUNT id — block/chat/message/index.tsx:89 compares it directly with
+// account.id and :250 wraps it again in U.Space.getParticipantId(space, creator), so a participant id
+// would double-prefix and render every message as someone else's. Read/mention/reaction flags default
+// to the values a freshly loaded message carries; read receipts are a later slice.
 export interface ChatRecord {
 	id: string;
 	orderId: string;
@@ -49,11 +62,11 @@ interface ChatRow {
 	deleted: boolean;
 }
 
-export function chatMessageRecord(spaceId: string, row: ChatRow): ChatRecord {
+function chatMessageRecord(row: ChatRow): ChatRecord {
 	return {
 		id: row.id,
 		orderId: row.orderId,
-		creator: participantId(spaceId, row.creatorId),
+		creator: row.creatorId,
 		createdAt: Number(row.createdAt),
 		modifiedAt: Number(row.modifiedAt),
 		replyToMessageId: row.replyToMessageId,
@@ -120,7 +133,7 @@ export async function addMessage(
 		});
 	});
 
-	return chatMessageRecord(spaceId, row);
+	return chatMessageRecord(row);
 }
 
 export interface ChatStateCounter {
@@ -251,10 +264,12 @@ export async function computeChatState(
 
 // Advance the caller's read watermark for one read type (I.ChatReadType: Message=0, Mention=1) to
 // beforeOrderId. Reading is a high-watermark — it only ever moves forward, so reading an older window
-// after a newer one is a no-op (block/chat.tsx:286 notes C.ChatReadMessages is irreversible). Each
-// mutation bumps order and mints a fresh lastStateId so the client can detect the change. The counter
-// is derived on read, never stored, so a lost order bump under a rare same-user race cannot corrupt
-// the unread count. Returns the recomputed state for the ChatStateUpdate event.
+// after a newer one is a no-op (block/chat.tsx:286 notes C.ChatReadMessages is irreversible). A real
+// change bumps order and mints a fresh lastStateId; a read that moves nothing returns the state
+// untouched, because the client applies a ChatStateUpdate only when its order is GREATER than the one
+// it holds (store/chat.ts:432) — minting an order for a no-op would mutate the store on every reply,
+// and the chat block re-fires its read from that re-render (block/chat.tsx:1564), an endless
+// ChatReadMessages storm. The counter is derived on read, never stored.
 export async function readMessages(
 	chatObjectId: string,
 	spaceId: string,
@@ -270,6 +285,10 @@ export async function readMessages(
 		? (existing?.mentionOrderId ?? "")
 		: (existing?.messageOrderId ?? "");
 	const next = beforeOrderId > current ? beforeOrderId : current;
+	if (next === current) {
+		return computeChatState(chatObjectId, spaceId, userId);
+	}
+
 	const order = (existing?.order ?? 0n) + 1n;
 	const lastStateId = order.toString();
 	const watermark = isMention
@@ -318,6 +337,10 @@ export async function unreadMessages(
 
 	const where = { chatId_userId: { chatId: chatObjectId, userId } } as const;
 	const existing = await prisma.chatReadState.findUnique({ where });
+	// Nothing moves, so nothing is announced — same rule as readMessages.
+	if ((existing?.messageOrderId ?? "") === messageOrderId) {
+		return computeChatState(chatObjectId, spaceId, userId);
+	}
 	const order = (existing?.order ?? 0n) + 1n;
 	const lastStateId = order.toString();
 
@@ -351,6 +374,10 @@ export async function readReactions(
 	const existing = await prisma.chatReadState.findUnique({ where });
 	const current = existing?.reactionOrderId ?? "";
 	const reactionOrderId = orderId > current ? orderId : current;
+	// A marker that does not move must not mint a new order (see readMessages).
+	if (reactionOrderId === current) {
+		return computeChatState(chatObjectId, spaceId, userId);
+	}
 	const order = (existing?.order ?? 0n) + 1n;
 	const lastStateId = order.toString();
 
@@ -475,7 +502,7 @@ export async function getMessagePreviews(
 		previews.push({
 			spaceId: row.spaceId,
 			chatObjectId: row.chatId,
-			message: chatMessageRecord(row.spaceId, row),
+			message: chatMessageRecord(row),
 			state: await computeChatState(row.chatId, row.spaceId, userId),
 			dependencies: [],
 		});
@@ -528,7 +555,7 @@ export async function getMessages(
 	}
 
 	return {
-		messages: rows.map((row) => chatMessageRecord(spaceId, row)),
+		messages: rows.map((row) => chatMessageRecord(row)),
 		chatState: await computeChatState(chatObjectId, spaceId, userId),
 	};
 }
@@ -555,7 +582,7 @@ export async function getMessagesByIds(
 	for (const id of messageIds) {
 		const row = byId.get(id);
 		if (row) {
-			ordered.push(chatMessageRecord(spaceId, row));
+			ordered.push(chatMessageRecord(row));
 		}
 	}
 	return ordered;
@@ -634,7 +661,7 @@ export async function editMessage(
 		where: { id: messageId },
 		data,
 	});
-	return { status: "ok", record: chatMessageRecord(row.spaceId, updated) };
+	return { status: "ok", record: chatMessageRecord(updated) };
 }
 
 export interface ChatReactionResult {
@@ -645,12 +672,13 @@ export interface ChatReactionResult {
 }
 
 // Add or remove the caller's reaction. Reactions live in the wire shape { reactions: { [emoji]:
-// { ids: participantId[] } } }; the caller is their participant id. Toggling flips membership, and an
+// { ids: accountId[] } } } — From.ChatMessageReaction (mapper.ts:969) turns each bucket into
+// { icon, authors: ids } and message/reaction.tsx:18 tests authors.includes(account.id), so the
+// caller is stored as their ACCOUNT id. Toggling flips membership, and an
 // emoji left with no ids is dropped so the map never carries empty buckets. Any member may react to
 // any message, so there is no creator check — only a missing/deleted message is not_found.
 export async function toggleReaction(
 	chatObjectId: string,
-	spaceId: string,
 	messageId: string,
 	actorUserId: string,
 	emoji: string,
@@ -663,7 +691,7 @@ export async function toggleReaction(
 		return { status: "not_found", reactions: { reactions: {} } };
 	}
 
-	const caller = participantId(spaceId, actorUserId);
+	const caller = actorUserId;
 	const stored = row.reactions as {
 		reactions?: Record<string, { ids?: string[] }>;
 	};
@@ -711,7 +739,7 @@ export async function setPinned(
 	await prisma.chatMessage.updateMany({ where, data: { pinned } });
 
 	const rows = await prisma.chatMessage.findMany({ where });
-	return rows.map((row) => chatMessageRecord(spaceId, row));
+	return rows.map((row) => chatMessageRecord(row));
 }
 
 // The chat block's pinned bar (block/chat.tsx:919): every live pinned message, ascending by orderId.
@@ -723,7 +751,7 @@ export async function getPinned(
 		where: { chatId: chatObjectId, pinned: true, deleted: false },
 		orderBy: { orderId: "asc" },
 	});
-	return rows.map((row) => chatMessageRecord(spaceId, row));
+	return rows.map((row) => chatMessageRecord(row));
 }
 
 export interface ChatSearchHit {
@@ -738,10 +766,10 @@ export interface ChatSearchHit {
 
 // In-chat full-text search over the stored body text (content->>'text'), case-insensitive to match
 // every other search in the app. Scoped to one chat, newest-first (seq desc), paginated by
-// offset/limit, optionally narrowed to specific creators (the client sends participant ids, decoded
-// back to userIds). Soft-deleted messages never surface. Raw SQL because Prisma's JSON path filter
-// has no case-insensitive string match; the query is fully parameterized (Prisma.sql/join) so the
-// search text and creator list cannot inject.
+// offset/limit, optionally narrowed to specific creators (see creatorUserIds — both the account id
+// and this space's participant id address a person). Soft-deleted messages never surface. Raw SQL
+// because Prisma's JSON path filter has no case-insensitive string match; the query is fully
+// parameterized (Prisma.sql/join) so the search text and creator list cannot inject.
 export async function searchMessages(
 	spaceId: string,
 	chatObjectId: string,
@@ -753,15 +781,13 @@ export async function searchMessages(
 	const take = limit > 0 ? limit : 20;
 	const skip = offset > 0 ? offset : 0;
 
-	const creatorUserIds = creators
-		.map((identity) => userIdFromParticipant(spaceId, identity))
-		.filter((userId) => userId.length > 0);
-	// A creators filter that names nobody in this space matches nothing.
-	if (creators.length > 0 && creatorUserIds.length === 0) {
+	const creatorFilterIds = creatorUserIds(spaceId, creators);
+	// A creators filter that names nobody matches nothing.
+	if (creators.length > 0 && creatorFilterIds.length === 0) {
 		return [];
 	}
-	const creatorFilter = creatorUserIds.length
-		? Prisma.sql`AND "creatorId" IN (${Prisma.join(creatorUserIds)})`
+	const creatorFilter = creatorFilterIds.length
+		? Prisma.sql`AND "creatorId" IN (${Prisma.join(creatorFilterIds)})`
 		: Prisma.empty;
 
 	const pattern = `%${fullText}%`;
@@ -784,6 +810,6 @@ export async function searchMessages(
 		score: 1,
 		highlight: "",
 		highlightRanges: [],
-		message: chatMessageRecord(spaceId, row),
+		message: chatMessageRecord(row),
 	}));
 }

@@ -179,6 +179,23 @@ describe.skipIf(!databaseAvailable)(
 			expect(after.messages.counter).toBe(0);
 		});
 
+		// Same rule as the read watermarks: when the derived cursor equals the stored watermark nothing
+		// changed, so no fresh order may be minted — the client applies a higher order (store/chat.ts:432)
+		// and the chat re-fires its read on every resulting re-render.
+		it("keeps the state untouched when nothing would move", async () => {
+			const { spaceId, chatObjectId } = await provision();
+			await seed(chatObjectId, spaceId, 5);
+			await readAll(chatObjectId, 5);
+			const before = await state(chatObjectId);
+
+			const body = await unread(chatObjectId, orderId(6));
+			expect(body.error).toEqual({ code: 0, description: "" });
+
+			const stateOf = (b: any) => b.event.messages[0].chatStateUpdate.state;
+			expect(stateOf(body).order).toBe(before.order);
+			expect(stateOf(body).lastStateId).toBe(before.lastStateId);
+		});
+
 		it("refuses a non-member", async () => {
 			const { spaceId, chatObjectId } = await provision();
 			await seed(chatObjectId, spaceId, 2);

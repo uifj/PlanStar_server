@@ -12,8 +12,11 @@ const databaseAvailable = await isDatabaseAvailable();
 
 // ChatToggleMessageReaction adds or removes the caller's reaction (command.ts:1991): { chatObjectId,
 // messageId, emoji }. Reactions are stored in the wire shape From.ChatMessageReaction reads —
-// { reactions: { [emoji]: { ids: participantId[] } } } (mapper.ts:969) — and the caller is identified
-// by their participant id. Toggling twice removes it; an emoji left with no ids drops out of the map.
+// { reactions: { [emoji]: { ids: <accountId>[] } } } (mapper.ts:969) — and the caller is identified
+// by their ACCOUNT id: message/reaction.tsx:15 reads authors.map(it =>
+// U.Space.getParticipant(U.Space.getParticipantId(space, it))) and isSelf = authors.includes(account.id),
+// so a participant id here would double-wrap and never match the reactor. Toggling twice removes it;
+// an emoji left with no ids drops out of the map.
 // A ChatUpdateReactions event { id, reactions, subIds } pushes the new map to the live lists
 // (dispatcher.ts:1401). Any member may react to any message (writer floor); unknown -> NOT_FOUND.
 describe.skipIf(!databaseAvailable)(
@@ -23,9 +26,6 @@ describe.skipIf(!databaseAvailable)(
 		const member = "chat-react.member";
 		const other = "chat-react.other";
 		const outsider = "chat-react.outsider";
-
-		const pid = (spaceId: string, userId: string) =>
-			`_participant_${spaceId.replace(/\./g, "_")}_${userId}`;
 
 		beforeAll(async () => {
 			await prisma.user.createMany({
@@ -142,12 +142,12 @@ describe.skipIf(!databaseAvailable)(
 			expect(body.event.messages[0].spaceId).toBe(spaceId);
 			expect(body.event.messages[0].chatUpdateReactions.id).toBe(id);
 			expect(body.event.messages[0].chatUpdateReactions.reactions).toEqual({
-				reactions: { "👍": { ids: [pid(spaceId, member)] } },
+				reactions: { "👍": { ids: [member] } },
 			});
 			expect(body.event.messages[0].chatUpdateReactions.subIds).toEqual([]);
 
 			expect(await storedReactions(id)).toEqual({
-				reactions: { "👍": { ids: [pid(spaceId, member)] } },
+				reactions: { "👍": { ids: [member] } },
 			});
 		});
 
@@ -172,7 +172,7 @@ describe.skipIf(!databaseAvailable)(
 
 			const reactions: any = await storedReactions(id);
 			expect(reactions.reactions["🎉"].ids.sort()).toEqual(
-				[pid(spaceId, member), pid(spaceId, other)].sort(),
+				[member, other].sort(),
 			);
 		});
 
@@ -186,6 +186,35 @@ describe.skipIf(!databaseAvailable)(
 			expect(Object.keys(reactions.reactions).sort()).toEqual(
 				["❤️", "👍"].sort(),
 			);
+		});
+
+		// dispatcher.ts:1398 routes a ChatUpdateReactions delta BY subId, so an event with no subIds
+		// reaches no open list and the pill never renders. The addresses to write are the chat's own
+		// subscriptions: the subIds that asked for the chat (ChatSubscribeLastMessages) and have not
+		// torn down (ChatUnsubscribe).
+		it("addresses the delta to the chat subscriptions that are watching", async () => {
+			const { spaceId, chatObjectId } = await provision();
+			const id = await seed(chatObjectId, spaceId, "react to me");
+			const subId = `chat-${spaceId}-${chatObjectId}:chat.tab-a`;
+
+			signInAs(member);
+			await post("/api/command/ChatSubscribeLastMessages", {
+				chatObjectId,
+				limit: 50,
+				subId,
+			});
+
+			const watching = await toggle(chatObjectId, id, "🚀");
+			expect(watching.event.messages[0].chatUpdateReactions.subIds).toEqual([
+				subId,
+			]);
+
+			signInAs(member);
+			await post("/api/command/ChatUnsubscribe", { chatObjectId, subId });
+
+			// Toggles the reaction back off; nobody is watching the chat any more.
+			const gone = await toggle(chatObjectId, id, "🚀");
+			expect(gone.event.messages[0].chatUpdateReactions.subIds).toEqual([]);
 		});
 
 		it("answers NOT_FOUND for an unknown message", async () => {
