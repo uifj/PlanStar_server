@@ -69,7 +69,10 @@
 
 | Collection 页 | 建对象 → ObjectToCollection → ObjectCollectionAdd → 打开 /main/set/&lt;collectionId&gt; | 修复：视图修补只覆盖 Set(3)/Type(4)，而客户端把 Collection 路由到同一屏且该屏只渲染 root 的 dataview 子块 → 转换后的 collection 只剩标题。现在同样补齐视图（setOf 指向自身），成员仍由客户端的 collectionId 通道返回；实盘以客户端自己的 Dataview.getData 取回 2 条成员，但因 in-app 浏览器不可见（ReactVirtualized 量不到高度）**未做视觉验收** |
 
-尚未验收：collection 页的网格行渲染（需可见浏览器面）、模板套用、正文内联 dataview 块（#257）、AI 流式与命令级撤销（#254）。
+| 模板套用 | C.ObjectApplyTemplate(目标页, 模板) → 打开目标页读正文 | 通过：实盘把模板「Widgets」的正文（Clean component persists too / 1235 sfesf / diff-probe …）复制到新建页并在编辑器里渲染出来；探针对象两步删除后 ObjectOpen 返回 NOT_FOUND，顺带验证了回收站彻底删除路径 |
+| 搜索的嵌套类型过滤 | type.uniqueKey Equal ot-template | 缺陷：订阅走 `typeUniqueKeyClause` 解析该键，而 ObjectSearch / ObjectSearchWithMeta 只用扁平编译器，点号键被静默丢弃 → 返回空间全部可见对象（实盘查模板却返回 page 对象）。现两个搜索入口都并上同一子句。第一版测试是**假绿**（只断言隐藏注册表行不出现），改成两个可见不同类型对象才真正变红 |
+
+尚未验收：collection 页的网格行渲染（需可见浏览器面）、正文内联 dataview 块（#257）、AI 流式与命令级撤销（#254）。
 
 > 教训：`EMPTY_SUB_IDS` 里「不是对象列表」的判断必须由客户端实际解析路径反证。`subSpace` 与 `library` 都曾以「非对象列表」名义被留空，结果分别是所有权闸门全灭与内容模型 rail 空白。
 
