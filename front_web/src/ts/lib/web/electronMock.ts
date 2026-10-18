@@ -3,6 +3,8 @@
  * This enables running Anytype in a standard web browser without Electron.
  */
 
+import { serverAddress } from "./serverAddress";
+
 /**
  * Upload a file to the dev server and get a real filesystem path.
  * The dev server writes the file to a temp directory that the backend can access.
@@ -14,17 +16,17 @@ async function uploadFileToServer(file: File): Promise<string> {
 		reader.onload = () => {
 			const result = reader.result as string;
 			// Remove data URL prefix to get just the base64
-			const base64 = result.split(',')[1] || result;
+			const base64 = result.split(",")[1] || result;
 			resolve(base64);
 		};
-		reader.onerror = () => reject(new Error('Failed to read file'));
+		reader.onerror = () => reject(new Error("Failed to read file"));
 		reader.readAsDataURL(file);
 	});
 
 	// Upload to dev server
-	const response = await fetch('/api/web-upload', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
+	const response = await fetch("/api/web-upload", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
 			filename: file.name,
 			content: base64,
@@ -36,7 +38,7 @@ async function uploadFileToServer(file: File): Promise<string> {
 	}
 
 	const result = await response.json();
-	console.log('[Web] Uploaded:', file.name, '->', result.path);
+	console.log("[Web] Uploaded:", file.name, "->", result.path);
 	return result.path;
 }
 
@@ -65,7 +67,7 @@ interface MockConfig {
 }
 
 class WebStorage {
-	private prefix = 'anytype_';
+	private prefix = "anytype_";
 
 	get(key: string): any {
 		try {
@@ -80,7 +82,7 @@ class WebStorage {
 		try {
 			localStorage.setItem(this.prefix + key, JSON.stringify(value));
 		} catch (e) {
-			console.warn('[WebStorage] Failed to set:', key, e);
+			console.warn("[WebStorage] Failed to set:", key, e);
 		}
 	}
 
@@ -96,22 +98,22 @@ type EventCallback = (...args: any[]) => void;
 class ElectronMock {
 	private storage = new WebStorage();
 	private eventListeners: Map<string, Set<EventCallback>> = new Map();
-	private tabId_ = 'web-' + Math.random().toString(36).substring(7);
+	private tabId_ = "web-" + Math.random().toString(36).substring(7);
 	private tabs: MockTab[] = [{ id: this.tabId_, data: {} }];
 	private config: MockConfig;
 	private windowId = 1;
 	private apiHandlers: Map<string, ApiHandler>;
 
 	constructor() {
-		this.config = this.storage.get('config') || this.getDefaultConfig();
+		this.config = this.storage.get("config") || this.getDefaultConfig();
 		this.apiHandlers = this.initApiHandlers();
 	}
 
 	private getDefaultConfig(): MockConfig {
 		return {
-			theme: '',
+			theme: "",
 			zoom: 0,
-			interfaceLang: 'en-US',
+			interfaceLang: "en-US",
 			languages: [],
 			hideTray: false,
 			showMenuBar: true,
@@ -131,82 +133,91 @@ class ElectronMock {
 		const handlers = new Map<string, ApiHandler>();
 
 		// Init & config handlers
-		handlers.set('getInitData', () => ({
+		handlers.set("getInitData", () => ({
 			id: this.windowId,
 			dataPath: this.userPath(),
 			config: this.config,
-			isDark: this.config.theme === 'dark' ||
-				(this.config.theme === '' && window.matchMedia('(prefers-color-scheme: dark)').matches),
+			isDark:
+				this.config.theme === "dark" ||
+				(this.config.theme === "" &&
+					window.matchMedia("(prefers-color-scheme: dark)").matches),
 			isChild: false,
-			route: '',
+			route: "",
 			isPinChecked: true,
 			languages: navigator.languages,
-			css: '',
+			css: "",
 			activeIndex: 0,
 			isSingleTab: true,
 			activeTabId: this.tabId_,
 		}));
 
-		handlers.set('setConfig', (args) => {
+		handlers.set("setConfig", (args) => {
 			Object.assign(this.config, args[0]);
-			this.storage.set('config', this.config);
+			this.storage.set("config", this.config);
 			return true;
 		});
 
-		handlers.set('setTheme', (args) => {
+		handlers.set("setTheme", (args) => {
 			this.config.theme = args[0];
-			this.storage.set('config', this.config);
-			U.Dom.removeClass(document.body as HTMLElement, 'themeDark', 'themeLight');
-			if (args[0] === 'dark') {
-				U.Dom.addClass(document.body as HTMLElement, 'themeDark');
-			} else if (args[0] === 'light') {
-				U.Dom.addClass(document.body as HTMLElement, 'themeLight');
+			this.storage.set("config", this.config);
+			U.Dom.removeClass(
+				document.body as HTMLElement,
+				"themeDark",
+				"themeLight",
+			);
+			if (args[0] === "dark") {
+				U.Dom.addClass(document.body as HTMLElement, "themeDark");
+			} else if (args[0] === "light") {
+				U.Dom.addClass(document.body as HTMLElement, "themeLight");
 			}
 			return true;
 		});
 
-		handlers.set('setZoom', (args) => {
+		handlers.set("setZoom", (args) => {
 			this.config.zoom = args[0];
-			this.storage.set('config', this.config);
+			this.storage.set("config", this.config);
 			return true;
 		});
 
 		// URL & path handlers
-		handlers.set('openUrl', (args) => {
-			window.open(args[0], '_blank');
+		handlers.set("openUrl", (args) => {
+			window.open(args[0], "_blank");
 			return true;
 		});
 
-		handlers.set('openPath', (args) => {
-			console.log('[Web] openPath not supported:', args[0]);
+		handlers.set("openPath", (args) => {
+			console.log("[Web] openPath not supported:", args[0]);
 			return true;
 		});
 
 		// Keytar handlers (credential storage)
-		handlers.set('keytarGet', (args) => this.storage.get('keytar_' + args[0]) || null);
-		handlers.set('keytarSet', (args) => {
-			this.storage.set('keytar_' + args[0], args[1]);
+		handlers.set(
+			"keytarGet",
+			(args) => this.storage.get("keytar_" + args[0]) || null,
+		);
+		handlers.set("keytarSet", (args) => {
+			this.storage.set("keytar_" + args[0], args[1]);
 			return true;
 		});
-		handlers.set('keytarDelete', (args) => {
-			this.storage.delete('keytar_' + args[0]);
+		handlers.set("keytarDelete", (args) => {
+			this.storage.delete("keytar_" + args[0]);
 			return true;
 		});
 
 		// Tab handlers
-		handlers.set('getTabs', () => ({
-			tabs: this.tabs.map(t => ({ id: t.id, data: t.data })),
+		handlers.set("getTabs", () => ({
+			tabs: this.tabs.map((t) => ({ id: t.id, data: t.data })),
 			id: this.tabId_,
 			isVisible: false,
 		}));
 
-		handlers.set('getTab', (args) => {
-			const tab = this.tabs.find(t => t.id === args[0]);
+		handlers.set("getTab", (args) => {
+			const tab = this.tabs.find((t) => t.id === args[0]);
 			return tab ? { id: tab.id, data: tab.data, token: tab.token } : null;
 		});
 
-		handlers.set('updateTab', (args) => {
-			const tabToUpdate = this.tabs.find(t => t.id === args[0]);
+		handlers.set("updateTab", (args) => {
+			const tabToUpdate = this.tabs.find((t) => t.id === args[0]);
 			if (tabToUpdate) {
 				tabToUpdate.data = { ...tabToUpdate.data, ...args[1] };
 				if (args[1].token) {
@@ -217,53 +228,53 @@ class ElectronMock {
 		});
 
 		// Download & file handlers
-		handlers.set('download', (args) => {
-			const link = document.createElement('a');
+		handlers.set("download", (args) => {
+			const link = document.createElement("a");
 			link.href = args[0];
-			link.download = args[1]?.filename || 'download';
+			link.download = args[1]?.filename || "download";
 			link.click();
 			return true;
 		});
 
-		handlers.set('checkDiskSpace', () => ({
+		handlers.set("checkDiskSpace", () => ({
 			free: 100 * 1024 * 1024 * 1024,
 			size: 500 * 1024 * 1024 * 1024,
 		}));
 
 		// Notification handler
-		handlers.set('notification', (args) => {
-			if ('Notification' in window && Notification.permission === 'granted') {
-				new Notification(args[0]?.title || '', { body: args[0]?.text || '' });
+		handlers.set("notification", (args) => {
+			if ("Notification" in window && Notification.permission === "granted") {
+				new Notification(args[0]?.title || "", { body: args[0]?.text || "" });
 			}
 			return true;
 		});
 
 		// Window handlers
-		handlers.set('reload', () => {
+		handlers.set("reload", () => {
 			window.location.reload();
 			return true;
 		});
 
-		handlers.set('focusWindow', () => {
+		handlers.set("focusWindow", () => {
 			window.focus();
 			return true;
 		});
 
-		handlers.set('setBadge', (args) => {
-			document.title = args[0] ? `(${args[0]}) Anytype` : 'Anytype';
+		handlers.set("setBadge", (args) => {
+			document.title = args[0] ? `(${args[0]}) Anytype` : "Anytype";
 			return true;
 		});
 
 		// Session handlers
-		handlers.set('logout', () => this.clearStorageAndReload());
-		handlers.set('exit', () => this.clearStorageAndReload());
-		handlers.set('shutdown', () => this.clearStorageAndReload());
+		handlers.set("logout", () => this.clearStorageAndReload());
+		handlers.set("exit", () => this.clearStorageAndReload());
+		handlers.set("shutdown", () => this.clearStorageAndReload());
 
 		// Clipboard handler
-		handlers.set('paste', async () => {
+		handlers.set("paste", async () => {
 			if (navigator.clipboard) {
 				const text = await navigator.clipboard.readText();
-				document.execCommand('insertText', false, text);
+				document.execCommand("insertText", false, text);
 			}
 			return true;
 		});
@@ -271,77 +282,106 @@ class ElectronMock {
 		// Config persistence handlers
 		const configHandler = (args: any[]) => {
 			this.config = { ...this.config, ...args[0] };
-			this.storage.set('config', this.config);
+			this.storage.set("config", this.config);
 			return true;
 		};
-		handlers.set('setUserDataPath', configHandler);
-		handlers.set('setChannel', configHandler);
-		handlers.set('setInterfaceLang', configHandler);
+		handlers.set("setUserDataPath", configHandler);
+		handlers.set("setChannel", configHandler);
+		handlers.set("setInterfaceLang", configHandler);
 
 		// No-op handlers that return true
 		const noopTrue = () => true;
-		['minimize', 'maximize', 'close', 'toggleFullScreen'].forEach(cmd => {
+		["minimize", "maximize", "close", "toggleFullScreen"].forEach((cmd) => {
 			handlers.set(cmd, () => {
-				console.log('[Web] Window command not supported:', cmd);
+				console.log("[Web] Window command not supported:", cmd);
 				return true;
 			});
 		});
 
-		['setPinChecked', 'pinCheck', 'pinSet', 'pinRemove'].forEach(cmd => handlers.set(cmd, noopTrue));
-		['setSpellingLang', 'spellcheckAdd'].forEach(cmd => handlers.set(cmd, noopTrue));
-		['updateCheck', 'updateDownload', 'updateConfirm', 'updateCancel'].forEach(cmd => {
-			handlers.set(cmd, () => {
-				console.log('[Web] Updates not supported in web mode');
-				return true;
-			});
-		});
+		["setPinChecked", "pinCheck", "pinSet", "pinRemove"].forEach((cmd) =>
+			handlers.set(cmd, noopTrue),
+		);
+		["setSpellingLang", "spellcheckAdd"].forEach((cmd) =>
+			handlers.set(cmd, noopTrue),
+		);
+		["updateCheck", "updateDownload", "updateConfirm", "updateCancel"].forEach(
+			(cmd) => {
+				handlers.set(cmd, () => {
+					console.log("[Web] Updates not supported in web mode");
+					return true;
+				});
+			},
+		);
 
 		// No OS-level global shortcuts in the browser - null tells callers to skip
-		handlers.set('getGlobalShortcutStatus', () => null);
+		handlers.set("getGlobalShortcutStatus", () => null);
 
-		['menu', 'initMenu', 'setHideTray', 'setMenuBarVisibility', 'setHardwareAcceleration'].forEach(cmd => {
+		[
+			"menu",
+			"initMenu",
+			"setHideTray",
+			"setMenuBarVisibility",
+			"setHardwareAcceleration",
+		].forEach((cmd) => {
 			handlers.set(cmd, () => {
-				console.log('[Web] Menu/system command not supported:', cmd);
+				console.log("[Web] Menu/system command not supported:", cmd);
 				return true;
 			});
 		});
 
 		// Single tab in web mode — always return false (no tab to switch to)
-		handlers.set('switchToTabByRoute', () => false);
-		handlers.set('openRouteInTab', () => false);
+		handlers.set("switchToTabByRoute", () => false);
+		handlers.set("openRouteInTab", () => false);
 
-		['openTab', 'openWindow', 'setActiveTab', 'removeTab', 'closeOtherTabs', 'closeOtherWindows',
-			'reorderTabs', 'setTabsDimmer', 'winCommand', 'setAlwaysShowTabs'].forEach(cmd => {
+		[
+			"openTab",
+			"openWindow",
+			"setActiveTab",
+			"removeTab",
+			"closeOtherTabs",
+			"closeOtherWindows",
+			"reorderTabs",
+			"setTabsDimmer",
+			"winCommand",
+			"setAlwaysShowTabs",
+		].forEach((cmd) => {
 			handlers.set(cmd, () => {
-				console.log('[Web] Tab command not supported:', cmd);
+				console.log("[Web] Tab command not supported:", cmd);
 				return true;
 			});
 		});
 
-		['showLinkApproval', 'hideLinkApproval', 'linkApprovalResult', 'linkApprovalSpaces'].forEach(cmd => {
+		[
+			"showLinkApproval",
+			"hideLinkApproval",
+			"linkApprovalResult",
+			"linkApprovalSpaces",
+		].forEach((cmd) => {
 			handlers.set(cmd, () => {
-				console.log('[Web] Link approval not supported:', cmd);
+				console.log("[Web] Link approval not supported:", cmd);
 				return true;
 			});
 		});
 
-		handlers.set('payloadBroadcast', noopTrue);
-		handlers.set('setBackground', noopTrue);
-		handlers.set('setHasPinSet', noopTrue);
+		handlers.set("payloadBroadcast", noopTrue);
+		handlers.set("setBackground", noopTrue);
+		handlers.set("setHasPinSet", noopTrue);
 
 		// No-op handlers that return empty object
-		['linuxDistro', 'shortcutExport', 'shortcutImport'].forEach(cmd => {
+		["linuxDistro", "shortcutExport", "shortcutImport"].forEach((cmd) => {
 			handlers.set(cmd, () => ({}));
 		});
 
-		handlers.set('moveNetworkConfig', () => ({ error: 'Not supported in web mode' }));
+		handlers.set("moveNetworkConfig", () => ({
+			error: "Not supported in web mode",
+		}));
 
 		return handlers;
 	}
 
 	private clearStorageAndReload(): true {
-		Object.keys(localStorage).forEach(key => {
-			if (key.startsWith('anytype_')) {
+		Object.keys(localStorage).forEach((key) => {
+			if (key.startsWith("anytype_")) {
 				localStorage.removeItem(key);
 			}
 		});
@@ -350,14 +390,14 @@ class ElectronMock {
 	}
 
 	version = {
-		app: '0.0.0-web',
+		app: "0.0.0-web",
 		os: `${navigator.platform} (Web)`,
 		system: navigator.userAgent,
-		device: 'Web Browser',
+		device: "Web Browser",
 	};
 
-	platform = 'web';
-	arch = 'web';
+	platform = "web";
+	arch = "web";
 	isPackaged = false;
 
 	storeGet = (key: string) => this.storage.get(key);
@@ -369,13 +409,13 @@ class ElectronMock {
 	private getDataPath = (): string => {
 		// Check URL params first
 		const urlParams = new URLSearchParams(window.location.search);
-		const urlDataPath = urlParams.get('dataPath');
+		const urlDataPath = urlParams.get("dataPath");
 		if (urlDataPath) {
 			return urlDataPath;
 		}
 
 		// Check localStorage
-		const storedPath = localStorage.getItem('anytype_dataPath');
+		const storedPath = localStorage.getItem("anytype_dataPath");
 		if (storedPath) {
 			return storedPath;
 		}
@@ -387,28 +427,32 @@ class ElectronMock {
 
 		// Default: use a path in user's home directory
 		// This will be resolved by the backend based on OS
-		return '';
+		return "";
 	};
 
 	userPath = () => this.getDataPath();
-	tmpPath = () => '/tmp';
-	downloadPath = () => this.getDataPath() ? `${this.getDataPath()}/downloads` : '/tmp/anytype-web/downloads';
-	logPath = () => this.getDataPath() ? `${this.getDataPath()}/logs` : '/tmp/anytype-web/logs';
+	tmpPath = () => "/tmp";
+	downloadPath = () =>
+		this.getDataPath()
+			? `${this.getDataPath()}/downloads`
+			: "/tmp/anytype-web/downloads";
+	logPath = () =>
+		this.getDataPath() ? `${this.getDataPath()}/logs` : "/tmp/anytype-web/logs";
 	defaultPath = () => this.getDataPath();
 
-	dirName = (fp: string) => fp.substring(0, fp.lastIndexOf('/'));
-	filePath = (...args: string[]) => args.join('/');
-	fileName = (fp: string) => fp.substring(fp.lastIndexOf('/') + 1);
-	fileMime = (_fp: string) => 'application/octet-stream';
+	dirName = (fp: string) => fp.substring(0, fp.lastIndexOf("/"));
+	filePath = (...args: string[]) => args.join("/");
+	fileName = (fp: string) => fp.substring(fp.lastIndexOf("/") + 1);
+	fileMime = (_fp: string) => "application/octet-stream";
 	fileExt = (fp: string) => {
-		const idx = fp.lastIndexOf('.');
-		return idx >= 0 ? fp.substring(idx + 1) : '';
+		const idx = fp.lastIndexOf(".");
+		return idx >= 0 ? fp.substring(idx + 1) : "";
 	};
 	fileSize = (_fp: string) => 0;
 	isDirectory = (_fp: string) => false;
 
-	getTheme = () => this.config.theme || '';
-	getBgColor = () => this.config.theme === 'dark' ? '#171717' : '#fff';
+	getTheme = () => this.config.theme || "";
+	getBgColor = () => (this.config.theme === "dark" ? "#171717" : "#fff");
 
 	tabId = () => this.tabId_;
 
@@ -424,48 +468,57 @@ class ElectronMock {
 	focus = () => window.focus();
 
 	getGlobal = (key: string) => {
-		if (key === 'serverAddress') {
-			// Get gRPC-web proxy address from window config or env
-			// Note: anytypeHelper starts gRPC on port X and gRPC-web proxy on port X+1
-			return (window as any).AnytypeGlobalConfig?.serverAddress ||
+		if (key === "serverAddress") {
+			// The entry point publishes the address it resolved; the fallback is the API
+			// base, since the retired gRPC-web proxy is not dialled any more. Dispatcher.init
+			// refuses an empty address, so this must never return ''.
+			return (
+				(window as any).AnytypeGlobalConfig?.serverAddress ||
 				(window as any).GRPC_SERVER_ADDRESS ||
-				'http://127.0.0.1:31008';
+				serverAddress()
+			);
 		}
 		return null;
 	};
 
 	showOpenDialog = async (options: any) => {
 		// Use the File System Access API if available
-		if ('showOpenFilePicker' in window) {
+		if ("showOpenFilePicker" in window) {
 			try {
 				const handles = await (window as any).showOpenFilePicker({
-					multiple: options?.properties?.includes('multiSelections'),
+					multiple: options?.properties?.includes("multiSelections"),
 					types: options?.filters?.map((f: any) => ({
 						description: f.name,
-						accept: { '*/*': f.extensions?.map((e: string) => '.' + e) || ['*'] },
+						accept: {
+							"*/*": f.extensions?.map((e: string) => "." + e) || ["*"],
+						},
 					})),
 				});
-				const files: File[] = await Promise.all(handles.map((h: any) => h.getFile()));
+				const files: File[] = await Promise.all(
+					handles.map((h: any) => h.getFile()),
+				);
 
 				// Upload files to server to get real filesystem paths
-				const filePaths = await Promise.all(files.map(f => uploadFileToServer(f)));
+				const filePaths = await Promise.all(
+					files.map((f) => uploadFileToServer(f)),
+				);
 
 				return {
 					canceled: false,
 					filePaths,
-					files
+					files,
 				};
 			} catch (e) {
-				console.log('[Web] Canceled or error:', e);
+				console.log("[Web] Canceled or error:", e);
 				return { canceled: true, filePaths: [] };
 			}
 		}
 
 		// Fallback to input element
 		return new Promise((resolve) => {
-			const input = document.createElement('input');
-			input.type = 'file';
-			input.multiple = options?.properties?.includes('multiSelections');
+			const input = document.createElement("input");
+			input.type = "file";
+			input.multiple = options?.properties?.includes("multiSelections");
 			input.onchange = async () => {
 				const files = Array.from(input.files || []);
 				if (files.length === 0) {
@@ -475,14 +528,16 @@ class ElectronMock {
 
 				try {
 					// Upload files to server to get real filesystem paths
-					const filePaths = await Promise.all(files.map(f => uploadFileToServer(f)));
+					const filePaths = await Promise.all(
+						files.map((f) => uploadFileToServer(f)),
+					);
 					resolve({
 						canceled: false,
 						filePaths,
-						files
+						files,
 					});
 				} catch (e) {
-					console.error('[showOpenDialog] Upload error:', e);
+					console.error("[showOpenDialog] Upload error:", e);
 					resolve({ canceled: true, filePaths: [], files: [] });
 				}
 			};
@@ -496,7 +551,7 @@ class ElectronMock {
 		// Create a blob and download it
 		const blob = new Blob([data]);
 		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
+		const a = document.createElement("a");
 		a.href = url;
 		a.download = name;
 		a.click();
@@ -518,7 +573,7 @@ class ElectronMock {
 	emit = (event: string, ...args: any[]) => {
 		const listeners = this.eventListeners.get(event);
 		if (listeners) {
-			listeners.forEach(cb => cb(null, ...args));
+			listeners.forEach((cb) => cb(null, ...args));
 		}
 	};
 
@@ -527,7 +582,7 @@ class ElectronMock {
 		if (handler) {
 			return handler(args);
 		}
-		console.log('[Web] Unknown API command:', cmd, args);
+		console.log("[Web] Unknown API command:", cmd, args);
 		return null;
 	};
 }
