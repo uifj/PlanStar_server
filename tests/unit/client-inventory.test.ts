@@ -213,5 +213,7 @@ imageUrl(id) { return [this.gateway, 'image', id].join('/') + '?width=100'; } }
 			report: () => {},
 		})).toBe(1);
 		expect(writes).toBe(0);
-	});
+		// The traversal reads the whole vendored client tree: it idles around 3.4s on its own and
+		// crosses the 5s default whenever the gate runs alongside the dev servers.
+	}, 30_000);
 });

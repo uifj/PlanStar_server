@@ -22,7 +22,7 @@
     ]
   },
   "summary": {
-    "sourceFiles": 1618,
+    "sourceFiles": 1619,
     "capabilitiesByKind": {
       "command-use": 236,
       "command-wrapper": 265,
@@ -178,7 +178,7 @@
     },
     {
       "file": "front_web/src/ts/app.tsx",
-      "sha256": "fac4659d9771f17a1f94b172f6acc4a37352381090cdd9932c26a18ca752d39c"
+      "sha256": "980a8fc1a66025cbb1c3a252a98e7e039fb35b419b0551ccd047892e8ee49c3a"
     },
     {
       "file": "front_web/src/ts/component/block/bookmark.tsx",
@@ -5902,7 +5902,7 @@
     },
     {
       "file": "front_web/src/ts/entry.web.tsx",
-      "sha256": "d103125b30e34d225cd828cb21a200171b7caf997b3df3ff08eba0103d93d5b8"
+      "sha256": "f45c3d2e36f8b6e9a23dad1c8804a98de0f22f93a722c7718c56f87fa1d4909b"
     },
     {
       "file": "front_web/src/ts/hook/index.ts",
@@ -6366,11 +6366,15 @@
     },
     {
       "file": "front_web/src/ts/lib/web/electronMock.ts",
-      "sha256": "b7ab0bd48e9ab6446c9b6b0f1a96120748cc243a0930880eaad0e1cd7cb99467"
+      "sha256": "1f3ceac2e6206d903b742bab7cd7e2bf1002dd4fba020715b2a463c361b8c6e1"
     },
     {
       "file": "front_web/src/ts/lib/web/routeSync.ts",
       "sha256": "323e35c791e5582562863b7549a11fa1f3200cbf5b82727ee5bc7d34f01dcddf"
+    },
+    {
+      "file": "front_web/src/ts/lib/web/serverAddress.ts",
+      "sha256": "08470eea03e51e82755c23035599ed5f035e5576d9c36d1a8401e379a16618b1"
     },
     {
       "file": "front_web/src/ts/model/account.ts",
@@ -6624,7 +6628,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 764,
+          "line": 774,
           "column": 3,
           "usage": "call"
         }
@@ -6790,7 +6794,7 @@
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 551,
+          "line": 556,
           "column": 4,
           "usage": "call"
         },
@@ -27795,9 +27799,9 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 25,
+          "line": 27,
           "column": 25,
-          "expression": "'/api/web-upload'",
+          "expression": "\"/api/web-upload\"",
           "method": "POST"
         }
       ]
@@ -28165,7 +28169,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 228,
+          "line": 239,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28181,7 +28185,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 220,
+          "line": 231,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28197,7 +28201,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 259,
+          "line": 270,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28213,7 +28217,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 247,
+          "line": 258,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28229,7 +28233,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 300,
+          "line": 317,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28245,7 +28249,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 134,
+          "line": 136,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28261,7 +28265,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 203,
+          "line": 214,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28277,7 +28281,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 197,
+          "line": 208,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28293,7 +28297,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 191,
+          "line": 202,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28309,7 +28313,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 186,
+          "line": 194,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28325,7 +28329,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 187,
+          "line": 198,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28341,7 +28345,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 258,
+          "line": 269,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28357,7 +28361,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 337,
+          "line": 375,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28373,7 +28377,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 234,
+          "line": 245,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28389,7 +28393,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 180,
+          "line": 188,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28405,7 +28409,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 311,
+          "line": 334,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28421,7 +28425,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 175,
+          "line": 183,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28437,7 +28441,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 263,
+          "line": 274,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28453,7 +28457,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 328,
+          "line": 366,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28469,7 +28473,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 242,
+          "line": 253,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28485,7 +28489,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 329,
+          "line": 367,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28501,7 +28505,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 252,
+          "line": 263,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28517,7 +28521,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 278,
+          "line": 289,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28533,7 +28537,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 150,
+          "line": 154,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28549,7 +28553,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 330,
+          "line": 368,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28565,7 +28569,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 279,
+          "line": 290,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28581,7 +28585,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 156,
+          "line": 160,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28597,7 +28601,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 277,
+          "line": 288,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28613,7 +28617,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 168,
+          "line": 176,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28629,7 +28633,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 260,
+          "line": 271,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28645,7 +28649,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 310,
+          "line": 333,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -28661,7 +28665,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/web/electronMock.ts",
-          "line": 208,
+          "line": 219,
           "column": 3,
           "expression": "handlers.set"
         }
@@ -29245,7 +29249,7 @@
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 631,
+          "line": 641,
           "column": 24,
           "expression": "electron.tabId"
         },
@@ -40867,7 +40871,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 598,
+          "line": 608,
           "column": 3,
           "expression": "Renderer.send"
         }
@@ -40973,7 +40977,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 602,
+          "line": 612,
           "column": 5,
           "expression": "Renderer.send"
         },
@@ -41047,7 +41051,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 765,
+          "line": 775,
           "column": 4,
           "expression": "Renderer.send"
         }
@@ -41063,7 +41067,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 782,
+          "line": 792,
           "column": 14,
           "expression": "Renderer.send"
         }
@@ -41923,7 +41927,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 635,
+          "line": 645,
           "column": 4,
           "expression": "Renderer.sendIpc"
         }
@@ -41971,7 +41975,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 731,
+          "line": 741,
           "column": 6,
           "expression": "Renderer.send"
         },
@@ -42043,7 +42047,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 728,
+          "line": 738,
           "column": 6,
           "expression": "Renderer.send"
         }
@@ -43081,7 +43085,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 577,
+          "line": 587,
           "column": 26,
           "expression": "'/auth/better-login'"
         },
@@ -43219,7 +43223,7 @@
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 594,
+          "line": 604,
           "column": 4,
           "expression": "'/auth/select'"
         },
@@ -43331,19 +43335,19 @@
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 608,
+          "line": 618,
           "column": 7,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 615,
+          "line": 625,
           "column": 8,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 624,
+          "line": 634,
           "column": 6,
           "expression": "'/auth/setup/init'"
         },
@@ -43587,7 +43591,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 750,
+          "line": 760,
           "column": 4,
           "expression": "route"
         },
@@ -43858,7 +43862,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/app.tsx",
-        "line": 750,
+        "line": 760,
         "column": 16,
         "expression": "route"
       }
@@ -43869,7 +43873,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/app.tsx",
-        "line": 824,
+        "line": 834,
         "column": 23,
         "expression": "path"
       }
@@ -44408,7 +44412,7 @@
       "reason": "Computed expression; no data-flow or alias resolution is attempted.",
       "reference": {
         "file": "front_web/src/ts/lib/web/electronMock.ts",
-        "line": 284,
+        "line": 295,
         "column": 17,
         "expression": "cmd"
       }
@@ -44419,29 +44423,7 @@
       "reason": "Computed expression; no data-flow or alias resolution is attempted.",
       "reference": {
         "file": "front_web/src/ts/lib/web/electronMock.ts",
-        "line": 290,
-        "column": 84,
-        "expression": "cmd"
-      }
-    },
-    {
-      "kind": "native-handler",
-      "status": "needs-review",
-      "reason": "Computed expression; no data-flow or alias resolution is attempted.",
-      "reference": {
-        "file": "front_web/src/ts/lib/web/electronMock.ts",
-        "line": 291,
-        "column": 68,
-        "expression": "cmd"
-      }
-    },
-    {
-      "kind": "native-handler",
-      "status": "needs-review",
-      "reason": "Computed expression; no data-flow or alias resolution is attempted.",
-      "reference": {
-        "file": "front_web/src/ts/lib/web/electronMock.ts",
-        "line": 293,
+        "line": 302,
         "column": 17,
         "expression": "cmd"
       }
@@ -44452,7 +44434,7 @@
       "reason": "Computed expression; no data-flow or alias resolution is attempted.",
       "reference": {
         "file": "front_web/src/ts/lib/web/electronMock.ts",
-        "line": 303,
+        "line": 305,
         "column": 17,
         "expression": "cmd"
       }
@@ -44463,7 +44445,18 @@
       "reason": "Computed expression; no data-flow or alias resolution is attempted.",
       "reference": {
         "file": "front_web/src/ts/lib/web/electronMock.ts",
-        "line": 315,
+        "line": 309,
+        "column": 18,
+        "expression": "cmd"
+      }
+    },
+    {
+      "kind": "native-handler",
+      "status": "needs-review",
+      "reason": "Computed expression; no data-flow or alias resolution is attempted.",
+      "reference": {
+        "file": "front_web/src/ts/lib/web/electronMock.ts",
+        "line": 326,
         "column": 17,
         "expression": "cmd"
       }
@@ -44474,7 +44467,7 @@
       "reason": "Computed expression; no data-flow or alias resolution is attempted.",
       "reference": {
         "file": "front_web/src/ts/lib/web/electronMock.ts",
-        "line": 322,
+        "line": 348,
         "column": 17,
         "expression": "cmd"
       }
@@ -44485,7 +44478,18 @@
       "reason": "Computed expression; no data-flow or alias resolution is attempted.",
       "reference": {
         "file": "front_web/src/ts/lib/web/electronMock.ts",
-        "line": 334,
+        "line": 360,
+        "column": 17,
+        "expression": "cmd"
+      }
+    },
+    {
+      "kind": "native-handler",
+      "status": "needs-review",
+      "reason": "Computed expression; no data-flow or alias resolution is attempted.",
+      "reference": {
+        "file": "front_web/src/ts/lib/web/electronMock.ts",
+        "line": 372,
         "column": 17,
         "expression": "cmd"
       }
