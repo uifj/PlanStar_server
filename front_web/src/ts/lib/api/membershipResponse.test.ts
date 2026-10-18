@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as I from 'Interface';
 
 vi.mock('./service', () => ({ ServiceClient: class {} }));
-vi.mock('./grpc-devtools', () => ({ unaryInterceptors: [], streamInterceptors: [] }));
 vi.mock('../presence', () => ({ presence: { onMessage: vi.fn() } }));
 vi.mock('Lib/membership', () => ({ membership: { onStatusEvent: vi.fn(), onProductsEvent: vi.fn() } }));
 vi.mock('Model', () => ({}));

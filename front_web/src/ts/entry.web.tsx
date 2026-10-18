@@ -12,17 +12,14 @@ import React from "react";
 // First, set up the Electron mock BEFORE any imports that might use it
 import { electronMock } from "./lib/web/electronMock";
 import {
-	serverAddress as defaultServerAddress,
-	usableStoredAddress,
+	serverAddress as resolveServerAddress,
 } from "./lib/web/serverAddress";
 
 // Set up global configuration from URL params or defaults
 const urlParams = new URLSearchParams(window.location.search);
-const storedAddress = usableStoredAddress(
-	localStorage.getItem("anytype_serverAddress") || "",
-);
-const serverAddress =
-	urlParams.get("server") || storedAddress || defaultServerAddress();
+// One precedence chain, resolved by the same helper the command shim, the event stream and the
+// publish links ask later: ?server= -> the address a previous boot stored -> the API base.
+const serverAddress = resolveServerAddress();
 const dataPath =
 	urlParams.get("dataPath") || localStorage.getItem("anytype_dataPath") || "";
 

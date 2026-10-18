@@ -469,13 +469,11 @@ class ElectronMock {
 
 	getGlobal = (key: string) => {
 		if (key === "serverAddress") {
-			// The entry point publishes the address it resolved; the fallback is the API
-			// base, since the retired gRPC-web proxy is not dialled any more. Dispatcher.init
-			// refuses an empty address, so this must never return ''.
+			// The entry point publishes the address it resolved; the fallback is the API base,
+			// since the retired gRPC-web proxy is not dialled any more. Dispatcher.init refuses
+			// an empty address, so this must never return ''.
 			return (
-				(window as any).AnytypeGlobalConfig?.serverAddress ||
-				(window as any).GRPC_SERVER_ADDRESS ||
-				serverAddress()
+				(window as any).AnytypeGlobalConfig?.serverAddress || serverAddress()
 			);
 		}
 		return null;

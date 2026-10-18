@@ -113,7 +113,4 @@ cp "$ROOT_DIR/scripts/proto-overrides/struct.ts" "$MIDDLEWARE_DIR/google/protobu
 echo "Generated TypeScript files:"
 find "$MIDDLEWARE_DIR/pb" "$MIDDLEWARE_DIR/pkg" "$MIDDLEWARE_DIR/google" -name '*.ts' 2>/dev/null | sort
 
-echo "Generating service registry..."
-node "$ROOT_DIR/scripts/generate-service-registry.js"
-
 echo "Done!"

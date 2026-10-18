@@ -275,13 +275,6 @@ export default defineConfig(({ mode }) => {
 			},
 		},
 
-		optimizeDeps: {
-			include: [
-				'google-protobuf',
-				'grpc-web',
-			],
-		},
-
 		plugins: [
 			spaFallbackPlugin(),
 			react(),

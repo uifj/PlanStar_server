@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ExportReport, ExportReport_Status } from 'Proto/pkg/lib/pb/model/protos/export_report';
 
 vi.mock('./service', () => ({ ServiceClient: class {} }));
-vi.mock('./grpc-devtools', () => ({ unaryInterceptors: [], streamInterceptors: [] }));
 vi.mock('../presence', () => ({ presence: { onMessage: vi.fn() } }));
 vi.mock('Model', () => ({}));
 

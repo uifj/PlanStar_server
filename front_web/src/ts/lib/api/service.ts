@@ -1,74 +1,25 @@
 /**
- * The client's transport seam. Unary ClientCommands go to the Hono command shim as JSON over the
- * session cookie and session events arrive on the SSE channel at <base>/events; the gRPC-web
- * machinery this replaced is retired (ADR-0020). The proto message pairs live in ./service-registry,
- * which scripts/generate-service-registry.js writes — this file is hand-written and must not be
- * regenerated.
+ * The client's transport seam (ADR-0020). Commands are JSON posted to the Hono command shim under
+ * the Better Auth session cookie; session events arrive on the SSE channel at <base>/events. The
+ * gRPC-web client this replaced — its binary framing, method descriptors, interceptors and the
+ * generated per-method registry — is retired, and nothing here imports it, so this module loads
+ * without the generated protobuf bindings.
  */
 
-import { GrpcWebClientBase, MethodDescriptor, MethodType } from 'grpc-web';
-import type { ClientReadableStream } from 'grpc-web';
-import * as Commands from 'Proto/pb/protos/commands';
-import * as Events from 'Proto/pb/protos/events';
 import { serverAddress } from 'Lib/web/serverAddress';
-import { registry } from './service-registry';
 
-// The web backend answers ClientCommands as JSON over the Better Auth session cookie, so commands
-// go to the same API base the client booted against rather than the gRPC-web hostname.
+// Commands go to the same API base the client booted against; there is no separate proxy host.
 const commandBase = serverAddress;
+
+// The slice of the old streaming interface the shell actually uses: register listeners, then cancel.
+export interface SessionStream {
+	on (kind: 'data' | 'end' | 'status', fn: (arg: any) => void): SessionStream;
+	cancel (): void;
+};
 
 export class ServiceClient {
 
-	private client: GrpcWebClientBase;
-	private streamClient: GrpcWebClientBase;
-	private hostname: string;
-	private descriptorCache = new Map<string, MethodDescriptor<any, any>>();
-	constructor (hostname: string, credentials: any, options: any) {
-		this.hostname = hostname;
-		// Unary calls use binary proto framing (application/grpc-web+proto), skipping the
-		// base64 encode/decode and ~33% payload overhead of the default 'text' mode.
-		// The event stream must stay in text mode: grpc-web reads streaming responses
-		// incrementally from XHR responseText, which binary (arraybuffer) mode cannot do.
-		this.client = new GrpcWebClientBase({ ...options, format: 'binary' });
-		this.streamClient = new GrpcWebClientBase({ ...options, format: 'text' });
-	};
-
-	getDescriptor (commandName: string): MethodDescriptor<any, any> | null {
-		let descriptor = this.descriptorCache.get(commandName);
-		if (descriptor) {
-			return descriptor;
-		};
-
-		const entry = registry[commandName];
-		if (!entry) {
-			return null;
-		};
-
-		descriptor = new MethodDescriptor(
-			`/anytype.ClientCommands/${commandName}`,
-			MethodType.UNARY,
-			Object as any,
-			Object as any,
-			(request: any) => entry.req.encode(entry.req.fromPartial(request)).finish(),
-			(bytes: Uint8Array) => {
-				const res = entry.res.decode(bytes);
-				if (!res.toObject) {
-					res.toObject = function () { return this; };
-				};
-				return res;
-			},
-		);
-
-		this.descriptorCache.set(commandName, descriptor);
-		return descriptor;
-	};
-
 	request (commandName: string, data: any, metadata: any, callback: (error: any, response: any) => void) {
-		// gRPC DevTools interceptor calls getRequestMessage().toObject()
-		if (!data.toObject) {
-			data.toObject = function () { return this; };
-		};
-
 		fetch(`${commandBase()}/command/${commandName}`, {
 			method: 'POST',
 			credentials: 'include',
@@ -86,12 +37,12 @@ export class ServiceClient {
 		});
 	};
 
-	listenSessionEvents (request: Commands.StreamRequest, metadata: any): ClientReadableStream<Events.Event> {
-		// The web backend pushes session events over SSE at <base>/events (cookie-authenticated,
-		// exactly like the command fetch path). Each `message` frame carries one Events.Event,
-		// with the Pubsub payload base64-encoded because SSE frames are text; decode it back to
-		// bytes so Mapper.Event.PubsubMessage hands the shell a Uint8Array. EventSource resumes
-		// on its own after a drop, so a status signal is only raised once it is permanently closed.
+	// The account is carried by the session cookie, so the stream needs no request body or metadata.
+	listenSessionEvents (): SessionStream {
+		// Each `message` frame carries one Events.Event, with the Pubsub payload base64-encoded
+		// because SSE frames are text; decode it back to bytes so Mapper.Event.PubsubMessage hands
+		// the shell a Uint8Array. EventSource resumes on its own after a drop, so a status signal is
+		// only raised once it is permanently closed.
 		const listeners: Record<string, Array<(arg: any) => void>> = { data: [], status: [], end: [] };
 		const emit = (kind: string, arg: any) => {
 			(listeners[kind] || []).forEach((fn) => fn(arg));
@@ -124,8 +75,8 @@ export class ServiceClient {
 			};
 		});
 
-		const stream = {
-			on: (kind: string, fn: (arg: any) => void) => {
+		const stream: SessionStream = {
+			on: (kind, fn) => {
 				if (!listeners[kind]) {
 					listeners[kind] = [];
 				};
@@ -137,7 +88,7 @@ export class ServiceClient {
 			},
 		};
 
-		return stream as unknown as ClientReadableStream<Events.Event>;
+		return stream;
 	};
 
 };

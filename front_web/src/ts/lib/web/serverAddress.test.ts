@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { serverAddress, usableStoredAddress } from "./serverAddress";
 
@@ -21,6 +21,47 @@ describe("serverAddress", () => {
 
 		vi.unstubAllEnvs();
 	});
+
+	// The web build advertises `?server=http://HOST:PORT` as its configuration interface, and the
+	// transport now asks this helper, so the override moves the commands instead of only the boot log.
+	it("prefers the ?server= param over a stored or configured address", () => {
+		vi.stubEnv("VITE_API_BASE_URL", "http://localhost:8000/api");
+		browser("?server=http://10.0.0.9:8000/api", "http://localhost:8000/api");
+
+		expect(serverAddress()).toBe("http://10.0.0.9:8000/api");
+
+		vi.unstubAllEnvs();
+	});
+
+	it("keeps the address a previous boot resolved", () => {
+		vi.stubEnv("VITE_API_BASE_URL", "http://localhost:8000/api");
+		browser("", "http://10.0.0.9:8000/api");
+
+		expect(serverAddress()).toBe("http://10.0.0.9:8000/api");
+
+		vi.unstubAllEnvs();
+	});
+
+	it("ignores a stored address that points at the retired proxy", () => {
+		vi.stubEnv("VITE_API_BASE_URL", "http://localhost:8000/api");
+		browser("", "http://127.0.0.1:31008");
+
+		expect(serverAddress()).toBe("http://localhost:8000/api");
+
+		vi.unstubAllEnvs();
+	});
+});
+
+const browser = (search: string, stored: string | null) => {
+	vi.stubGlobal("window", { location: { search, origin: "http://localhost:3030" } });
+	vi.stubGlobal("localStorage", {
+		getItem: () => stored,
+		setItem: () => undefined,
+	});
+};
+
+beforeEach(() => {
+	vi.unstubAllGlobals();
 });
 
 describe("usableStoredAddress", () => {

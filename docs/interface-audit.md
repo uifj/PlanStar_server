@@ -130,10 +130,30 @@ mounted and mark the superseded operations deprecated** (ADR-0021, `src/openapi/
 `/api/ready`, `/api/spaces`, `/api/command/{name}` and `/api/agent/trip-planner/messages` — the agent
 mount stays unmarked because nothing supersedes it, it simply has no caller in this client.
 
-**Frontend:** the grpc-web residue — `lib/api/dispatcher.ts:7,62`,
-`lib/api/grpc-devtools.ts` + its `.d.ts`, `package.json` `grpc-web`, `electronMock.ts:477`
-`window.GRPC_SERVER_ADDRESS`, `src/json/url.ts:29` `api: '127.0.0.1:31009'` feeding
-`store/auth.ts:22`; and the unreachable legacy block-editor handlers named in §3b.
+**Frontend — retired, this pass:** the gRPC-web machinery is gone from the transport. `lib/api/service.ts`
+is now the whole seam: a JSON `fetch` to `<base>/command/<Name>` plus an `EventSource` on
+`<base>/events`, with a local `SessionStream` (`on`/`cancel`) in place of grpc-web's
+`ClientReadableStream`. Deleted with it: `GrpcWebClientBase`/`MethodDescriptor`/`MethodType` usage,
+`descriptorCache` + `getDescriptor`, the 346-entry `registry` map and the generator step that wrote
+`service-registry.ts`, `lib/api/grpc-devtools.ts` + its `.d.ts` and the interceptor options
+`dispatcher.init` passed, and `electronMock`'s `GRPC_SERVER_ADDRESS` fallback. The generated proto
+bindings under `middleware/` stay (the message types the shell maps are built from them) and
+`package.json` still lists `grpc-web` as an installed-but-unimported dependency — dropping it is a
+dependency change, so it is left for an explicit decision. Pinned by
+`src/ts/lib/api/service.transport.test.ts` (command fetch, HTTP-failure callback, SSE frame wrapper
+with its base64 payload decoded, `cancel` closing the source).
+
+**Base URL:** `lib/web/serverAddress.ts` is the only resolution, and it now owns the precedence the
+entry point advertises — `?server=` param, then the address a previous boot stored, then the
+configured/same-origin API base. Before this, `entry.web.tsx` resolved the param but the transport
+resolved its own env/origin value, so the documented `?server=http://HOST:PORT` override moved the
+boot log and nothing else.
+
+**Still standing, and deliberately:** `src/json/url.ts` `api: '127.0.0.1:31009'` is not transport — it
+is only the default *port* for the Local JSON API setting (`store/auth.ts:22` parses it), and
+`dispatcher.metadata()` still builds the token/`local-api-secret` headers for the unary path, which
+the web transport ignores. The unreachable legacy block-editor handlers named in §3b are left alone
+for the same reason: they are dead in this build, not wired to anything.
 
 Two of §5's items are now **closed**:
 

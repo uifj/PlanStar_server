@@ -4,9 +4,7 @@ import { observable, set, runInAction } from 'mobx';
 import * as Sentry from '@sentry/browser';
 import type { Event } from 'Proto/pb/protos/events';
 import * as Response from './response';
-import type { ClientReadableStream } from 'grpc-web';
-import { ServiceClient } from './service';
-import { unaryInterceptors, streamInterceptors } from './grpc-devtools';
+import { ServiceClient, type SessionStream } from './service';
 import * as I from 'Interface';
 import * as M from 'Model';
 import { presence } from '../presence';
@@ -59,7 +57,7 @@ const MAP_ON_ERROR = [ 'ObjectListExport', 'ObjectExport', 'MembershipV2GetStatu
 class Dispatcher {
 
 	service: ServiceClient = null;
-	stream: ClientReadableStream<Event> = null;
+	stream: SessionStream = null;
 	secret = '';
 	timeoutStream = 0;
 	timeoutEvent: any = {};
@@ -70,9 +68,10 @@ class Dispatcher {
 	flushTimerId = 0;
 
 	/**
-	 * Initialize the gRPC client with the middleware server address.
-	 * Must be called before any other dispatcher operations.
-	 * @param address - The gRPC server address (e.g., 'http://localhost:31007')
+	 * Start the transport. Must be called before any other dispatcher operation.
+	 * @param address - The API base the entry point resolved (?server= param, stored value, or the
+	 * same-origin default). Commands and the event stream resolve it themselves through
+	 * serverAddress, so this is the guard that a server was named at all.
 	 * @param secret - The local API secret the main process handed the helper on
 	 * its stdin. Empty in web mode and against an externally started helper,
 	 * neither of which has a parent pipe to prove ownership with.
@@ -88,10 +87,7 @@ class Dispatcher {
 			return;
 		};
 
-		this.service = new ServiceClient(address, null, {
-			unaryInterceptors,
-			streamInterceptors,
-		});
+		this.service = new ServiceClient();
 	};
 
 	/**
@@ -125,7 +121,7 @@ class Dispatcher {
 
 		this.stopStream();
 
-		this.stream = this.service.listenSessionEvents({ token: S.Auth.token }, this.metadata());
+		this.stream = this.service.listenSessionEvents();
 		chatStatus.reconnect();
 
 		this.stream.on('data', (event) => {

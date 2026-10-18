@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('./service', () => ({ ServiceClient: class {} }));
-vi.mock('./grpc-devtools', () => ({ unaryInterceptors: [], streamInterceptors: [] }));
 vi.mock('../presence', () => ({ presence: { onMessage: vi.fn() } }));
 vi.mock('Model', () => ({}));
 
@@ -59,14 +58,23 @@ describe('local api secret', () => {
 		expect(captured[0]).toEqual({ token: 'session-token', 'local-api-secret': secret });
 	});
 
-	it('carries the parent secret when opening the event stream', () => {
+	// The event stream is the one call that carries no credential: the browser sends the session
+	// cookie itself, so a token or parent secret has nowhere to go and must not be passed along.
+	it('opens the event stream without a token or secret', () => {
 		dispatcher.init(address, secret);
 
-		const captured = captureMetadata();
+		const args: number[] = [];
+		dispatcher.service = {
+			request: () => {},
+			listenSessionEvents: (...rest: any[]) => {
+				args.push(rest.length);
+				return { on: () => {}, cancel: () => {} };
+			},
+		} as any;
 
 		dispatcher.startStream();
 
-		expect(captured[0]).toEqual({ token: 'session-token', 'local-api-secret': secret });
+		expect(args).toEqual([0]);
 	});
 
 	it('omits the header when the client was handed no secret', () => {
