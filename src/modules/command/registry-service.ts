@@ -1,5 +1,6 @@
 import type { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../../lib/prisma.js";
+import { translateSetFilters } from "./set-query.js";
 
 // Anytype's numeric layout for an object type (front_web interface/object.ts:6).
 // The Prisma enum cannot hold numeric Anytype layouts yet, so the registry record
@@ -1066,15 +1067,32 @@ export async function recentRecords(spaceId: string, userId?: string) {
 // name or projected body snippet matches the query, newest-first. The snippet is the
 // ADR-0018 rebuildable projection of the Yjs body, so body text is searchable without
 // decoding the document at query time.
+// The command-palette read AND the picker read: a typed query matches name or projected snippet,
+// and the wire filters ride on top of it. An empty fullText is not "match nothing" — the pickers
+// ("add link to", relation value, template target) list objects by filter alone. Filters are
+// translated by the same compiler the subscriptions use, so a filter this cannot translate
+// narrows nothing rather than wrongly emptying the list.
 export async function searchRecords(
 	spaceId: string,
 	fullText: string,
 	limit: number,
 	offset: number,
+	wireFilters: unknown = [],
 ) {
 	const query = fullText.trim();
-	if (!query) {
-		return [];
+	const filters = translateSetFilters(wireFilters);
+	const and: Prisma.ObjWhereInput[] = [];
+
+	if (Object.keys(filters).length > 0) {
+		and.push(filters);
+	}
+	if (query) {
+		and.push({
+			OR: [
+				{ name: { contains: query, mode: "insensitive" } },
+				{ snippet: { contains: query, mode: "insensitive" } },
+			],
+		});
 	}
 
 	const rows = await prisma.obj.findMany({
@@ -1083,10 +1101,7 @@ export async function searchRecords(
 			isDeleted: false,
 			isArchived: false,
 			isHidden: false,
-			OR: [
-				{ name: { contains: query, mode: "insensitive" } },
-				{ snippet: { contains: query, mode: "insensitive" } },
-			],
+			...(and.length > 0 ? { AND: and } : {}),
 		},
 		orderBy: { updatedAt: "desc" },
 		take: limit,
@@ -1124,18 +1139,21 @@ export async function searchRecordsWithMeta(
 	fullText: string,
 	limit: number,
 	offset: number,
+	wireFilters: unknown = [],
 ) {
 	const query = fullText.trim();
 	if (!query) {
 		return [];
 	}
 
+	const filters = translateSetFilters(wireFilters);
 	const rows = await prisma.obj.findMany({
 		where: {
 			spaceId,
 			isDeleted: false,
 			isArchived: false,
 			isHidden: false,
+			...(Object.keys(filters).length > 0 ? { AND: [filters] } : {}),
 			OR: [
 				{ name: { contains: query, mode: "insensitive" } },
 				{ snippet: { contains: query, mode: "insensitive" } },

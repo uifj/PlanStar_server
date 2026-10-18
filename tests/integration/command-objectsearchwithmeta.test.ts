@@ -113,6 +113,33 @@ describe.skipIf(!databaseAvailable)(
 			).toBe(false);
 		});
 
+		// The global search bar attaches a creator/type token as filters alongside the query; the
+		// highlights are computed from the text, but the filter still has to narrow the result set.
+		it("honours its filters alongside the text", async () => {
+			const spaceId = await createSpace();
+			await createObject(spaceId, "Zebra crossing");
+			await createObject(spaceId, "Zebra stripes");
+
+			signInAs(ownerId);
+			const body = await (
+				await post("/api/command/ObjectSearchWithMeta", {
+					spaceId,
+					filters: [
+						{ RelationKey: "name", condition: 1, value: "Zebra crossing" },
+					],
+					sorts: [],
+					keys: [],
+					fullText: "Zebra",
+					offset: 0,
+					limit: 10,
+				})
+			).json();
+
+			expect(body.results.map((r: any) => r.details.name).sort()).toEqual([
+				"Zebra crossing",
+			]);
+		});
+
 		it("highlights the matched range in the name", async () => {
 			const spaceId = await createSpace();
 			const objectId = await createObject(spaceId, "Zebra crossing");

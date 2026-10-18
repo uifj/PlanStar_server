@@ -93,6 +93,71 @@ describe.skipIf(!databaseAvailable)("POST /api/command/ObjectSearch", () => {
 		return body;
 	};
 
+	const searchWith = async (
+		spaceId: string,
+		filters: unknown[],
+		fullText = "",
+	) => {
+		signInAs(ownerId);
+		return (
+			await post("/api/command/ObjectSearch", {
+				spaceId,
+				filters,
+				sorts: [],
+				keys: [],
+				fullText,
+				offset: 0,
+				limit: 20,
+			})
+		).json();
+	};
+
+	// The pickers ("add link to", relation value, template target) list objects by FILTER with no
+	// query typed, which is the same command — an empty fullText is not "search for nothing".
+	it("lists the space's objects when no text is typed", async () => {
+		const spaceId = await createSpace();
+		await createObject(spaceId, "Alpha index");
+		await createObject(spaceId, "Beta index");
+
+		const body = await searchWith(spaceId, []);
+		expect(body.error).toEqual({ code: 0, description: "" });
+
+		const names = body.records.map((it: any) => it.name);
+		expect(names).toContain("Alpha index");
+		expect(names).toContain("Beta index");
+	});
+
+	it("narrows a text-less search by its filters", async () => {
+		const spaceId = await createSpace();
+		await createObject(spaceId, "Alpha index");
+		await createObject(spaceId, "Beta index");
+
+		const body = await searchWith(spaceId, [
+			{ RelationKey: "name", condition: 1, value: "Alpha index" },
+		]);
+		expect(body.records.map((it: any) => it.name)).toEqual(["Alpha index"]);
+	});
+
+	it("applies the filter and the text together", async () => {
+		const spaceId = await createSpace();
+		await createObject(spaceId, "Alpha index");
+		await createObject(spaceId, "Beta index");
+
+		const matched = await searchWith(
+			spaceId,
+			[{ RelationKey: "name", condition: 1, value: "Alpha index" }],
+			"Alpha",
+		);
+		expect(matched.records.map((it: any) => it.name)).toEqual(["Alpha index"]);
+
+		const crossed = await searchWith(
+			spaceId,
+			[{ RelationKey: "name", condition: 1, value: "Alpha index" }],
+			"Beta",
+		);
+		expect(crossed.records).toEqual([]);
+	});
+
 	it("finds an object by name", async () => {
 		const spaceId = await createSpace();
 		await createObject(spaceId, "Zebra crossing");

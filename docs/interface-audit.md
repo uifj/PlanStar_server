@@ -176,6 +176,14 @@ transport never implemented, see §5).
     since a closed tab sends no teardown), each session receives its own addresses, and delete/edit/
     reaction/pin fan out to peers the way ChatAdd already did.
 
+17. **`ObjectSearch` answered nothing for a search with no text** — **fixed**. `searchRecords`
+    returned `[]` whenever `fullText` was empty and never looked at `filters`, so every filter-only
+    search — the link-to picker, the relation-value picker, a template target list — came back empty.
+    Live, `ObjectSearch(space, [{name: 'type', Equal, <typeId>}])` returned 0 records against a space
+    holding 22 visible objects. It now runs the same registry-validated filter compiler the
+    subscriptions use, and an empty query means "no text constraint" rather than "no results";
+    `ObjectSearchWithMeta` narrows by its filters the same way.
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,

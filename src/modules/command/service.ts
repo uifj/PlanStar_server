@@ -2750,7 +2750,7 @@ export async function run(
 						limit,
 						offset,
 					)
-				: await searchRecords(spaceId, fullText, limit, offset);
+				: await searchRecords(spaceId, fullText, limit, offset, body.filters);
 			return { error: OK, event: null, records };
 		}
 
@@ -2782,6 +2782,7 @@ export async function run(
 				fullText,
 				limit,
 				offset,
+				body.filters,
 			);
 			return { error: OK, event: null, results };
 		}
