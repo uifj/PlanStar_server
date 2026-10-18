@@ -102,14 +102,16 @@ transport never implemented, see §5).
    from `src/json/url.ts` (`any.coop/%s`), while the server serves `GET /publish/:uri`. The settings
    screen's link therefore never reaches this harness.
 6. **`?width=` is ignored** on `/image/:id` (P5-g, known).
-7. **A reload loses the object it was asked for** — found while verifying §3a live. Reloading
-   `/main/set/<id>/spaceId/<spaceId>` ends on `/main/edit/<widgets object>` (tab title "Widgets"): while
-   the space is still opening the app renders the void, whose auto-open calls
-   `U.Router.switchSpace(spaceId, '', false, { replace: true }, useFallback)`
-   (`front_web/src/ts/component/page/main/void.tsx:33`) with an **empty object id**, so the route that
-   was in the URL is replaced by the space's fallback object. Same for a shared deep link: the target
-   object never opens. The server side is not at fault — `ObjectOpen` for the requested set answers the
-   full dataview block both times.
+7. **A reload loses the object it was asked for** — **fixed**. Reloading
+   `/main/set/<id>/spaceId/<spaceId>` ended on `/main/edit/<widgets object>` (tab title "Widgets"): the
+   web boot (`front_web/src/ts/app.tsx`, `bootWebAccount`) called
+   `U.Router.switchSpace(account.info.accountSpaceId, '', false, routeParam, true)` with an **empty
+   route**, so `U.Data.onSpaceSwitch` took the non-restorable path and opened the dashboard — while
+   `routeSync` treats memory history as the source of truth and never read the address bar back. The
+   boot now prefers a `/main/...` URL (`app.tsx:353`) and hands both its space and its route to
+   `switchSpace`, the way the desktop path already did at `app.tsx:541`. Verified live: the set URL
+   reloads to `/main/set/<id>` with its grid (8 rows, Name column), and a bare-root boot still lands
+   on Widgets. The server was never at fault — `ObjectOpen` answered the full dataview block both times.
 
 ## 5. Dead code and obsolete surface to prune
 

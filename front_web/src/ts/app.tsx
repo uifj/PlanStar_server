@@ -350,8 +350,13 @@ const App: FC = () => {
 		const redirect = Storage.get('redirect');
 		const tabId = electron.tabId();
 
-		// Validate tab route — don't restore blank/void/auth routes
-		let route = String(data.route || redirect || '');
+		// Validate tab route — don't restore blank/void/auth routes.
+		//
+		// Memory history is created empty on a cold boot, so on web the address bar is the only
+		// record of what the user reloaded or shared: prefer it when it names an app route, and fall
+		// back to the stored redirect for the windows that never had one.
+		const sharedRoute = /^\/main\//.test(window.location.pathname) ? window.location.pathname : '';
+		let route = String(sharedRoute || data.route || redirect || '');
 
 		if (route) {
 			const rp = U.Router.getParam(route);
@@ -573,9 +578,19 @@ const App: FC = () => {
 				// so presence, chat status and every list delta stay silent.
 				dispatcher.startStream();
 
-				// An empty route keeps onSpaceSwitch off the "restorable" path so a fresh
-				// space lands on the dashboard instead of a stale object.
-				U.Router.switchSpace(account.info.accountSpaceId, '', false, routeParam, true);
+				// A reload or a shared link names both the space and the object in the URL, and the
+				// desktop boot already honours them (onObtainToken). Dropping the route here is what
+				// sent every web reload to the widgets page. An empty route still keeps onSpaceSwitch
+				// off the "restorable" path, so a bare boot lands on the dashboard.
+				const webParam = route ? U.Router.getParam(route) : {};
+
+				U.Router.switchSpace(
+					webParam.spaceId || account.info.accountSpaceId,
+					route,
+					false,
+					routeParam,
+					true,
+				);
 			});
 		};
 
