@@ -27,11 +27,11 @@
 - dataview 的「视图集（views）渲染」，受 P3 的 Yjs dataview 节点阻塞。
 - 订阅分页（ADR-0009）——有意不实现，见 `docs/adr/0009-object-cache-beside-query.md`。
 
-### P7 实现历史发布与自托管服务（#90，in_progress）— 发布面已完成
+### P7 实现历史发布与自托管服务（#90，已完成）
 
-发布面已完成：`PublishingCreate` / `GetStatus` / `Remove` / `List`，以及公开路由 `GET /publish/:uri`。剩余：
-
-- History 版本恢复（历史版本回滚），受 P3（正文块词表）阻塞。
+发布面：`PublishingCreate` / `GetStatus` / `Remove` / `List`，以及公开路由 `GET /publish/:uri`。
+历史面：`HistoryGetVersions` / `HistoryShowVersion` / `HistoryDiffVersions` / `HistorySetVersion`（回滚走 `storeDocument` 正规写路径，snippet、正文链接与一条新快照保持一致）。
+此前记录的「历史差异受正文块词表阻塞」是误判：该屏左侧渲染的**不是** Yjs 编辑器，而是 `HistoryShowVersion` 返回的 objectView 块树（`component/block/index.tsx:1282` 会渲染 `#block-<id>`），所以差异事件只要用同一套投影块 id 就能落地（#273）。
 
 ### P8 全量验收并退役旧传输（#91，pending）
 
@@ -76,6 +76,8 @@
 
 | 设置 → AI 提供商 | C.AIListModels 指向一个不存在的本地 provider → 看回调错误码 | 通过：命令此前返回 code 12，模型下拉永远空；现在按 OpenAI 兼容协议请求 `<endpoint>/models` 并带 bearer token，失败映射成客户端自己的 `AiListModelsErrorCode`。实盘返回 101 NotReachable（带 description）。出站地址受 link-preview 同一套分类器管制，只额外放行 loopback（Ollama/LM Studio 在本机），且不跟随重定向。测试用本地假 provider（127.0.0.1 随机端口）跑通 200/401/拒连/私网/坏 URL/非模型列表 7 条 |
 | 旧传输依赖 | front_web `pnpm typecheck` + `pnpm test` + 应用启动 | 已删：`grpc-web`、`google-protobuf` 两项（确认全仓无 import、codegen 只用 ts-proto），install 减少 2 个包；客户端 1397 项测试与 typecheck 全过，Vite 页面照常启动并恢复空间 |
+
+| 历史差异标记（#273） | 同一对象写三份快照 → `/main/history/<id>` → 读渲染出的 DOM 类名 | 修复：`HistoryDiffVersions` 事件按 `prisma.block` 行 id 出题，而预览块树是 `HistoryShowVersion` 现场投影的（Yjs 对象往往零 Block 行），客户端 `renderDiff` 找不到任何 `#block-<id>` → 差异面板什么都没标。现在两侧共用同一套「行序号」投影 id（`bodyLineId`），改行→blockSetText、增行→blockAdd、删行→root 的 blockSetChildrenIds，并跳过只因位置移动而行内容没变的配对。实盘：新增行 `.wrapContent.diffAdd`、改写行渲染出 `<markupchange> south</markupchange>`、删行 `.diffRemove` 都落在预览树上。残余近似：快照只是扁平文本行，中间删除的红色标记落在序号不再对齐处，不是被删行的精确位置 |
 
 验收清单已全部走完实盘（含 collection 网格行）。仍然**延期**而非「待验收」的是：#100（ADR-0018 正文持久化水位与客户端 ack）、#152（FileDrop 落正文）、#153（导入导出需先有客户端下载路径）、#154（`?width=` 缩略图）。
 

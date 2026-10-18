@@ -35,6 +35,24 @@ export function bodyTextFromState(state: Uint8Array): string {
 	return lines.join("\n").trim();
 }
 
+// The version preview and the version diff have to agree on which line is which block. The
+// client resolves every HistoryDiffVersions event through `#block-<id>` in the tree it was
+// handed by HistoryShowVersion, and reads a changed line's old text from the same id in the
+// previous version's context (dispatcher.onObjectView roots that context at
+// `<objectId>-<versionId>`). So a preview block id is the line's ordinal: an id that also
+// carries the version can never match across the pair being diffed.
+export function bodyLineId(objectId: string, ordinal: number): string {
+	return `${objectId}-body-${ordinal}`;
+}
+
+// A stored snapshot projected into the paragraphs the version preview renders. Blank lines own
+// no block, so the preview and the diff count ordinals over this same list.
+export function versionBodyLines(state: Uint8Array): string[] {
+	return bodyTextFromState(state)
+		.split("\n")
+		.filter((line) => line !== "");
+}
+
 // y-tiptap serializes a ProseMirror node as `new Y.XmlElement(node.type.name)` with its
 // non-null attrs written straight onto the element (setAttribute(key, value)). An inline
 // objectLink therefore appears as an "objectLink" element carrying a targetObjectId

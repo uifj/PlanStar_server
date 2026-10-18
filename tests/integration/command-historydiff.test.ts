@@ -11,11 +11,13 @@ vi.mock("../../src/lib/auth.js", () => ({
 
 const databaseAvailable = await isDatabaseAvailable();
 
-// HistoryDiffVersions answers with the client's own event list (response.ts:570 reads
-// response.historyEvents and maps every entry through Mapper.Event). A changed line that
-// still matches a live Block row is pushed as blockSetText with that row's real id; a change
-// with no row to attach to becomes one objectDetailsAmend on the snippet, because a made-up
-// block id resolves to nothing in the client.
+// HistoryDiffVersions must key its events by the block ids the client is actually shown.
+// history/right.tsx:256 hands the response to history.tsx:53 renderDiff, which resolves every
+// event through `#block-<id>` inside the previewed version's block tree — the tree the client
+// got from HistoryShowVersion — and for a changed line reads the old text from the SAME id in
+// the previous version's context (dispatcher.onObjectView roots that context at
+// `<objectId>-<previousVersionId>`). So both previews have to hand out matching line ids, or
+// every marker is dropped on the floor and the diff pane shows nothing.
 describe.skipIf(!databaseAvailable)("HistoryDiffVersions event model", () => {
 	const owner = "histdiff.owner";
 
@@ -96,46 +98,192 @@ describe.skipIf(!databaseAvailable)("HistoryDiffVersions event model", () => {
 		return { previousId: previous.id, currentId: current.id, body };
 	};
 
-	it("amends the snippet when no block row can carry the change", async () => {
-		const { body } = await addVersions(
+	// What the client can resolve: the ids in the previewed version's block tree, and the text
+	// each of those blocks carries.
+	const showVersion = async (versionId: string) => {
+		signInAs(owner);
+		const body = await (
+			await post("/api/command/HistoryShowVersion", { objectId, versionId })
+		).json();
+		const blocks = body.objectView.blocks as any[];
+		const root = blocks.find((it) => it.id === objectId);
+		return {
+			lineIds: root.childrenIds as string[],
+			texts: new Map(
+				blocks
+					.filter((it) => it.id !== objectId)
+					.map((it) => [it.id, String(it.text?.text ?? "")]),
+			),
+		};
+	};
+
+	it("hands both previews the same line id for the same line position", async () => {
+		const { previousId, currentId } = await addVersions(
 			["Alpha", "Beta"],
 			["Alpha", "Beta rewritten"],
 		);
 
-		expect(body.error).toEqual({ code: 0, description: "" });
-		expect(body.historyEvents.length).toBe(1);
+		const before = await showVersion(previousId);
+		const after = await showVersion(currentId);
 
-		const amend = body.historyEvents[0].objectDetailsAmend;
-		expect(amend.id).toBe(objectId);
-		expect(amend.details[0].key).toBe("snippet");
-		expect(amend.details[0].value.stringValue).toBe("Alpha\nBeta rewritten");
+		expect(before.lineIds).toEqual(after.lineIds);
+		expect(before.texts.get(before.lineIds[1])).toBe("Beta");
+		expect(after.texts.get(after.lineIds[1])).toBe("Beta rewritten");
 	});
 
-	it("pushes blockSetText with the real row id when the line still aligns", async () => {
-		const row = await prisma.block.create({
-			data: {
-				objectId,
-				type: "text",
-				style: "paragraph",
-				text: "Gamma",
-				index: "0",
-			},
-			select: { id: true },
-		});
-
-		const { body } = await addVersions(
-			["Gamma", "Delta"],
-			["Gamma renamed", "Delta"],
+	it("keys a changed line by an id the previewed version actually renders", async () => {
+		const { previousId, currentId } = await addVersions(
+			["Alpha", "Beta"],
+			["Alpha", "Beta rewritten"],
 		);
+
+		const after = await showVersion(currentId);
+
+		signInAs(owner);
+		const body = await (
+			await post("/api/command/HistoryDiffVersions", {
+				objectId,
+				spaceId,
+				currentVersion: currentId,
+				previousVersion: previousId,
+			})
+		).json();
 
 		expect(body.error).toEqual({ code: 0, description: "" });
 		expect(body.historyEvents.length).toBe(1);
 		expect(body.historyEvents[0].blockSetText).toEqual({
-			id: row.id,
-			text: { value: "Gamma renamed" },
+			id: after.lineIds[1],
+			text: { value: "Beta rewritten" },
 		});
+	});
+	it("pushes blockAdd for a line only the newer version has", async () => {
+		const { previousId, currentId } = await addVersions(
+			["Alpha"],
+			["Alpha", "Beta added"],
+		);
 
-		await prisma.block.deleteMany({ where: { id: row.id } });
+		const before = await showVersion(previousId);
+		const after = await showVersion(currentId);
+
+		signInAs(owner);
+		const body = await (
+			await post("/api/command/HistoryDiffVersions", {
+				objectId,
+				spaceId,
+				currentVersion: currentId,
+				previousVersion: previousId,
+			})
+		).json();
+
+		expect(body.historyEvents.length).toBe(1);
+
+		const added = body.historyEvents[0].blockAdd.blocks;
+		expect(added.map((it: any) => it.text.text)).toEqual(["Beta added"]);
+		expect(added.map((it: any) => it.id)).toEqual([after.lineIds[1]]);
+		expect(before.lineIds).not.toContain(after.lineIds[1]);
+	});
+
+	it("narrows the root's children when the newer version dropped a line", async () => {
+		const { previousId, currentId } = await addVersions(
+			["Alpha", "Beta", "Gamma"],
+			["Alpha", "Gamma"],
+		);
+
+		const after = await showVersion(currentId);
+
+		signInAs(owner);
+		const body = await (
+			await post("/api/command/HistoryDiffVersions", {
+				objectId,
+				spaceId,
+				currentVersion: currentId,
+				previousVersion: previousId,
+			})
+		).json();
+
+		expect(body.historyEvents.length).toBe(1);
+		expect(body.historyEvents[0].blockSetChildrenIds).toEqual({
+			id: objectId,
+			childrenIds: after.lineIds,
+		});
+	});
+
+	it("counts blank lines the same way the preview does", async () => {
+		const { previousId, currentId } = await addVersions(
+			["Alpha", "", "Beta"],
+			["Alpha", "", "Beta moved up"],
+		);
+
+		const after = await showVersion(currentId);
+
+		expect(after.lineIds.length).toBe(2);
+
+		signInAs(owner);
+		const body = await (
+			await post("/api/command/HistoryDiffVersions", {
+				objectId,
+				spaceId,
+				currentVersion: currentId,
+				previousVersion: previousId,
+			})
+		).json();
+
+		expect(body.historyEvents[0].blockSetText.id).toBe(after.lineIds[1]);
+	});
+
+	it("leaves a line that only shifted position out of the diff", async () => {
+		const { previousId, currentId } = await addVersions(
+			["Alpha", "Beta rewritten", "Gamma"],
+			["Alpha", "Beta rewritten two ways", "Gamma", "Delta added"],
+		);
+
+		const after = await showVersion(currentId);
+
+		signInAs(owner);
+		const body = await (
+			await post("/api/command/HistoryDiffVersions", {
+				objectId,
+				spaceId,
+				currentVersion: currentId,
+				previousVersion: previousId,
+			})
+		).json();
+
+		const changed = body.historyEvents
+			.filter((it: any) => it.blockSetText)
+			.map((it: any) => it.blockSetText);
+
+		expect(changed).toEqual([
+			{
+				id: after.lineIds[1],
+				text: { value: "Beta rewritten two ways" },
+			},
+		]);
+
+		const added = body.historyEvents.find((it: any) => it.blockAdd);
+		expect(added.blockAdd.blocks.map((it: any) => [it.id, it.text.text])).toEqual(
+			[[after.lineIds[3], "Delta added"]],
+		);
+	});
+
+	it("answers no events for two versions that read the same", async () => {
+		const { previousId, currentId } = await addVersions(
+			["Alpha", "Beta"],
+			["Alpha", "Beta"],
+		);
+
+		signInAs(owner);
+		const body = await (
+			await post("/api/command/HistoryDiffVersions", {
+				objectId,
+				spaceId,
+				currentVersion: currentId,
+				previousVersion: previousId,
+			})
+		).json();
+
+		expect(body.error).toEqual({ code: 0, description: "" });
+		expect(body.historyEvents).toEqual([]);
 	});
 
 	it("refuses a caller outside the object's space", async () => {

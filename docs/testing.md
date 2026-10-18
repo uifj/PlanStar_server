@@ -223,7 +223,7 @@ Flow executed in the browser, each step observed rather than assumed:
 | login / session restore | `[App] Init http://localhost:8000/api`, `AccountSelect` → code 0 |
 | open a space | `WorkspaceOpen` + the space's registry/list subscriptions → code 0 |
 | object page | body edit persisted through Hocuspocus, survived a reload, produced a new `DocumentVersion` |
-| history diff | panel fires `HistoryGetVersions → HistoryShowVersion → HistoryDiffVersions → HistoryShowVersion`, all code 0; selecting an older row swaps the preview text |
+| history diff | panel fires `HistoryGetVersions → HistoryShowVersion → HistoryDiffVersions → HistoryShowVersion`, all code 0; selecting an older row swaps the preview text; the diff markers land on that preview tree (`.diffAdd` / `.diffRemove` on `#block-<object>-body-<n> > .wrapContent`, inline `<markupchange>` for a rewritten line) |
 | live update | `GET /api/events [200] text/event-stream`; on the client's own subId `recentEditAll-<spaceId>` a create delivers one frame: `objectDetailsSet + subscriptionAdd + subscriptionRemove` |
 
 Interface sweep (each command called with the payload the client's `command.ts` actually sends):

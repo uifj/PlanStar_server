@@ -3,7 +3,7 @@ import { APP_VERSION, PAGINATION } from "../../config/constants.js";
 import type { AuthUser } from "../../lib/auth.js";
 import {
 	bodySnippetFromState,
-	bodyTextFromState,
+	versionBodyLines,
 } from "../collab/projection.js";
 import { storeDocument } from "../collab/server.js";
 import {
@@ -2935,11 +2935,11 @@ export async function run(
 				return { error: NOT_FOUND, event: null };
 			}
 
-			const historyEvents = await historyDiffEvents(
+			const historyEvents = historyDiffEvents(
 				spaceId,
 				objectId,
-				bodyTextFromState(from.state),
-				bodyTextFromState(to.state),
+				versionBodyLines(from.state),
+				versionBodyLines(to.state),
 			);
 
 			return { error: OK, event: null, historyEvents };
@@ -2986,14 +2986,12 @@ export async function run(
 			}
 
 			// The pane renders blocks, not the snippet, so the version's paragraphs have to
-			// be projected into the view it is handed.
+			// be projected into the view it is handed — with the same line ids the diff
+			// events are keyed by, or none of those events resolve.
 			const previewView = versionBodyView(
 				view,
 				objectId,
-				version.id,
-				bodyTextFromState(version.state)
-					.split("\n")
-					.filter((line) => line !== ""),
+				versionBodyLines(version.state),
 			);
 
 			return {

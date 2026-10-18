@@ -274,6 +274,26 @@ the state it would need to replay does not.
     host the caller typed, not whatever it points at next. Verified live: an unreachable local provider
     comes back through the client transport as code 101 with a description.
 
+26. **The history diff marked nothing** — **fixed**. `HistoryDiffVersions` answered events keyed by
+    `prisma.block` row ids, but the pane's block tree is not those rows: `HistoryShowVersion` projects
+    the version's own paragraphs into the objectView (`versionBodyView`), so `renderDiff`
+    (`component/page/main/history.tsx:53`) resolved `#block-<id>` against a tree that never contained
+    them and dropped every marker; the fallback `objectDetailsAmend` on the snippet highlights nothing
+    either, since its mapper looks for `details.name`/`description`/`iconEmoji`. The earlier note that
+    this was architecturally blocked was wrong — the left pane renders the **legacy `<Block>` tree**
+    (`history/left.tsx:102`), which does emit `#block-<id>` (`component/block/index.tsx:1282`); the Yjs
+    body never appears on this screen. Both sides now come from one projection
+    (`collab/projection.ts`: `versionBodyLines` + `bodyLineId`), whose ids are the line **ordinal**, so
+    a line matches itself across the version pair the client diffs — a per-version id never could.
+    Rewritten lines go out as `blockSetText`, lines only the newer version has as `blockAdd`, and a
+    dropped line as the root's `blockSetChildrenIds`, which is the only event
+    `history.tsx:120` can read a removal from. Pairs that turn out to be identical (a line shifted by
+    an insertion further down) are skipped, or the pane paints a change marker on untouched text.
+    Residual approximation, stated plainly: while a version is a flat list of lines, a mid-document
+    deletion marks where the ordinals stop matching, not the deleted line itself. Verified live:
+    `.diffAdd` on the added block's `.wrapContent`, `<markupchange> south</markupchange>` inside the
+    rewritten one, and a `.diffRemove` for the dropped lines.
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,

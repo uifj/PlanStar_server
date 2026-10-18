@@ -1,5 +1,6 @@
 import type { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../../lib/prisma.js";
+import { bodyLineId } from "../collab/projection.js";
 import { translateSetFilters } from "./set-query.js";
 
 // Anytype's numeric layout for an object type (front_web interface/object.ts:6).
@@ -1803,20 +1804,22 @@ export async function navigationObjectInfo(objectId: string) {
 	};
 }
 
-// HistoryDiffVersions: the changed lines between two stored versions, expressed in the
-// client's own event vocabulary. A changed line that still matches a live Block row (by its
-// stored text) is pushed as blockSetText keyed by that real row id; whatever has no row to
-// attach to collapses into one objectDetailsAmend on the object's snippet, so the response
-// never invents ids the client cannot resolve.
-export async function historyDiffEvents(
+// HistoryDiffVersions: the difference between two versions' body lines, expressed in the
+// client's own event vocabulary and keyed by the preview block ids the client is shown
+// (bodyLineId). Each event type is chosen for how history.tsx:104 getElements resolves it:
+// a line that exists in both versions at the same ordinal is a blockSetText (that case needs
+// the id in both contexts to build its char diff), a line only the newer version has is a
+// blockAdd (only the visible tree is consulted), and a line the newer version dropped can only
+// be reported through the root's blockSetChildrenIds — that is the case which makes
+// history.tsx:120 compute a removal. Ordinal keys mean a mid-document deletion marks the block
+// where the ordinals stop matching rather than the exact deleted line; nothing subtler is
+// possible while a version is a flat list of lines.
+export function historyDiffEvents(
 	spaceId: string,
 	objectId: string,
-	fromText: string,
-	toText: string,
+	before: string[],
+	after: string[],
 ) {
-	const before = fromText.split("\n");
-	const after = toText.split("\n");
-
 	let head = 0;
 	while (
 		head < before.length &&
@@ -1843,44 +1846,43 @@ export async function historyDiffEvents(
 		return [];
 	}
 
-	const rows = await prisma.block.findMany({
-		where: { objectId },
-		orderBy: { index: "asc" },
-		select: { id: true, text: true },
-	});
-
 	const events: Array<Record<string, unknown>> = [];
-	const claimed = new Set<string>();
-	const unaligned: string[] = [];
 	const pairs = Math.min(oldChanged.length, newChanged.length);
 
 	for (let i = 0; i < pairs; i += 1) {
-		const row = rows.find(
-			(r) => !claimed.has(r.id) && r.text === oldChanged[i],
-		);
-		if (!row) {
-			unaligned.push(newChanged[i]);
+		// An untrimmed tail can leave a still-identical line inside the changed window (a
+		// line added further down shifts it out of place without changing it). The client
+		// would read that as a rewrite and paint a change marker on it, so it is skipped.
+		if (oldChanged[i] === newChanged[i]) {
 			continue;
 		}
 
-		claimed.add(row.id);
 		events.push({
 			spaceId,
-			blockSetText: { id: row.id, text: { value: newChanged[i] } },
+			blockSetText: {
+				id: bodyLineId(objectId, head + i + 1),
+				text: { value: newChanged[i] },
+			},
 		});
 	}
 
-	for (let i = pairs; i < newChanged.length; i += 1) {
-		unaligned.push(newChanged[i]);
+	if (newChanged.length > pairs) {
+		const blocks = newChanged.slice(pairs).map((text, i) => ({
+			id: bodyLineId(objectId, head + pairs + i + 1),
+			childrenIds: [],
+			fields: {},
+			align: 0,
+			text: { text, style: 0, marks: [] },
+		}));
+		events.push({ spaceId, blockAdd: { blocks } });
 	}
 
-	if (unaligned.length > 0 || oldChanged.length > pairs) {
+	if (oldChanged.length > pairs) {
 		events.push({
 			spaceId,
-			objectDetailsAmend: {
+			blockSetChildrenIds: {
 				id: objectId,
-				subIds: [],
-				details: [{ key: "snippet", value: { stringValue: toText } }],
+				childrenIds: after.map((_, index) => bodyLineId(objectId, index + 1)),
 			},
 		});
 	}

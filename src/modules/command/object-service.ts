@@ -3,6 +3,7 @@ import { ensureSpaceAccess } from "../../auth/space-access.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import type { AuthUser } from "../../lib/auth.js";
 import { prisma } from "../../lib/prisma.js";
+import { bodyLineId } from "../collab/projection.js";
 import { objectTypeService } from "../object-types/service.js";
 import type { CreateRelationInput } from "../relations/schema.js";
 import { relationService } from "../relations/service.js";
@@ -1135,12 +1136,12 @@ export async function loadObjectView(user: AuthUser, objectId: string) {
 // HistoryShowVersion previews a stored version, and the client paints that preview from the
 // objectView's block tree. A Yjs body's Block rows are the object's *current* rows — often
 // none at all (ADR-0018) — so the version's own paragraphs are projected into the view here.
-// The block ids are scoped to the version because the history pane never writes blocks back;
+// The projected ids are the line ordinals (bodyLineId), shared by every version, because
+// HistoryDiffVersions keys its change events by them and the pane never writes blocks back;
 // restoring goes through HistorySetVersion.
 export function versionBodyView(
 	view: Awaited<ReturnType<typeof loadObjectView>>,
 	objectId: string,
-	versionId: string,
 	lines: string[],
 ) {
 	if (!view) {
@@ -1148,7 +1149,7 @@ export function versionBodyView(
 	}
 
 	const blocks = lines.map((text, index) => ({
-		id: `${objectId}-${versionId}-${index + 1}`,
+		id: bodyLineId(objectId, index + 1),
 		childrenIds: [],
 		fields: {},
 		align: 0,
