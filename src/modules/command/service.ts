@@ -219,7 +219,6 @@ const EMPTY_SUB_IDS = new Set<string>([
 	"typeStore",
 	"relationStore",
 	"store",
-	"archive",
 	"sidebar",
 	"lastMessage",
 	"fileManagerSynced",

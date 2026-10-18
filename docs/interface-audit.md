@@ -191,6 +191,12 @@ transport never implemented, see §5).
     showed nothing while the space held seven page objects. Opening a type now heals it into a set
     over its own objects: `setOf: [typeId]` on the record and the same default-view child a set gets.
 
+19. **The Bin could never show anything** — **fixed**. `page/main/archive.tsx` lists its objects
+    through `subId: "archive"` with its own `isArchived Equal true` filter (`archiveListTree.tsx:36`),
+    and "archive" sat in `EMPTY_SUB_IDS` — a set whose premise is "this subId is not a general object
+    list". It is one, so every Bin came back "Your Bin is empty" and Restore was unreachable. Live:
+    archiving an object now puts a named row with its date in the Bin, and restoring empties it again.
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,

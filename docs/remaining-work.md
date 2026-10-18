@@ -60,6 +60,7 @@
 | `id` 过滤器 | 实盘 + 集成测试 | 修复：`id In [...]` 此前被静默丢弃，一次订阅返回全空间 46 行；`id` 已登记为系统关系（#260） |
 | 图谱屏 | `/main/graph/...` → `ObjectGraph` 实盘 | 修复：edges 只读 Link 表，而命令写入路径把对象关系存在 details JSONB（ADR-0002）→ 29 节点 0 连线；现两表并读并去重 |
 | 类型页（rail 点类型） | 点侧栏 Page → `/main/set/<typeId>` → 截图 | 修复：类型页打开的是**类型对象本身**，而该屏只渲染 root 的 dataview 子块并按记录的 `setOf` 解析查询源；类型两者皆无 → 只剩标题（实盘：空间有 7 个 page 对象却一行不显）。现在打开类型时补 `setOf: [typeId]` 并像 set 一样引导默认视图，Grid 列出 7 行 |
+| 回收站（Bin） | 归档一个对象 → `/main/archive/<spaceId>` → 还原 | 修复：Bin 用 `subId: "archive"` + `isArchived` 过滤订阅，而 "archive" 被列进 EMPTY_SUB_IDS → 永远 "Your Bin is empty"、还原无从点起；现走通用过滤订阅，实盘归档/还原往返通过 |
 | 空间聊天页 | 打开 `/main/chat/<chatId>/spaceId/<s>` → 发消息 → 截图 | 修复：spaceview.chatId 恒为空且空间没有 chat 对象，页面只剩输入框、读取全返回 NOT_FOUND；现在每个空间引导一个 chat 系统对象（layout 22），消息可读可写并渲染。`creator`/表情回应 id 改为账号 id（客户端 `creator == account.id`），自己的消息已按 isSelf 右对齐、作者名可解析 |
 | 聊天已读状态 | 打开聊天页后观察 `ChatReadState.order` 是否停止增长 | 修复：无变化的读取也递增 order → 客户端每次都套用状态并重新触发读取，两分钟内打出约 2.8 万次 `ChatReadMessages`（order 到 57058）并卡死标签页；水位未动的读取现在原样返回 |
 | 表情回应实时渲染 | 悬停消息 → 点回应 → 气泡出现 `.reaction.isSelf` | 修复：所有 chat 事件的 `subIds: []`，而客户端按 subId 派发，事件谁也没送达；现在打开聊天即登记 subId（ChatUnsubscribe 释放），删除/编辑/回应/置顶也向同空间成员推送 |
