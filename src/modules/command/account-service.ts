@@ -5,6 +5,7 @@ import type { Prisma } from "../../generated/prisma/client.js";
 import type { AuthUser } from "../../lib/auth.js";
 import { prisma } from "../../lib/prisma.js";
 import { objectTypeService } from "../object-types/service.js";
+import { relationService } from "../relations/service.js";
 
 // The ObjectLayout migration is deferred, so the shell's system objects are real
 // hidden Obj rows whose Anytype layout rides in details rather than in the enum.
@@ -26,6 +27,15 @@ const DEFAULT_TYPES = [
 	{ uniqueKey: "ot-page", name: "Page" },
 	{ uniqueKey: "ot-task", name: "Task" },
 	{ uniqueKey: "ot-collection", name: "Collection" },
+] as const;
+
+// The relations a dataview column is resolved against, and the ones the default views reference.
+const DEFAULT_RELATIONS = [
+	{ uniqueKey: "name", name: "Name", format: "shortText" },
+	{ uniqueKey: "done", name: "Done", format: "checkbox" },
+	{ uniqueKey: "description", name: "Description", format: "longText" },
+	{ uniqueKey: "createdDate", name: "Created", format: "date" },
+	{ uniqueKey: "lastModifiedDate", name: "Last modified", format: "date" },
 ] as const;
 
 // Anytype's numeric layout/status enums the vendored shell reads off a record.
@@ -153,6 +163,7 @@ async function accountForSpace(
 	}
 
 	await installDefaultTypes(userId, space.id);
+	await installDefaultRelations(userId, space.id);
 
 	// The caller's personal pin/reorder position for this space rides on their membership row
 	// (SpaceMember.orderId), not on the space's shared spaceView object, so two members of the
@@ -216,11 +227,7 @@ export async function createSpace(
 // space re-opened after a partial install stays usable. A reader cannot extend the registry,
 // so their boot leaves the space exactly as its owner installed it instead of failing.
 async function installDefaultTypes(userId: string, spaceId: string) {
-	const member = await prisma.spaceMember.findFirst({
-		where: { spaceId, userId, status: "active" },
-		select: { permission: true },
-	});
-	if (!member || PERMISSION_RANK[member.permission] < PERMISSION_RANK.writer) {
+	if (!(await canExtendRegistry(userId, spaceId))) {
 		return;
 	}
 
@@ -243,6 +250,48 @@ async function installDefaultTypes(userId: string, spaceId: string) {
 			name: type.name,
 		});
 	}
+}
+
+// The relations a view's columns are resolved against: the shell looks each key up in the space's
+// `relation-<spaceId>` store to read a column's format and options (lib/dataview.ts:15-60), so a
+// space with no relation rows draws a grid whose cells are all empty. These are the ones the
+// default types' own views and the type sidebar reference.
+async function installDefaultRelations(userId: string, spaceId: string) {
+	if (!(await canExtendRegistry(userId, spaceId))) {
+		return;
+	}
+
+	const installed = await prisma.relation.findMany({
+		where: {
+			spaceId,
+			uniqueKey: { in: DEFAULT_RELATIONS.map((it) => it.uniqueKey) },
+		},
+		select: { uniqueKey: true },
+	});
+	const present = new Set(installed.map((it) => it.uniqueKey));
+
+	for (const relation of DEFAULT_RELATIONS) {
+		if (present.has(relation.uniqueKey)) {
+			continue;
+		}
+
+		await relationService.create({ id: userId }, spaceId, {
+			uniqueKey: relation.uniqueKey,
+			name: relation.name,
+			format: relation.format,
+		});
+	}
+}
+
+// Both installers run on the boot path, where the caller may only hold a reader grant.
+async function canExtendRegistry(userId: string, spaceId: string) {
+	const member = await prisma.spaceMember.findFirst({
+		where: { spaceId, userId, status: "active" },
+		select: { permission: true },
+	});
+	return (
+		!!member && PERMISSION_RANK[member.permission] >= PERMISSION_RANK.writer
+	);
 }
 
 // Every active space the caller belongs to, oldest first — the source for the global

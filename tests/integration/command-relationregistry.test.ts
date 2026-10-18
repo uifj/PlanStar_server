@@ -48,8 +48,8 @@ describe.skipIf(!databaseAvailable)(
 
 			await prisma.relation.createMany({
 				data: [
-					{ spaceId, uniqueKey: "name", name: "Name", format: "shortText" },
-					{ spaceId, uniqueKey: "done", name: "Done", format: "checkbox" },
+					{ spaceId, uniqueKey: "roofMaterial", name: "Roof", format: "shortText" },
+					{ spaceId, uniqueKey: "tripDone", name: "Packed", format: "checkbox" },
 				],
 			});
 
@@ -64,25 +64,26 @@ describe.skipIf(!databaseAvailable)(
 			).json();
 
 			expect(body.error).toEqual({ code: 0, description: "" });
-			expect(body.counters.total).toBe(2);
-			expect(body.records).toHaveLength(2);
+			// The two custom rows plus the five the space installs for its views.
+			expect(body.counters.total).toBe(7);
+			expect(body.records).toHaveLength(7);
 
 			const byKey = Object.fromEntries(
 				body.records.map((record: any) => [record.relationKey, record]),
 			);
-			const name = byKey["name"];
-			expect(name).toBeDefined();
-			expect(name.name).toBe("Name");
-			expect(name.spaceId).toBe(spaceId);
-			expect(typeof name.id).toBe("string");
+			const roof = byKey["roofMaterial"];
+			expect(roof).toBeDefined();
+			expect(roof.name).toBe("Roof");
+			expect(roof.spaceId).toBe(spaceId);
+			expect(typeof roof.id).toBe("string");
 			// ObjectLayout.Relation === 5 in the client enum.
-			expect(name.resolvedLayout).toBe(5);
+			expect(roof.resolvedLayout).toBe(5);
 			// RelationType.ShortText === 1, Checkbox === 6.
-			expect(name.relationFormat).toBe(1);
-			expect(byKey["done"].relationFormat).toBe(6);
-			expect(name.isReadonly).toBe(false);
-			expect(name.isArchived).toBe(false);
-			expect(name.isDeleted).toBe(false);
+			expect(roof.relationFormat).toBe(1);
+			expect(byKey["tripDone"].relationFormat).toBe(6);
+			expect(roof.isReadonly).toBe(false);
+			expect(roof.isArchived).toBe(false);
+			expect(roof.isDeleted).toBe(false);
 		});
 
 		// With no options seeded the registry answers access-checked but empty,

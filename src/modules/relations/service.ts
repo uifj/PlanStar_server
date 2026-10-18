@@ -44,7 +44,7 @@ async function findMany(
 }
 
 async function create(
-	user: AuthUser,
+	user: Pick<AuthUser, "id">,
 	spaceId: string,
 	input: CreateRelationInput,
 ) {

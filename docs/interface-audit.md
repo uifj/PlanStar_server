@@ -70,18 +70,24 @@ transport never implemented, see §5).
 
 ## 4. Outstanding defects found by this audit
 
-1. **A converted set renders nothing** (task #249). `ObjectToSet` (`command/service.ts:2216`) flips
-   the object into a set but the client keeps showing a plain page, so `PageMainSet` never mounts.
-   Reproduced live: `ObjectToSet` → code 0, then the object page shows only its title.
-2. **Dataview writes are unsupported** (§3a) — view create/switch, filter, sort, relation and
+1. **A converted set rendered nothing** (task #249) — **fixed**. Three causes, each with a test:
+   `objectDetails()` hardcoded the Page layout (`bc5e309`); a set owned no dataview block, which is
+   the only child the set screen draws (`d6d5de2`); and the space had no relation rows, so the grid's
+   columns could not resolve and its cells stayed empty. Verified live: the set now routes to
+   `/main/set/<id>` and its grid lists the Name column with all eight member objects.
+2. **A space boots with no relation registry** (task #255) — **fixed** with the same boot path that
+   installs the default types: `name`, `done`, `description`, `createdDate`, `lastModifiedDate`,
+   writer-gated like the types. Before this, `relation-<spaceId>` answered `total: 0` for a real
+   space while `type-<spaceId>` answered 4.
+3. **Dataview writes are unsupported** (§3a) — open. View create/switch, filter, sort, relation and
    column-order edits cannot persist.
-3. **The AI writing tools cannot stream** — `service.ts:383-394` keeps `client`/`streamClient`
+4. **The AI writing tools cannot stream** — `service.ts:383-394` keeps `client`/`streamClient`
    instances that nothing uses, and `getDescriptor` (`:397-425`, path
    `/anytype.ClientCommands/<Name>`) is dead. Any `C.AI*` call that expects a stream has no transport.
-4. **Publish links point off-box** — `lib/util/space.ts:872` builds `https://<publishDomain>/<slug>`
+5. **Publish links point off-box** — `lib/util/space.ts:872` builds `https://<publishDomain>/<slug>`
    from `src/json/url.ts` (`any.coop/%s`), while the server serves `GET /publish/:uri`. The settings
    screen's link therefore never reaches this harness.
-5. **`?width=` is ignored** on `/image/:id` (P5-g, known).
+6. **`?width=` is ignored** on `/image/:id` (P5-g, known).
 
 ## 5. Dead code and obsolete surface to prune
 
