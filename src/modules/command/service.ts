@@ -1,7 +1,10 @@
 import { ensureSpaceAccess, PERMISSION_RANK } from "../../auth/space-access.js";
 import { APP_VERSION, PAGINATION } from "../../config/constants.js";
 import type { AuthUser } from "../../lib/auth.js";
-import { bodySnippetFromState } from "../collab/projection.js";
+import {
+	bodySnippetFromState,
+	bodyTextFromState,
+} from "../collab/projection.js";
 import { storeDocument } from "../collab/server.js";
 import {
 	coerceBytes,
@@ -103,6 +106,7 @@ import {
 	deletionAuditRecords,
 	documentVersionById,
 	graphRecords,
+	historyDiffEvents,
 	historyVersions,
 	navigationObjectInfo,
 	objectRecords,
@@ -2677,6 +2681,52 @@ export async function run(
 			await storeDocument(objectId, version.state, user.id);
 
 			return { error: OK, event: null };
+		}
+
+		// Diff two stored versions as the event list the client's history pane consumes:
+		// { objectId, currentVersion, previousVersion } (command.ts:1121) -> { historyEvents }
+		// (response.ts:570). Reader access to the object's space gates it, like the other
+		// history reads; a version from another space or another object never resolves.
+		case "HistoryDiffVersions": {
+			const objectId = typeof body.objectId === "string" ? body.objectId : "";
+			const currentVersion =
+				typeof body.currentVersion === "string" ? body.currentVersion : "";
+			const previousVersion =
+				typeof body.previousVersion === "string" ? body.previousVersion : "";
+			if (!objectId || !currentVersion || !previousVersion) {
+				return { error: NOT_FOUND, event: null };
+			}
+
+			const spaceId = await objectSpaceId(objectId);
+			if (!spaceId) {
+				return { error: NOT_FOUND, event: null };
+			}
+
+			try {
+				await ensureSpaceAccess(user.id, spaceId, "reader");
+			} catch {
+				return { error: FORBIDDEN, event: null };
+			}
+
+			const from = await documentVersionById(spaceId, previousVersion);
+			const to = await documentVersionById(spaceId, currentVersion);
+			if (
+				!from ||
+				!to ||
+				from.objectId !== objectId ||
+				to.objectId !== objectId
+			) {
+				return { error: NOT_FOUND, event: null };
+			}
+
+			const historyEvents = await historyDiffEvents(
+				spaceId,
+				objectId,
+				bodyTextFromState(from.state),
+				bodyTextFromState(to.state),
+			);
+
+			return { error: OK, event: null, historyEvents };
 		}
 
 		// Preview a prior version: the version record plus an objectView whose projected
