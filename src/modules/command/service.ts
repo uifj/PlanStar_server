@@ -89,6 +89,7 @@ import {
 	setObjectsType,
 	setObjectType,
 	softDeleteObjects,
+	versionBodyView,
 } from "./object-service.js";
 import {
 	getPublishStatus,
@@ -2808,6 +2809,17 @@ export async function run(
 				}
 			}
 
+			// The pane renders blocks, not the snippet, so the version's paragraphs have to
+			// be projected into the view it is handed.
+			const previewView = versionBodyView(
+				view,
+				objectId,
+				version.id,
+				bodyTextFromState(version.state)
+					.split("\n")
+					.filter((line) => line !== ""),
+			);
+
 			return {
 				error: OK,
 				event: null,
@@ -2817,7 +2829,7 @@ export async function run(
 					groupId: version.groupId,
 					time: version.time,
 				},
-				objectView: view,
+				objectView: previewView,
 			};
 		}
 

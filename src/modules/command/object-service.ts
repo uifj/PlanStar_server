@@ -1052,6 +1052,43 @@ export async function loadObjectView(user: AuthUser, objectId: string) {
 	};
 }
 
+// HistoryShowVersion previews a stored version, and the client paints that preview from the
+// objectView's block tree. A Yjs body's Block rows are the object's *current* rows — often
+// none at all (ADR-0018) — so the version's own paragraphs are projected into the view here.
+// The block ids are scoped to the version because the history pane never writes blocks back;
+// restoring goes through HistorySetVersion.
+export function versionBodyView(
+	view: Awaited<ReturnType<typeof loadObjectView>>,
+	objectId: string,
+	versionId: string,
+	lines: string[],
+) {
+	if (!view) {
+		return view;
+	}
+
+	const blocks = lines.map((text, index) => ({
+		id: `${objectId}-${versionId}-${index + 1}`,
+		childrenIds: [],
+		fields: {},
+		align: 0,
+		text: { text, style: 0, marks: [] },
+	}));
+
+	return {
+		...view,
+		blocks: [
+			{
+				id: objectId,
+				childrenIds: blocks.map((block) => block.id),
+				fields: {},
+				smartblock: {},
+			},
+			...blocks,
+		],
+	};
+}
+
 // The client's personal widgets object is synthetic: its id is derived from the space id
 // (`_personalWidgets_<spaceId with dots as underscores>`, util/object.ts:28) and no Obj row is
 // ever written for it. ObjectOpen still owes the caller a view for a member of that space, or
