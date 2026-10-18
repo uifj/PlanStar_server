@@ -11,6 +11,11 @@ import { storeImageFile } from "./file-service.js";
 import { fetchLinkPreview, fetchPreviewImage } from "./link-preview-service.js";
 import { COLLECTION_RELATION, numericLayout } from "./registry-service.js";
 import type { CommandBody } from "./schema.js";
+import {
+	DATAVIEW_BLOCK_ID,
+	dataviewBlockFor,
+	ensureSetViews,
+} from "./set-view.js";
 
 // I.ObjectLayout.Page in the client enum; the Prisma enum cannot hold numeric
 // Anytype layouts yet, so the marker lives in details (ADR-0020).
@@ -1016,8 +1021,38 @@ export async function loadObjectView(user: AuthUser, objectId: string) {
 	const childrenIds = (parentId: string) =>
 		(byParent.get(parentId) ?? []).map((it) => it.id);
 
+	// A set screen draws only its dataview child (page/main/set.tsx:248), so the view objects are
+	// ensured here and projected inline — this client has no view-object subscription to fill them.
+	let dataview = null;
+	if (numericLayout(obj) === LAYOUT_SET) {
+		const healed = await ensureSetViews(obj.spaceId, obj.creatorId ?? "", obj);
+		dataview = await dataviewBlockFor(obj.spaceId, healed);
+	}
+
+	const rootChildren = childrenIds("");
+
 	const blocks = [
-		{ id: obj.id, childrenIds: childrenIds(""), fields: {}, smartblock: {} },
+		{
+			id: obj.id,
+			childrenIds: dataview
+				? [...rootChildren, DATAVIEW_BLOCK_ID]
+				: rootChildren,
+			fields: {},
+			smartblock: {},
+		},
+		...(dataview
+			? [
+					{
+						id: DATAVIEW_BLOCK_ID,
+						childrenIds: [],
+						fields: {},
+						align: 0,
+						verticalAlign: 0,
+						backgroundColor: "",
+						dataview,
+					},
+				]
+			: []),
 		...rows.map((row) =>
 			row.type === "link"
 				? {

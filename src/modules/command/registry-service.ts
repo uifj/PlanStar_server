@@ -30,7 +30,7 @@ const PARTICIPANT_STATUS: Record<string, number> = {
 };
 
 // Prisma RelationFormat -> Anytype's numeric RelationType (interface/object.ts:36-51).
-const RELATION_FORMAT: Record<string, number> = {
+export const RELATION_FORMAT: Record<string, number> = {
 	longText: 0,
 	shortText: 1,
 	number: 2,
