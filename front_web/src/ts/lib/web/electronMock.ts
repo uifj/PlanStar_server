@@ -52,6 +52,7 @@ interface MockConfig {
 	theme: string;
 	zoom: number;
 	interfaceLang: string;
+	channel?: string;
 	languages: string[];
 	hideTray: boolean;
 	showMenuBar: boolean;
@@ -279,15 +280,38 @@ class ElectronMock {
 			return true;
 		});
 
-		// Config persistence handlers
-		const configHandler = (args: any[]) => {
-			this.config = { ...this.config, ...args[0] };
-			this.storage.set("config", this.config);
+		// Config persistence. These channels carry a bare string, not a partial config, so each one
+		// names the field it owns: spreading a string into the config object writes
+		// {"0":"d","1":"e",...} and leaves the real field untouched - that is how the language
+		// picker silently stopped working.
+		const setField =
+			(field: "channel" | "interfaceLang"): ApiHandler =>
+				(args) => {
+					this.config = { ...this.config, [field]: String(args[0] || "") };
+					this.storage.set("config", this.config);
+					return true;
+				};
+		handlers.set("setChannel", setField("channel"));
+		handlers.set("setUserDataPath", (args) => {
+			// getDataPath() reads this key raw, so it is written raw rather than through WebStorage
+			localStorage.setItem("anytype_dataPath", String(args[0] || ""));
 			return true;
-		};
-		handlers.set("setUserDataPath", configHandler);
-		handlers.set("setChannel", configHandler);
-		handlers.set("setInterfaceLang", configHandler);
+		});
+		handlers.set("setInterfaceLang", (args) => {
+			const next = String(args[0] || "");
+			const changed = next !== this.config.interfaceLang;
+
+			setField("interfaceLang")(args);
+
+			// The desktop's main process restarts the app after a language change, because menus,
+			// tooltips and shortcuts are built from translate() while booting. A reload is the
+			// web equivalent - without it the picker changes nothing on screen.
+			if (changed) {
+				window.location.reload();
+			}
+
+			return true;
+		});
 
 		// No-op handlers that return true
 		const noopTrue = () => true;
@@ -452,6 +476,13 @@ class ElectronMock {
 	isDirectory = (_fp: string) => false;
 
 	getTheme = () => this.config.theme || "";
+
+	/**
+	 * The shell's own config, as the entry point must publish it: `S.Common.config` prefers
+	 * `window.AnytypeGlobalConfig` over the store's copy, so anything the entry does not put there
+	 * is invisible to the app - which is how a stored `interfaceLang` never reached the UI.
+	 */
+	getConfig = (): MockConfig => ({ ...this.config });
 	getBgColor = () => (this.config.theme === "dark" ? "#171717" : "#fff");
 
 	tabId = () => this.tabId_;

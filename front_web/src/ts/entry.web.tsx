@@ -40,8 +40,11 @@ if (cleanSearch !== window.location.search) {
 // sign-in screen has nothing left to hand back after a successful session.
 rememberRoute(window.location);
 
-// Configure the global config object
+// Configure the global config object. `S.Common.config` prefers this object over the store's own
+// copy, so it has to carry the whole shell config - theme, interfaceLang, flagsMw - and not only
+// the two fields resolved here, or a stored language never reaches the UI.
 (window as any).AnytypeGlobalConfig = {
+	...electronMock.getConfig(),
 	serverAddress,
 	dataPath,
 };

@@ -415,9 +415,34 @@ Two probe traps on this route, both cost me a misreading before the notes above:
   probe, not the layout: read row geometry, not absolute position, and take screenshots from a visible
   surface.
 
-Gates at this commit: client `tsc` (both tsconfigs) clean, **1405** client tests passing,
-`pnpm inventory` regenerated (1851 entries after the deleted page), packaged app reinstalled into
-`~/Applications` and re-run through `HARNESS_DESKTOP_SMOKE=1` (`ok:true`, signUp 200,
-`accountSelectCode:0`), smoke account deleted again (`7 users`, `0` rows matching `desktop-smoke-%`).
+Gates at this commit: client `tsc` (both tsconfigs) clean, **1413** client tests passing,
+`pnpm inventory` regenerated, packaged app reinstalled into `~/Applications` and re-run through
+`HARNESS_DESKTOP_SMOKE=1` (`ok:true`, signUp 200, `accountSelectCode:0`), smoke account deleted again
+(`7 users`, `0` rows matching `desktop-smoke-%`).
+
+# Interface language
+
+The language picker changed nothing on screen. Measured in the running app, four separate things were
+wrong, and the first three are wiring:
+
+| # | Defect | Evidence |
+| --- | --- | --- |
+| 1 | `electronMock` routed `setInterfaceLang` / `setChannel` / `setUserDataPath` through one handler that did `{...config, ...args[0]}` — but all three channels carry a **bare string** (`Action.setInterfaceLang(id)`), so spreading it wrote `{"0":"d","1":"e",…}` and never touched `interfaceLang` | `localStorage.anytype_config` literally held `{"0":"z","1":"h","2":"-","3":"C","4":"N"}` — the characters of the `zh-CN` the user picked |
+| 2 | `entry.web.tsx` set `window.AnytypeGlobalConfig = { serverAddress, dataPath }`, and `S.Common.config` prefers that object over the store's own copy, so a correctly stored `interfaceLang` was still invisible | `globalConfig` read back as exactly those two fields |
+| 3 | Nothing re-rendered: the desktop's main process restarts the app after a language change (menus, tooltips and shortcuts are built from `translate()` while booting), the mock just returned `true` | `S.Common.interfaceLang` stayed `en-US` after the call |
+| 4 | **The translations are not in the checkout.** `dist/lib/json/lang/` holds only its own `.gitignore`, and `translate()` falls back to English when the file is missing | `translate('commonError','de-DE')` → `"Error"` |
+
+1–3 are fixed: each channel now names its own field (`setUserDataPath` writes the raw
+`anytype_dataPath` key `getDataPath()` reads), the entry publishes the whole shell config through
+`electronMock.getConfig()`, and a real language change reloads. Verified live with a temporary
+five-key `de-DE.json`: after `setInterfaceLang('de-DE')` the page reloaded, `S.Common.interfaceLang`
+and `window.AnytypeGlobalConfig.interfaceLang` both read `de-DE`, the login title rendered
+`Willkommen zurueck`, the field label `E-Mail`, and the stored config was clean. **The probe file was
+then deleted** — shipping invented translations would be worse than none, so 4 stays open: the picker
+offers 26 languages and every one of them currently renders English until the real
+`dist/lib/json/lang/<lang>.json` files are dropped in (gitignored assets, like the `.pb`/`generated`
+files beside them). `src/ts/lib/web/electronMock.test.ts` covers the field-not-spread write, the
+reload-on-change / no-reload-when-same, the value surviving into the next boot, and the raw data path.
+
 
 
