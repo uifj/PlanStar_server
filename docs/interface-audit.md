@@ -457,9 +457,9 @@ for the same reason: they are dead in this build, not wired to anything.
 
 Two of §5's items are now **closed**:
 
-- *The duplicated base-URL helper.* `lib/web/serverAddress.ts` is the one implementation; both
-  `ServiceClient.commandBase` and `lib/api/spaces.ts`'s `apiBase` delegate to it, so the command shim,
-  the SSE channel and the space bootstrap cannot drift to a retired host.
+- *The duplicated base-URL helper.* `lib/web/serverAddress.ts` is the one implementation: `service.ts`
+  aliases it as its module-local `commandBase`, and `lib/api/spaces.ts`'s `apiBase` calls the same
+  function, so the command shim, the SSE channel and the space bootstrap cannot drift to a retired host.
 - *The transport was not durable.* `lib/api/service.ts` was gitignored as a codegen artifact —
   `scripts/generate-service-registry.js` wrote the whole file from an embedded template that still
   emitted the **gRPC-web** client. So the REST/SSE transport lived only in the working copy: a fresh
@@ -467,9 +467,10 @@ Two of §5's items are now **closed**:
   generated half is now `lib/api/service-registry.ts` (still ignored, reproduced byte-identically),
   `service.ts` is hand-written and tracked, and the generator no longer touches it.
 
-`ServiceClient.getDescriptor` / `descriptorCache` / `client` / `streamClient` / `hostname` remain dead
-— they only feed the retired proto framing, and `service-registry.ts` is their sole consumer. Removing
-them is the rest of task #251.
+`ServiceClient.getDescriptor` / `descriptorCache` / `client` / `streamClient` / `hostname` are **gone**
+— `service.ts` now declares none of them, and the only remaining `getDescriptor` text in the tree is a
+doc comment inside the vendored `middleware/google/protobuf/descriptor.ts`. That closes the last open
+item of §5 and of task #251.
 
 ## 6. Deepening candidates
 
