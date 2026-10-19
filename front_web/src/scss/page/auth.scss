@@ -782,10 +782,10 @@ html.bodyAuthDeleted {
 	}
 }
 
-/* The Better Auth screens (web + desktop entry, ADR-0024) are a single card, so they size and
-   align themselves instead of inheriting the .pageIndexIndex composition or the centered,
-   bare-field defaults of .pageAuth above. */
-.pageAuthBetterLogin, .pageAuthBetterAccount {
+/* The Better Auth sign-in screen (web + desktop entry, ADR-0024) is a single card, so it sizes and
+   aligns itself instead of inheriting the .pageIndexIndex composition or the centered, bare-field
+   defaults of .pageAuth above. */
+.pageAuthBetterLogin {
 	.frame { width: 424px; padding: 48px; text-align: left; }
 
 	.intro { display: flex; flex-direction: column; gap: 2px 0px; margin: 0px 0px 32px 0px; }
@@ -793,7 +793,6 @@ html.bodyAuthDeleted {
 		.label { margin: 0px; }
 		.label.line1 { @include text-header1; font-weight: 600; color: var(--color-text-primary); }
 		.label.line2 { @include text-paragraph; color: var(--color-text-secondary); }
-		.label.line3 { @include text-small; margin-top: 6px; color: var(--color-text-tertiary); }
 	}
 
 	.buttons { margin: 24px 0px 0px 0px; }

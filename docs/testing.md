@@ -356,7 +356,7 @@ is set, so on this machine `electron-builder` dies with a bare `fetch failed` at
 though `curl -x http://127.0.0.1:7897 https://github.com` answers 200. Package with
 `NODE_USE_ENV_PROXY=1 https_proxy=http://127.0.0.1:7897 npx electron-builder --mac --arm64`.
 
-# Auth screens (login / register / account)
+# Auth screen (login / register)
 
 `/auth/better-login` had no stylesheet scope of its own — the page is ours, not the vendor's — so it
 inherited `.pageAuth .input { height: 40px; text-align: center }` (written for a *bare* `<input>`, not a
@@ -377,19 +377,36 @@ Inputs are 48px boxes with `text-align: left` (overriding the inherited `center`
 submission — the handler is on the form's `onKeyDown`, and the button is disabled while a request is in
 flight.
 
+**Where a successful sign-in goes** was the second defect. The handler navigated to
+`/auth/better-account`, a hand-written placeholder whose own comment said "later phases grow this into
+the workspace" — but selecting the account and opening a space happens in `bootWebAccount()`, which
+`app.tsx` calls only from the cold-boot `onInit` gate. An in-app `Router.go` never re-runs it, so the
+user sat on a page reading "You're signed in" with a Sign out button and nothing behind it. The handler
+now hands the browser back to the entry (`window.location.href = '/'`), and the placeholder page, its
+route and its stylesheet scope are deleted: the server's `resolveSpace()` already gives a fresh account
+its default space during `AccountSelect`, so the page's `ensureBootstrapSpace()` call was a duplicate.
+Verified through the real form on `localhost:3030`: register → the page reloads → `/main/edit/<home>/spaceId/<space>`,
+title `Widgets - My Space - Anytype`, sidebar present, no `.pageAuth` left. The throwaway
+`login-flow-*@example.com` account and its 12 objects were deleted afterwards (`7 users`, `0` probes left).
+
 Two probe traps on this route, both cost me a misreading before the notes above:
 
 * A signed-in browser tab never shows the login page — the boot gate calls `getSession()` and routes to
   `/main/...`. Reach it from **`http://127.0.0.1:3030`**: the `localhost` session cookie is host-scoped,
   so the gate's auth check fails and it renders the login page, while the real `localhost` session stays
-  untouched. (Port does not matter — only the host does.)
+  untouched. (Port does not matter — only the host does.) That is fine for measuring layout, but it is
+  **not** a place to test the flow: Better Auth's client is built from `VITE_API_BASE_URL`, so from a
+  127.0.0.1 page its requests are cross-origin and carry no cookie. Sign out on `localhost` and use a
+  throwaway account instead.
 * The in-app browser is a hidden surface (`visibilityState=hidden`), so `requestAnimationFrame` never
   fires there. `Frame` centres itself with rAF-set negative margins and `lib/animation.ts` fades with it,
   so in a hidden tab the frame reports `marginTop: 0px` and sits below/right of centre. That is the
   probe, not the layout: read row geometry, not absolute position, and take screenshots from a visible
   surface.
 
-Gates at this commit: client `tsc` (both tsconfigs) clean, **1405** client tests passing, packaged app
-reinstalled into `~/Applications` and re-run through `HARNESS_DESKTOP_SMOKE=1` (`ok:true`, signUp 200,
+Gates at this commit: client `tsc` (both tsconfigs) clean, **1405** client tests passing,
+`pnpm inventory` regenerated (1851 entries after the deleted page), packaged app reinstalled into
+`~/Applications` and re-run through `HARNESS_DESKTOP_SMOKE=1` (`ok:true`, signUp 200,
 `accountSelectCode:0`), smoke account deleted again (`7 users`, `0` rows matching `desktop-smoke-%`).
+
 

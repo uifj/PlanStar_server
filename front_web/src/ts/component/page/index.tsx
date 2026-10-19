@@ -5,7 +5,6 @@ import { Label, Frame, SidebarRight } from 'Component';
 import PageAuthSelect from './auth/select';
 import PageAuthLogin from './auth/login';
 import PageAuthBetterLogin from './auth/betterAuthLogin';
-import PageAuthBetterAccount from './auth/betterAuthAccount';
 import PageAuthPinCheck from './auth/pinCheck';
 import PageAuthSetup from './auth/setup';
 import PageAuthOnboard from './auth/onboard';
@@ -41,7 +40,6 @@ const Components = {
 	'auth/select':			 PageAuthSelect,
 	'auth/login':			 PageAuthLogin,
 	'auth/better-login':	 PageAuthBetterLogin,
-	'auth/better-account':	 PageAuthBetterAccount,
 	'auth/pin-check':		 PageAuthPinCheck,
 	'auth/setup':			 PageAuthSetup,
 	'auth/onboard':			 PageAuthOnboard,

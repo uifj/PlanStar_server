@@ -22,7 +22,7 @@
     ]
   },
   "summary": {
-    "sourceFiles": 1618,
+    "sourceFiles": 1617,
     "capabilitiesByKind": {
       "command-use": 236,
       "command-wrapper": 265,
@@ -39,12 +39,12 @@
       "native-command": 1,
       "native-handler": 32,
       "native-method": 31,
-      "page-route": 29,
+      "page-route": 28,
       "proto-rpc": 347,
       "renderer-command": 78,
       "renderer-event": 42,
       "route-pattern": 5,
-      "route-use": 23,
+      "route-use": 22,
       "url-construction": 8,
       "websocket": 1
     },
@@ -64,12 +64,12 @@
       "native-command": 1,
       "native-handler": 32,
       "native-method": 75,
-      "page-route": 29,
+      "page-route": 28,
       "proto-rpc": 347,
       "renderer-command": 120,
       "renderer-event": 74,
       "route-pattern": 5,
-      "route-use": 60,
+      "route-use": 58,
       "url-construction": 19,
       "websocket": 1
     },
@@ -1061,12 +1061,8 @@
       "sha256": "5bc8f8d312045555d90951178c7f06562675fd424ae0f1c048b1440287f500bb"
     },
     {
-      "file": "front_web/src/ts/component/page/auth/betterAuthAccount.tsx",
-      "sha256": "b24c975b0ef20551e6e4dda45f808bcc97646d209fc5d9be5ce83909d9e3445f"
-    },
-    {
       "file": "front_web/src/ts/component/page/auth/betterAuthLogin.tsx",
-      "sha256": "c3183bd1689d0a8778fe95c6e76ce65a14960fcfcb0b712035a3f5e25f87fabd"
+      "sha256": "bada06c45272fa39bf07548efd31b8f725e44436664e5193561d535e7fb1807d"
     },
     {
       "file": "front_web/src/ts/component/page/auth/deleted.tsx",
@@ -1126,7 +1122,7 @@
     },
     {
       "file": "front_web/src/ts/component/page/index.tsx",
-      "sha256": "90f687d39133813296a587dfaf9ace982abfb6a6450624a6353c60facc2c88ce"
+      "sha256": "887e871ed51f1775dda8fcfec5a537604282e2ac04332a41d738ecd5bd7f7b31"
     },
     {
       "file": "front_web/src/ts/component/page/main/archive.tsx",
@@ -29444,22 +29440,6 @@
       ]
     },
     {
-      "id": "page-route:auth/better-account",
-      "kind": "page-route",
-      "name": "auth/better-account",
-      "protocol": "client-router",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 44,
-          "column": 2,
-          "expression": "PageAuthBetterAccount"
-        }
-      ]
-    },
-    {
       "id": "page-route:auth/better-login",
       "kind": "page-route",
       "name": "auth/better-login",
@@ -29469,7 +29449,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 43,
+          "line": 42,
           "column": 2,
           "expression": "PageAuthBetterLogin"
         }
@@ -29485,7 +29465,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 48,
+          "line": 46,
           "column": 2,
           "expression": "PageAuthDeleted"
         }
@@ -29501,7 +29481,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 42,
+          "line": 41,
           "column": 2,
           "expression": "PageAuthLogin"
         }
@@ -29517,7 +29497,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 49,
+          "line": 47,
           "column": 2,
           "expression": "PageAuthMigrate"
         }
@@ -29533,7 +29513,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 47,
+          "line": 45,
           "column": 2,
           "expression": "PageAuthOnboard"
         }
@@ -29549,7 +29529,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 45,
+          "line": 43,
           "column": 2,
           "expression": "PageAuthPinCheck"
         }
@@ -29565,7 +29545,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 41,
+          "line": 40,
           "column": 2,
           "expression": "PageAuthSelect"
         }
@@ -29581,7 +29561,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 46,
+          "line": 44,
           "column": 2,
           "expression": "PageAuthSetup"
         }
@@ -29597,7 +29577,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 39,
+          "line": 38,
           "column": 2,
           "expression": "PageMainBlank"
         }
@@ -29613,7 +29593,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 59,
+          "line": 57,
           "column": 2,
           "expression": "PageMainArchive"
         }
@@ -29629,7 +29609,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 51,
+          "line": 49,
           "column": 2,
           "expression": "PageMainBlank"
         }
@@ -29645,7 +29625,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 65,
+          "line": 63,
           "column": 2,
           "expression": "PageMainChat"
         }
@@ -29661,7 +29641,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 67,
+          "line": 65,
           "column": 2,
           "expression": "PageMainDate"
         }
@@ -29677,7 +29657,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 52,
+          "line": 50,
           "column": 2,
           "expression": "PageMainEdit"
         }
@@ -29693,7 +29673,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 57,
+          "line": 55,
           "column": 2,
           "expression": "PageMainGraph"
         }
@@ -29709,7 +29689,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 53,
+          "line": 51,
           "column": 2,
           "expression": "PageMainHistory"
         }
@@ -29725,7 +29705,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 60,
+          "line": 58,
           "column": 2,
           "expression": "PageMainImport"
         }
@@ -29741,7 +29721,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 61,
+          "line": 59,
           "column": 2,
           "expression": "PageMainInvite"
         }
@@ -29757,7 +29737,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 55,
+          "line": 53,
           "column": 2,
           "expression": "PageMainMedia"
         }
@@ -29773,7 +29753,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 63,
+          "line": 61,
           "column": 2,
           "expression": "PageMainMembership"
         }
@@ -29789,7 +29769,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 58,
+          "line": 56,
           "column": 2,
           "expression": "PageMainNavigation"
         }
@@ -29805,7 +29785,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 64,
+          "line": 62,
           "column": 2,
           "expression": "PageMainObject"
         }
@@ -29821,7 +29801,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 62,
+          "line": 60,
           "column": 2,
           "expression": "PageMainOneToOne"
         }
@@ -29837,7 +29817,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 69,
+          "line": 67,
           "column": 2,
           "expression": "PageMainQuickSearch"
         }
@@ -29853,7 +29833,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 56,
+          "line": 54,
           "column": 2,
           "expression": "PageMainRelation"
         }
@@ -29869,7 +29849,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 54,
+          "line": 52,
           "column": 2,
           "expression": "PageMainSet"
         }
@@ -29885,7 +29865,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 68,
+          "line": 66,
           "column": 2,
           "expression": "PageMainSettings"
         }
@@ -29901,7 +29881,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 66,
+          "line": 64,
           "column": 2,
           "expression": "PageMainVoid"
         }
@@ -37904,22 +37884,6 @@
       ]
     },
     {
-      "id": "route-use:/auth/better-account",
-      "kind": "route-use",
-      "name": "/auth/better-account",
-      "protocol": "client-router",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/component/page/auth/betterAuthLogin.tsx",
-          "line": 75,
-          "column": 5,
-          "expression": "\"/auth/better-account\""
-        }
-      ]
-    },
-    {
       "id": "route-use:/auth/better-login",
       "kind": "route-use",
       "name": "/auth/better-login",
@@ -37932,12 +37896,6 @@
           "line": 608,
           "column": 26,
           "expression": "'/auth/better-login'"
-        },
-        {
-          "file": "front_web/src/ts/component/page/auth/betterAuthAccount.tsx",
-          "line": 52,
-          "column": 5,
-          "expression": "\"/auth/better-login\""
         }
       ]
     },
@@ -37951,7 +37909,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 128,
+          "line": 126,
           "column": 4,
           "expression": "'/auth/deleted'"
         },
@@ -38033,7 +37991,7 @@
         },
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 123,
+          "line": 121,
           "column": 4,
           "expression": "'/auth/pin-check'"
         },
@@ -38139,7 +38097,7 @@
         },
         {
           "file": "front_web/src/ts/component/page/index.tsx",
-          "line": 118,
+          "line": 116,
           "column": 4,
           "expression": "'/auth/select'"
         },

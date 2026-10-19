@@ -72,7 +72,10 @@ const PageAuthBetterLogin = forwardRef<I.PageRef, I.PageComponent>(
 					}
 				}
 
-				U.Router.go("/auth/better-account", { replace: true });
+				// Only the cold-boot gate in app.tsx selects the account and opens a space, so hand
+				// the browser back to the entry instead of navigating inside the mounted shell -
+				// an in-app route change would leave the user on a page with no account behind it.
+				window.location.href = "/";
 			} catch (err) {
 				setError(thrownMessage(err, translate("pageAuthLoginUnknownError")));
 			} finally {
