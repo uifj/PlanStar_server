@@ -7,6 +7,7 @@ import { prisma } from "../../lib/prisma.js";
 import { writeFileBytes } from "../files/storage.js";
 import { ensureAccount } from "./account-service.js";
 import type { CommandBody } from "./schema.js";
+import { isStagedPath } from "./staged-path.js";
 
 // The Prisma ObjectLayout value a mime type maps onto (front_web interface/object.ts:
 // File = 6, Image = 8, Audio = 15, Video = 16, Pdf = 20). Anything else is a plain file.
@@ -52,10 +53,16 @@ function detailsOf(body: CommandBody): Record<string, unknown> {
 
 // Reads the bytes to store: a server-side path first (the web transport stages a picked
 // file to /api/web-upload and hands back its path), else an http(s) url fetched remotely.
+// A path outside the staging directories is refused rather than read: this runs as the API
+// process's own user, so an unrestricted localPath would let any space writer import
+// /etc/passwd into a file object and then fetch it back over GET /file/:id.
 async function readSourceBytes(body: CommandBody): Promise<Uint8Array | null> {
 	const localPath =
 		typeof body.localPath === "string" && body.localPath ? body.localPath : "";
 	if (localPath) {
+		if (!isStagedPath(localPath)) {
+			return null;
+		}
 		try {
 			return await readFile(localPath);
 		} catch {

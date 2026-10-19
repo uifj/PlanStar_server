@@ -84,7 +84,7 @@
 但审计收尾时按客户端实际可达性复核后，#152 / #153 的标签并不一样，已写进 `docs/interface-audit.md` §3c：
 
 - **#153 的导出半边确实不可达**：`Action.export` 要的是**目录**，而 web 的 picker 只能选文件并会把文件上传后当作目录返回，浏览器根本没有「给服务端一个可写目录」的接口 → 需要改成服务端打包 + 下载，不是补一个 shim case。
-- **#153 的导入半边是可达且缺的**：picker 已经把字节 POST 到 `/api/web-upload` 并返回真实暂存路径，正是 `uploadFile` 读 `localPath` 的同一种形状；现在点导入会打出 `NOT_SUPPORTED`。补它**不需要动客户端**，只要服务端解析暂存的 HTML/Markdown/JSON 生成对象。
+- ~~**#153 的导入半边是可达且缺的**~~ → **已实现（#153）**：picker 已经把字节 POST 到 `/api/web-upload` 并返回真实暂存路径，服务端 `importFiles` 现在读这些路径：Markdown / Obsidian / HTML / 纯文本各自成页（名字取第一个标题或 `<h1>`，纯文本取文件名），正文用 `storeDocument` 正规写入，块形状是 `Y.XmlElement("paragraph")` + `Y.XmlText` 子节点（不是历史预览那套裸 XmlText，否则编辑器打开是空文档）。Notion / CSV / Protobuf 仍回 code 12 并在 description 里说明原因。顺带把 **两个文件命令共用的任意路径读取** 关进围栏：`FileUpload` 的 `localPath` 以前直接 `readFile`，任何空间 writer 都能把 `/etc/passwd` 存成文件对象再用 `GET /file/:id` 取回；现在 `staged-path.ts` 只允许两个上传暂存根目录。实盘：经应用自身上传通道落盘的真实 .md 用 `C.ObjectImport` 导入返回 0，打开该页编辑器渲染出两个段落。
 - **#152 拖拽落文件在到达服务端之前就坏了**：drop 走的是 `electron.webFilePath(file)`，而 mock 里它就是 `file.name`（`electronMock.ts:546`），所以 `localFilePaths` 只带文件名、没有字节；三个调用点（`drag/provider.tsx:279`、`popup/upload.tsx:82`、`block/dataview.tsx:1877`）都是活屏，失败表现为一条错误 toast。修它是两个可度量的半边：drop 复用 picker 已在用的 `uploadFileToServer`，服务端再应答 `FileDrop`（用暂存路径建文件对象 + 插入正文的附件节点 #227）。
 
 > 教训：`EMPTY_SUB_IDS` 里「不是对象列表」的判断必须由客户端实际解析路径反证。`subSpace` 与 `library` 都曾以「非对象列表」名义被留空，结果分别是所有权闸门全灭与内容模型 rail 空白。

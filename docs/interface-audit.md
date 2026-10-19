@@ -30,9 +30,10 @@ deliberately records every capability as `pending` — it joins the client's sur
 migration is done — so the answered/pending split below comes from diffing it against the shim.
 
 - 259 exported wrappers in `command.ts`; **231 of them are called** from client code.
-- The shim answers **129** distinct command names (105 at the audit's first pass, the 22
-  `BlockDataview*` writes added by task #250, the inline-block binding of item 24, and `AIListModels`).
-- **106 called commands have no server case.** They are not one bucket — see §3.
+- The shim answers **130** distinct command names (105 at the audit's first pass, the 22
+  `BlockDataview*` writes added by task #250, the inline-block binding of item 24, `AIListModels`,
+  and `ObjectImport` of item 27).
+- **105 called commands have no server case.** They are not one bucket — see §3.
 - Only **2 answered commands are never called**: `ChatUnreadMessages` (the client's unread path uses
   `ChatSubscribeToMessagePreviews` counters instead) and `ObjectToSet` (see §4 — the set screen calls
   a *different* entry point). Both still have integration tests, so they are live-but-unreached
@@ -102,12 +103,11 @@ web build's Electron mock (`lib/web/electronMock.ts`) rather than assumed:
   fallback) can only choose files, which it then *uploads* and returns as the "directory". There is no
   browser surface that hands the server a writable directory, so answering this command would need a
   client redesign (export to a server-side archive, then download), not a shim case.
-- `ObjectImport` / `ObjectImportNotionValidateToken` / `ObjectImportExperience` — **reachable.** The
-  picker path does upload bytes to `POST /api/web-upload` and returns real staged paths
-  (`electronMock.ts:482-543`, `filesRouter.post("/web-upload")`), which is exactly the shape
-  `uploadFile` already consumes as `body.localPath` (file-service.ts:55). So an import fires today and
-  gets `NOT_SUPPORTED`. Closing this needs a server-side reader for the staged file(s) — HTML/Markdown/
-  JSON into objects — with no client change at all.
+- `ObjectImport` — **answered** (item 27) for the four formats a staged file can carry: Markdown and
+  Obsidian (`markdownParams.path`), HTML (`htmlParams.path`) and plain text (`txtParams.path`). Notion
+  (`notionParams`), CSV (`csvParams`) and Protobuf (`pbParams`) still answer code 12, each with the
+  reason in the description, because they need an external service or a structured-experience reader
+  rather than a file parse.
 - `FileDrop` — **reachable, and broken before it reaches the server.** The drag-and-drop path does *not*
   use the picker: it maps each dropped `File` through `electron.webFilePath(file)`, and the mock defines
   that as `(file) => file.name` (electronMock.ts:546). So `localFilePaths` arrives as bare names like
@@ -338,6 +338,26 @@ the state it would need to replay does not.
     deletion marks where the ordinals stop matching, not the deleted line itself. Verified live:
     `.diffAdd` on the added block's `.wrapContent`, `<markupchange> south</markupchange>` inside the
     rewritten one, and a `.diffRemove` for the dropped lines.
+
+27. **Settings → Import imported nothing, and both file commands could read any server file** —
+    **fixed**. `ObjectImport` answered `NOT_SUPPORTED` even though the web picker had already done its
+    half: `electronMock.showOpenDialog` uploads the chosen files to `POST /api/web-upload` and passes
+    the returned server paths straight into `markdownParams.path` / `htmlParams.path` / `txtParams.path`.
+    `importFiles` (task #153) now reads those paths, names each page from its first Markdown heading or
+    HTML `<h1>` (its filename for plain text) and writes the body through `storeDocument`, so the
+    snippet, a version snapshot and the body links land the way an edited page's do. Blocks are built as
+    `Y.XmlElement("paragraph")` with a `Y.XmlText` child — the node vocabulary y-prosemirror renders —
+    because the bare-`Y.XmlText` fragment the history decoder is happy with opens as an empty document
+    in the editor. Notion, CSV and Protobuf answer code 12 with the format named in the description, and
+    the screen shows it.
+
+    The same pass found the read behind **both** file commands unconfined: `FileUpload` handed
+    `body.localPath` straight to `readFile`, so any space writer could store `/etc/passwd` as a file
+    object and fetch it back over `GET /file/:id`, and the new import path would have inherited the hole.
+    Both now answer one rule (`staged-path.ts`): the path must sit under the staging root this server
+    writes to, or the dev mirror in the OS temp directory — the only two places the browser ingress can
+    produce. Verified live: a real `.md` staged through the app's own uploader and imported through
+    `C.ObjectImport` returned code 0, and the page opened in the editor as two rendered paragraphs.
 
 ## 5. Dead code and obsolete surface to prune
 

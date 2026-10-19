@@ -1,9 +1,10 @@
 import { randomBytes } from "node:crypto";
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { env } from "../../src/config/env.js";
 import { prisma } from "../../src/lib/prisma.js";
 import { signInAs } from "./helpers/auth-session.js";
 import { isDatabaseAvailable } from "./helpers/database.js";
@@ -28,7 +29,13 @@ describe.skipIf(!databaseAvailable)("POST /api/command FileUpload", () => {
 	let tempDir: string;
 
 	beforeAll(async () => {
-		tempDir = await mkdtemp(join(tmpdir(), "fileupload-"));
+		// localPath is only honoured inside the upload staging root: the browser cannot hand
+		// the server a path, so its ingress (POST /api/web-upload, and the Vite dev mirror) is
+		// the only thing that ever produces one. Staging under that root keeps the test on the
+		// shape the command is actually fed.
+		const root = resolve(env.FILE_UPLOAD_STAGING_ROOT);
+		await mkdir(root, { recursive: true });
+		tempDir = await mkdtemp(join(root, "fileupload-"));
 		await prisma.user.createMany({
 			data: [
 				{
@@ -134,6 +141,28 @@ describe.skipIf(!databaseAvailable)("POST /api/command FileUpload", () => {
 			code: 2,
 			description: "Object access denied.",
 		});
+	});
+
+	it("refuses a localPath the upload ingress could not have produced", async () => {
+		// The command reads from this process's own disk, so an unrestricted path would let any
+		// space writer store /etc/passwd as a file object and fetch it back over GET /file/:id.
+		const spaceId = await createSpace();
+		const outside = join(tmpdir(), "fileupload-outside-read.png");
+		await writeFile(outside, randomBytes(32));
+
+		signInAs(ownerId);
+		const res = await (
+			await post("/api/command/FileUpload", {
+				spaceId,
+				localPath: outside,
+				type: 2,
+				imageKind: 0,
+				details: { name: "outside-read.png" },
+			})
+		).json();
+
+		expect(res.error).toEqual({ code: 3, description: "Object not found." });
+		expect(res.objectId).toBeUndefined();
 	});
 
 	it("writes the file id onto the context object's iconImage detail for an icon picker", async () => {

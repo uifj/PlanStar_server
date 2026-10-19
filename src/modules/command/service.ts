@@ -58,6 +58,12 @@ import {
 } from "./dataview-write.js";
 import { uploadFile } from "./file-service.js";
 import {
+	ImportError,
+	ImportPathError,
+	ImportUnsupportedError,
+	importFiles,
+} from "./import-service.js";
+import {
 	fetchLinkPreview,
 	PreviewNotAllowedError,
 } from "./link-preview-service.js";
@@ -759,6 +765,44 @@ export async function run(
 				details: objectDetails(obj),
 				middleTime: 0,
 			};
+		}
+
+		// Settings → Import for the file-backed formats. The web picker has already put the
+		// bytes on this server (POST /api/web-upload) and passes back the path, so the import
+		// is a server-side read; the screen only needs error.code 0 before it opens the target.
+		case "ObjectImport": {
+			let objectIds: string[] = [];
+			try {
+				objectIds = await importFiles(user, body);
+			} catch (error) {
+				if (error instanceof ImportPathError) {
+					return {
+						error: { code: 2, description: error.message },
+						event: null,
+					};
+				}
+				if (error instanceof ImportUnsupportedError) {
+					return {
+						error: { code: 12, description: error.message },
+						event: null,
+					};
+				}
+				if (error instanceof ImportError) {
+					return {
+						error: { code: 3, description: error.message },
+						event: null,
+					};
+				}
+				// ensureSpaceAccess rejects a caller without writer access to the space.
+				return { error: FORBIDDEN, event: null };
+			}
+
+			// Same reveal as a create: the imported pages join the lists that already match.
+			await subscriptionRegistry.reevaluate(
+				typeof body.spaceId === "string" ? body.spaceId : "",
+			);
+
+			return { error: OK, event: null, objectIds };
 		}
 
 		// ObjectCreateSet mints a fresh Set object (dataview.tsx:964, dataview/head.tsx:134,
