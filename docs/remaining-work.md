@@ -51,6 +51,7 @@
 | 实时推送 | 传输层重写后再验 | 通过：SSE 打开且收到 3 帧 `objectDetailsSet` |
 | `?server=` 覆盖 | 用文档宣传的 `?server=http://HOST:PORT` 形式实际启动一次 | 修复（#277，audit §4-33）：入口/存储的值原样透传，命令打到 `/command/<Name>`（后端 404 且无 CORS 头）→ 登录页；且这个 origin-only 值被写回 localStorage 污染后续启动。现在 `serverAddress()` 三段优先级统一过 `apiBase()`：无 path 的地址补 `/api`，显式 path 原样保留，旧污染值下次启动自愈 |
 | 接口全量巡检（重启后） | 杀掉 :8000/:3030 重启，逐屏 `U.Router.go` + 客户端自身命令层跑读写链路 | 通过（#277）：见 `docs/testing.md` 的 2026-10-19 复跑表——冷加载正文可编辑、0 个 `.dragHandle`、历史两版本+`blockSetText` 差异、聊天增删、发布链、导出 ZIP（PK\x03\x04）、SSE 200；除三个已知 code 12 与 `GalleryDownloadManifest` 外全部 code 0 |
+| 数据是否只留在本机 | 逐条查存储位置 + 在页面里量 `performance` 非本地主机 + 读 define/Sentry/Amplitude 实际状态 | 存储部分全部本地（本地 Podman Postgres 的 Obj/DocumentState/DocumentVersion + `.data/` 磁盘文件；`.env`、`.data` 已 gitignore）。出网部分：Sentry 兜底 DSN 与 Spark onboarding 的 url+token 已从默认值里清空并加测试（#278，audit §4-34）；Amplitude 实例在 boot 时创建了，但 `isAllowed()` 在未打包构建里为 false，实测 0 条非本地请求。**遗留（#279）**：`front_web/src/json/constant.ts` 仍带着同一个 Sentry DSN、Amplitude key 与 Google Maps key，且 `77ed20d` 已推送——这些应按"已暴露"看待，是否改写历史需要你定 |
 | 成员 / 邀请面板 | `/main/settings/spaceShare` → 截图 | 修复后通过：`subSpace` 订阅应答后 `isMyOwner`/`canManageInvite` 为真，分享开关与 Copy link / QR / Manage link / Reset link 全部渲染（#259） |
 | 邀请链接 | `getInviteLink` 单测 + 实盘 | 修复：web 构建此前只发 `anytype://` 链接（本站没有协议处理程序），改发本应用 `/invite/` 路由 |
 | 设置-通用 | 截图 | 通过：空间卡 + Copy link / QR + Homepage / Sidebar View / Default Object Type 偏好项 |

@@ -492,6 +492,31 @@ the state it would need to replay does not.
     `POST /api/command/WorkspaceOpen` answers 401 *with* `access-control-allow-credentials` and its
     preflight answers 204 with `access-control-allow-origin: http://localhost:3030`.
 
+34. **The web bundle carried a vendor telemetry DSN and a live bearer token** — **fixed**
+    (task #278). `vite.web.config.ts` inlined its defines with vendor fallbacks, so a build started
+    without any env still shipped: a Sentry DSN for `sentry.anytype.io/3` (and `app.tsx` called
+    `Sentry.init` unconditionally, so the first uncaught error or unhandled rejection would have
+    delivered a report plus up to 20 breadcrumbs — local API paths and the object ids inside the URL —
+    to Anytype), and the Spark onboarding endpoint **with its token** (`spark_92eabe…`), which
+    `lib/service/sparkOnboarding.ts` appends to the WebSocket query when the AI-onboarding popup
+    connects. Both defaults are now empty, so an opt-in is an explicit `export` before the build, and
+    `Sentry.init` only runs when a DSN was named. `src/ts/lib/web/webBuildDefines.test.ts` holds the
+    line by reading the real define block out of the config factory: empty when the env names nothing,
+    passed through when it does — the second case is what stops the fix from deleting the feature.
+    Measured after restarting Vite: `window.SENTRY_DSN === ''`, the Sentry hub carries **no client**,
+    the boot console shows no new errors, and the page still boots, restores the session and edits.
+    Related, and *not* a leak: Amplitude is initialized at boot (`app.tsx:405` →
+    `lib/analytics.ts:171` with `amplitude.anytype.io`), but `isAllowed()` (analytics.ts:134)
+    evaluates to false in an unpackaged build — `!(config.sudo || !isPackaged) || debug.analytics`,
+    with `isPackaged: false` and `config.debug` empty, both measured in the running page — so all 478
+    `analytics.event()` sites return early and `performance` recorded **zero** non-localhost hosts
+    across the boot and the 12-screen sweep. Still standing in the tracked tree:
+    `front_web/src/json/constant.ts` keeps the same Sentry DSN, the Amplitude key and a Google Maps
+    key (`lib/util/embed.ts:271` uses the last one when a Maps embed is inserted), and all three
+    arrived with `77ed20d`, which is already pushed — so they should be read as exposed, not merely
+    present. The Spark token additionally lives in git history; removing it from HEAD does not remove
+    it there.
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,

@@ -178,7 +178,7 @@
     },
     {
       "file": "front_web/src/ts/app.tsx",
-      "sha256": "a0e7733217f0a42ff0b4414383058d2495e151ecf1ad7fa74efa63659a91f158"
+      "sha256": "d3f04cd4daeef50d4a796194d2863f47503b430778b40fb428c3e46d41c2a9c5"
     },
     {
       "file": "front_web/src/ts/component/block/bookmark.tsx",
@@ -6624,7 +6624,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 790,
+          "line": 795,
           "column": 3,
           "usage": "call"
         }
@@ -6784,13 +6784,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 494,
+          "line": 499,
           "column": 4,
           "usage": "call"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 562,
+          "line": 567,
           "column": 4,
           "usage": "call"
         },
@@ -29261,13 +29261,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 352,
+          "line": 357,
           "column": 17,
           "expression": "electron.tabId"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 657,
+          "line": 662,
           "column": 24,
           "expression": "electron.tabId"
         },
@@ -35667,7 +35667,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 165,
+          "line": 170,
           "column": 4,
           "expression": "Renderer.send"
         }
@@ -35699,7 +35699,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 181,
+          "line": 186,
           "column": 4,
           "expression": "Renderer.send"
         }
@@ -35715,7 +35715,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 624,
+          "line": 629,
           "column": 3,
           "expression": "Renderer.send"
         }
@@ -35821,7 +35821,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 628,
+          "line": 633,
           "column": 5,
           "expression": "Renderer.send"
         },
@@ -35895,7 +35895,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 791,
+          "line": 796,
           "column": 4,
           "expression": "Renderer.send"
         }
@@ -35911,7 +35911,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 808,
+          "line": 813,
           "column": 14,
           "expression": "Renderer.send"
         }
@@ -36293,7 +36293,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 291,
+          "line": 296,
           "column": 4,
           "expression": "Renderer.send"
         },
@@ -36771,7 +36771,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 661,
+          "line": 666,
           "column": 4,
           "expression": "Renderer.sendIpc"
         }
@@ -36819,7 +36819,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 757,
+          "line": 762,
           "column": 6,
           "expression": "Renderer.send"
         },
@@ -36891,7 +36891,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 754,
+          "line": 759,
           "column": 6,
           "expression": "Renderer.send"
         }
@@ -36969,13 +36969,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 304,
+          "line": 309,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 338,
+          "line": 343,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37013,7 +37013,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 233,
+          "line": 238,
           "column": 3,
           "expression": "Renderer.on"
         }
@@ -37073,13 +37073,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 230,
+          "line": 235,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 324,
+          "line": 329,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37095,13 +37095,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 232,
+          "line": 237,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 326,
+          "line": 331,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37117,13 +37117,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 199,
+          "line": 204,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 315,
+          "line": 320,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37139,13 +37139,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 198,
+          "line": 203,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 314,
+          "line": 319,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37161,13 +37161,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 228,
+          "line": 233,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 322,
+          "line": 327,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37183,13 +37183,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 205,
+          "line": 210,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 317,
+          "line": 322,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37199,224 +37199,6 @@
       "id": "renderer-event:file-download-progress",
       "kind": "renderer-event",
       "name": "file-download-progress",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 204,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 316,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:init",
-      "kind": "renderer-event",
-      "name": "init",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 308,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:leave-full-screen",
-      "kind": "renderer-event",
-      "name": "leave-full-screen",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 229,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 323,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:link-approval-decision",
-      "kind": "renderer-event",
-      "name": "link-approval-decision",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 227,
-          "column": 3,
-          "expression": "Renderer.on"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:logout",
-      "kind": "renderer-event",
-      "name": "logout",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 231,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 325,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:native-theme",
-      "kind": "renderer-event",
-      "name": "native-theme",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 261,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 330,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:notification-callback",
-      "kind": "renderer-event",
-      "name": "notification-callback",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 239,
-          "column": 3,
-          "expression": "Renderer.on"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:payload-broadcast",
-      "kind": "renderer-event",
-      "name": "payload-broadcast",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 240,
-          "column": 3,
-          "expression": "Renderer.on"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:pin-check",
-      "kind": "renderer-event",
-      "name": "pin-check",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 280,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 332,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:pin-remove",
-      "kind": "renderer-event",
-      "name": "pin-remove",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 208,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 320,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:pin-set",
-      "kind": "renderer-event",
-      "name": "pin-set",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 207,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 319,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:pin-unlocked",
-      "kind": "renderer-event",
-      "name": "pin-unlocked",
       "protocol": "electron-ipc",
       "target": null,
       "status": "pending",
@@ -37436,6 +37218,224 @@
       ]
     },
     {
+      "id": "renderer-event:init",
+      "kind": "renderer-event",
+      "name": "init",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 313,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:leave-full-screen",
+      "kind": "renderer-event",
+      "name": "leave-full-screen",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 234,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 328,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:link-approval-decision",
+      "kind": "renderer-event",
+      "name": "link-approval-decision",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 232,
+          "column": 3,
+          "expression": "Renderer.on"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:logout",
+      "kind": "renderer-event",
+      "name": "logout",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 236,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 330,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:native-theme",
+      "kind": "renderer-event",
+      "name": "native-theme",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 266,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 335,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:notification-callback",
+      "kind": "renderer-event",
+      "name": "notification-callback",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 244,
+          "column": 3,
+          "expression": "Renderer.on"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:payload-broadcast",
+      "kind": "renderer-event",
+      "name": "payload-broadcast",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 245,
+          "column": 3,
+          "expression": "Renderer.on"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:pin-check",
+      "kind": "renderer-event",
+      "name": "pin-check",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 285,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 337,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:pin-remove",
+      "kind": "renderer-event",
+      "name": "pin-remove",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 213,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 325,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:pin-set",
+      "kind": "renderer-event",
+      "name": "pin-set",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 212,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 324,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:pin-unlocked",
+      "kind": "renderer-event",
+      "name": "pin-unlocked",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 214,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 326,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
       "id": "renderer-event:popup",
       "kind": "renderer-event",
       "name": "popup",
@@ -37445,13 +37445,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 194,
+          "line": 199,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 310,
+          "line": 315,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37467,13 +37467,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 294,
+          "line": 299,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 334,
+          "line": 339,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37489,13 +37489,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 290,
+          "line": 295,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 333,
+          "line": 338,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37511,13 +37511,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 193,
+          "line": 198,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 309,
+          "line": 314,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37533,13 +37533,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 241,
+          "line": 246,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 337,
+          "line": 342,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37555,7 +37555,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 270,
+          "line": 275,
           "column": 3,
           "expression": "Renderer.on"
         }
@@ -37571,13 +37571,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 234,
+          "line": 239,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 331,
+          "line": 336,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37593,7 +37593,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 276,
+          "line": 281,
           "column": 3,
           "expression": "Renderer.on"
         }
@@ -37609,7 +37609,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 235,
+          "line": 240,
           "column": 3,
           "expression": "Renderer.on"
         }
@@ -37625,7 +37625,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 266,
+          "line": 271,
           "column": 3,
           "expression": "Renderer.on"
         }
@@ -37641,13 +37641,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 251,
+          "line": 256,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 328,
+          "line": 333,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37663,13 +37663,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 206,
+          "line": 211,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 318,
+          "line": 323,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37685,13 +37685,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 303,
+          "line": 308,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 336,
+          "line": 341,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37707,13 +37707,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 302,
+          "line": 307,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 335,
+          "line": 340,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37729,13 +37729,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 196,
+          "line": 201,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 312,
+          "line": 317,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37751,13 +37751,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 197,
+          "line": 202,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 313,
+          "line": 318,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37773,13 +37773,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 195,
+          "line": 200,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 311,
+          "line": 316,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37795,7 +37795,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 327,
+          "line": 332,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37811,13 +37811,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 256,
+          "line": 261,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 329,
+          "line": 334,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37929,7 +37929,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 603,
+          "line": 608,
           "column": 26,
           "expression": "'/auth/better-login'"
         },
@@ -38027,7 +38027,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 287,
+          "line": 292,
           "column": 4,
           "expression": "'/auth/pin-check'"
         },
@@ -38061,13 +38061,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 453,
+          "line": 458,
           "column": 4,
           "expression": "'/auth/select'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 620,
+          "line": 625,
           "column": 4,
           "expression": "'/auth/select'"
         },
@@ -38161,37 +38161,37 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 483,
+          "line": 488,
           "column": 5,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 507,
+          "line": 512,
           "column": 6,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 516,
+          "line": 521,
           "column": 6,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 634,
+          "line": 639,
           "column": 7,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 641,
+          "line": 646,
           "column": 8,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 650,
+          "line": 655,
           "column": 6,
           "expression": "'/auth/setup/init'"
         },
@@ -38413,7 +38413,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 222,
+          "line": 227,
           "column": 16,
           "expression": "redirect"
         },
@@ -38435,7 +38435,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 776,
+          "line": 781,
           "column": 4,
           "expression": "route"
         },
@@ -38711,7 +38711,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/app.tsx",
-        "line": 222,
+        "line": 227,
         "column": 28,
         "expression": "redirect"
       }
@@ -38722,7 +38722,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/app.tsx",
-        "line": 776,
+        "line": 781,
         "column": 16,
         "expression": "route"
       }
@@ -38733,7 +38733,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/app.tsx",
-        "line": 850,
+        "line": 855,
         "column": 23,
         "expression": "path"
       }

@@ -94,27 +94,32 @@ enableLogging({
 */
 
 
-Sentry.init({
-	release: electron.version.app,
-	environment: isPackaged ? 'production' : 'development',
-	dsn: SENTRY_DSN,
-	maxBreadcrumbs: 20,
-	beforeSend: (e: any) => {
-		e.request.url = '';
-		return e;
-	},
-	integrations: [
-		new Sentry.Integrations.GlobalHandlers({
-			onerror: true,
-			onunhandledrejection: true,
-		}),
-	],
-});
+// The web build ships no DSN unless the operator supplies one, and Sentry.init with an empty dsn is a
+// no-op client that still installs the global error handlers and warns on every boot — so the client is
+// only built when a destination was named.
+if (SENTRY_DSN) {
+	Sentry.init({
+		release: electron.version.app,
+		environment: isPackaged ? 'production' : 'development',
+		dsn: SENTRY_DSN,
+		maxBreadcrumbs: 20,
+		beforeSend: (e: any) => {
+			e.request.url = '';
+			return e;
+		},
+		integrations: [
+			new Sentry.Integrations.GlobalHandlers({
+				onerror: true,
+				onunhandledrejection: true,
+			}),
+		],
+	});
 
-Sentry.setContext('info', {
-	network: I.NetworkMode[S.Auth.networkConfig?.mode],
-	isPackaged: isPackaged,
-});
+	Sentry.setContext('info', {
+		network: I.NetworkMode[S.Auth.networkConfig?.mode],
+		isPackaged: isPackaged,
+	});
+}
 
 const RoutePage: FC<RouteComponentProps> = (props) => {
 
