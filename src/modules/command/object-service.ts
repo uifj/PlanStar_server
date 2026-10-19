@@ -10,7 +10,11 @@ import { relationService } from "../relations/service.js";
 import { ensureAccount } from "./account-service.js";
 import { storeImageFile } from "./file-service.js";
 import { fetchLinkPreview, fetchPreviewImage } from "./link-preview-service.js";
-import { COLLECTION_RELATION, numericLayout } from "./registry-service.js";
+import {
+	COLLECTION_RELATION,
+	numericLayout,
+	recommendedLayoutName,
+} from "./registry-service.js";
 import type { CommandBody } from "./schema.js";
 import {
 	DATAVIEW_BLOCK_ID,
@@ -146,11 +150,88 @@ export async function createObject(user: AuthUser, body: CommandBody) {
 			spaceId,
 			name,
 			typeId,
-			resolvedLayout: "basic",
+			// A type recommends a layout precisely so its objects render differently; taking it up
+			// here is what makes a Task type produce tasks instead of pages to be repaired later.
+			resolvedLayout: await inheritedLayout(typeId),
 			details: persisted as Prisma.InputJsonObject,
 			creatorId: user.id,
 		},
 	});
+}
+
+async function inheritedLayout(typeId: string | null) {
+	if (!typeId) {
+		return "basic" as const;
+	}
+	const type = await prisma.obj.findUnique({
+		where: { id: typeId },
+		select: { details: true },
+	});
+	const details = type?.details;
+	const recommended =
+		details && typeof details === "object" && !Array.isArray(details)
+			? recommendedLayoutName(
+					(details as Record<string, unknown>).recommendedLayout,
+				)
+			: null;
+	return recommended ?? ("basic" as const);
+}
+
+/**
+ * ObjectTypeResolveLayoutConflicts — the type page's "Reset to match the Type"
+ * (page/elements/head/simple.tsx:248), whose own copy promises to reset "layout type, alignment, and
+ * featured properties for all objects of this type". The layout is the part this server stores, so
+ * that is the part it performs: every live object of the type that does not already carry the
+ * recommended layout is rewritten to it. A type recommending nothing resets nothing, and a caller
+ * without writer access throws for the command to answer FORBIDDEN.
+ */
+export async function resolveLayoutConflicts(
+	user: AuthUser,
+	body: CommandBody,
+) {
+	const typeObjectId =
+		typeof body.typeObjectId === "string" ? body.typeObjectId : "";
+	const type = await prisma.obj.findUnique({
+		where: { id: typeObjectId },
+		select: { spaceId: true, resolvedLayout: true, details: true },
+	});
+	if (!type) {
+		return { status: "notFound" as const, objectIds: [] as string[] };
+	}
+
+	await ensureSpaceAccess(user.id, type.spaceId, "writer");
+
+	if (numericLayout(type) !== LAYOUT_TYPE) {
+		return { status: "notAType" as const, objectIds: [] as string[] };
+	}
+
+	const raw = type.details;
+	const recommended =
+		raw && typeof raw === "object" && !Array.isArray(raw)
+			? recommendedLayoutName(
+					(raw as Record<string, unknown>).recommendedLayout,
+				)
+			: null;
+	if (!recommended) {
+		return { status: "reset" as const, spaceId: type.spaceId, objectIds: [] };
+	}
+
+	const candidates = await prisma.obj.findMany({
+		where: { spaceId: type.spaceId, typeId: typeObjectId, isArchived: false },
+		select: { id: true, resolvedLayout: true },
+	});
+	const objectIds = candidates
+		.filter((row) => row.resolvedLayout !== recommended)
+		.map((row) => row.id);
+
+	if (objectIds.length) {
+		await prisma.obj.updateMany({
+			where: { id: { in: objectIds } },
+			data: { resolvedLayout: recommended },
+		});
+	}
+
+	return { status: "reset" as const, spaceId: type.spaceId, objectIds };
 }
 
 // ObjectCreateSet mints a brand-new Set object (dataview.tsx:964, dataview/head.tsx:134,

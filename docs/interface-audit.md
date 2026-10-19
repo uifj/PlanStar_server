@@ -11,7 +11,7 @@ What the shipped web client actually reaches:
 
 | Surface | Client side | Server side | State |
 | --- | --- | --- | --- |
-| `POST /api/command/<Name>` | `lib/api/service.ts:427` (`ServiceClient.request`) | `src/modules/command/router.ts` → `run()` | live, 133 commands answered |
+| `POST /api/command/<Name>` | `lib/api/service.ts:427` (`ServiceClient.request`) | `src/modules/command/router.ts` → `run()` | live, 134 commands answered |
 | `GET /api/events` (SSE) | `lib/api/service.ts:461` (`listenSessionEvents`) | `src/modules/pubsub/router.ts` | live |
 | `GET/POST /api/spaces` | `lib/api/spaces.ts:34,47` | `src/modules/spaces/router.ts` | live, but only the auth bootstrap path |
 | `POST /api/web-upload` | `lib/web/electronMock.ts:27` | `src/modules/files/router.ts:26` | live (file picker) |
@@ -31,11 +31,11 @@ every capability as `pending` — it describes the client's surface, never claim
 done — so the split below is the join's output, not a hand-diff.
 
 - The client dispatches **265** command names; **236** of them have a call site.
-- The shim answers **133** of them (105 at the audit's first pass, the 22 `BlockDataview*` writes
+- The shim answers **134** of them (105 at the audit's first pass, the 22 `BlockDataview*` writes
   added by task #250, the inline-block binding of item 24, `AIListModels`, `ObjectImport` of item 27,
-  `FileDrop` of item 28, `ObjectListExport` of item 29, plus `AccountStop`, which `router.ts` answers
-  outside the switch).
-- **108 called commands have no server answer.** They are not one bucket — see §3.
+  `FileDrop` of item 28, `ObjectListExport` of item 29, `ObjectTypeResolveLayoutConflicts` of item 30,
+  plus `AccountStop`, which `router.ts` answers outside the switch).
+- **107 called commands have no server answer.** They are not one bucket — see §3.
 - **5 answered commands have no literal call site**: `ChatUnreadMessages` (the client's unread path
   uses `ChatSubscribeToMessagePreviews` counters instead), `ObjectToSet` (see §4 — the set screen calls
   a *different* entry point), and `BlockDataviewFilterSort` / `BlockDataviewSetSource` /
@@ -50,7 +50,7 @@ done — so the split below is the join's output, not a hand-diff.
   reach. The inventory's own `unresolved` list (`needs-review`) is where the generator parks exactly
   this kind of dynamic expression — read it rather than assuming the counts are exhaustive.
 
-## 3. The 108 unanswered commands, classified
+## 3. The 107 unanswered commands, classified
 
 **(a) Genuine feature gaps — the set/collection/board/gallery screens.** The client renders those
 screens from `component/page/main/set.tsx` and `media.tsx`, which mount the block tree and drive the
@@ -395,26 +395,32 @@ the state it would need to replay does not.
     `{objectCount: 43, objectErrors: 0}` and `GET` of the returned URL came back 200,
     `application/zip`, 5136 bytes, `PK\x03\x04`.
 
-30. **A type's recommended layout changes nothing** — **open, and not a shim case.** The type
-    sidebar's Layout section writes `recommendedLayout` through the answered `ObjectListSetDetails`
+30. **A type's recommended layout changed nothing** — **fixed** (ADR-0022). The type sidebar wrote
+    `recommendedLayout` through the answered `ObjectListSetDetails`
     (`component/sidebar/section/type/layout.tsx:36` → `sidebar/page/type.tsx:175`), and the type page's
     header offers "Reset to match the Type" (`page/elements/head/simple.tsx:248`), whose copy is
-    explicit: "reset layout type, alignment, and featured properties for all objects of this type".
-    Both are silent no-ops here, for two reasons that a `case` cannot fix:
-    - `ObjectCreate` never reads the type: it stamps `resolvedLayout: "basic"` with a `details.layout`
-      marker of `"page"` (`object-service.ts:128,149`), so an object's layout is decided at creation
-      and no type default reaches it. Inheriting at create is the first half of the fix;
-      `ObjectTypeResolveLayoutConflicts` is the second half, for the objects that already exist.
-    - The layouts the client can pick are wider than what this server can store. `recommendedLayout`
-      arrives as a number (`I.ObjectLayout.Task`, `Human`, …), but `Obj.resolvedLayout` is the Prisma
-      enum `ObjectLayout` (`prisma/schema.prisma:223`), whose members are exactly the layouts this
-      server's own creation paths produce — `basic, relation, objectType, dataview, collection, set,
-      file, image, audio, video, pdf, bookmark, discussion, date`. There is no `todo`/`note` member,
-      so a reset to Task cannot be persisted at all. A real fix starts with the enum and its
-      migration, then `numericLayout`'s name map, then the two command paths — which is a feature
-      slice, not a defect to paper over with a partial write that drifts back on the next object.
-    The command is dispatched without a callback, so the user gets no error either: the confirm
-    dialog closes and nothing changes.
+    explicit: "reset layout type, alignment, and featured properties for all objects of this type". But
+    `ObjectCreate` stamped every object `basic` and the command had no answer, and because the shell
+    dispatches it without a callback, the confirm dialog simply closed over an unchanged space.
+    Neither half was a `case`: the layouts the sidebar offers (Human 1, Task 2, Note 9) were not even
+    storable, since `Obj.resolvedLayout` is the Prisma enum `ObjectLayout`
+    (`prisma/schema.prisma:223`) and its members were exactly the layouts this server's own creation
+    paths produced.
+    So the enum gained `human`/`task`/`note` through an additive migration, `numericLayout` learned their
+    numbers, `ObjectCreate` now inherits the type's recommendation, and
+    `ObjectTypeResolveLayoutConflicts` rewrites the live objects of that type that do not carry it —
+    writer-gated on the type's space, NOT_FOUND for a missing type, NOT_SUPPORTED for an id that is not a
+    type, then a subscription re-evaluation so open lists update without a reload.
+    **Deliberately not done**: the copy also promises alignment and featured relations. Alignment in this
+    build lives in the Yjs body per paragraph rather than on the object, and featured relations have no
+    type-side default to copy, so resetting them would be an invented behaviour rather than a narrower
+    one; and a Set/Collection recommendation is not inherited either, because a list layout needs a
+    source or a membership that a recommendation cannot supply.
+    Verified live in the running client: after recommending Task, a newly created object of that type came
+    back `{layout: 2, resolvedLayout: 2, done: false}` from `ObjectShow`; an object created *before* the
+    recommendation stayed `layout: 0` until the reset answered code 0 and its projection became 2; and
+    the type's own grid rendered that row as `class="row isTask"` — the client's layout guard deciding
+    the render, not our number.
 
 ## 5. Dead code and obsolete surface to prune
 

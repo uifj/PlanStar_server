@@ -672,6 +672,12 @@ export async function participantRecords(spaceId: string) {
 // ObjectLayout.Page === 0 (front_web interface/object.ts). The Prisma enum stores a
 // name, so the subscription record carries the number the shell's layout guards read.
 const LAYOUT_PAGE = 0;
+// The page-format shapes a type can recommend in the client's Layout section
+// (front_web interface/object.ts: Human === 1, Task === 2, Note === 9). Page itself is the
+// schema's `basic`.
+const LAYOUT_HUMAN = 1;
+const LAYOUT_TASK = 2;
+const LAYOUT_NOTE = 9;
 // ObjectLayout.Collection === 14 (front_web interface/object.ts:16).
 const LAYOUT_COLLECTION = 14;
 // ObjectLayout.Set === 3 (front_web interface/object.ts:5).
@@ -699,6 +705,9 @@ const LAYOUT_DATE = 17;
 const LAYOUT_CHAT = 22;
 const NUMERIC_LAYOUT: Record<string, number> = {
 	basic: 0,
+	human: LAYOUT_HUMAN,
+	task: LAYOUT_TASK,
+	note: LAYOUT_NOTE,
 	relation: LAYOUT_RELATION,
 	objectType: LAYOUT_TYPE,
 	dataview: 0,
@@ -747,6 +756,26 @@ export function numericLayout(row: {
 	}
 
 	return fromMarker ?? LAYOUT_PAGE;
+}
+
+// A type's `recommendedLayout` arrives as the client's number (its Layout section offers
+// Page/Human/Task/Note, interface/object.ts:0/1/2/9) while the column stores a name.
+const RECOMMENDED_LAYOUT_NAME = {
+	0: "basic",
+	1: "human",
+	2: "task",
+	9: "note",
+} as const;
+
+/**
+ * The layout a type recommends for its objects, or null when it recommends nothing or names a
+ * layout a plain object cannot simply be turned into — Set and Collection need a source or a
+ * membership, which a recommendation cannot supply.
+ */
+export function recommendedLayoutName(value: unknown) {
+	return typeof value === "number" && value in RECOMMENDED_LAYOUT_NAME
+		? RECOMMENDED_LAYOUT_NAME[value as keyof typeof RECOMMENDED_LAYOUT_NAME]
+		: null;
 }
 
 // A plain object projected into the J.Relation.default record shape the recent

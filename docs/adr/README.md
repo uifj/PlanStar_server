@@ -29,6 +29,7 @@ of implementation.** New migration records state pending/staged implementation e
 | [0019](0019-authorised-subscription-events.md) | Feed MobX with authorised subscription events | accepted; implementation pending, staged |
 | [0020](0020-client-first-command-shim-transport.md) | Run the shell's command surface on a client-first shim during migration | accepted; shim + first boot slice implemented, typed end state pending |
 | [0021](0021-keep-rest-api-mark-superseded.md) | Keep the pre-pivot REST API mounted, mark the operations the shim superseded deprecated | accepted; implemented |
+| [0022](0022-type-recommended-layout.md) | Inherit a type's recommended layout at create, reset it on demand | accepted; implemented (layout half only) |
 
 ## Current migration status, 2026-10-16
 

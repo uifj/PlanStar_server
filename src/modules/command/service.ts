@@ -97,6 +97,7 @@ import {
 	removeCollectionMembers,
 	removeObjectRelations,
 	removeRelationOptions,
+	resolveLayoutConflicts,
 	setFeaturedRelations,
 	setObjectDetails,
 	setObjectSources,
@@ -1114,6 +1115,33 @@ export async function run(
 			);
 
 			return { error: OK, event: null, relationOptionOrder };
+		}
+
+		// ObjectTypeResolveLayoutConflicts is the type page's "Reset to match the Type"
+		// (page/elements/head/simple.tsx:248), fired without a callback — the user only ever sees the
+		// effect. The type's own space must be writable, a missing type answers NOT_FOUND, and the id of
+		// something that is not a type answers NOT_SUPPORTED, since "this object's type default" is a
+		// question that has no answer there.
+		case "ObjectTypeResolveLayoutConflicts": {
+			let reset: Awaited<ReturnType<typeof resolveLayoutConflicts>>;
+			try {
+				reset = await resolveLayoutConflicts(user, body);
+			} catch {
+				return { error: FORBIDDEN, event: null };
+			}
+
+			if (reset.status === "notFound") {
+				return { error: NOT_FOUND, event: null };
+			}
+			if (reset.status === "notAType") {
+				return { error: NOT_SUPPORTED, event: null };
+			}
+
+			// Same reveal as any other batch write: the lists that already show these objects have to
+			// re-read them, or the reset would only be visible after a reload.
+			await subscriptionRegistry.reevaluate(reset.spaceId);
+
+			return { error: OK, event: null };
 		}
 
 		// The caller dragged the widget's type rail into a new order (widget/object.tsx:244).

@@ -2,6 +2,9 @@ import type { RelationDefinition } from "./filters.js";
 
 export const OBJECT_LAYOUTS = [
 	"basic",
+	"human",
+	"task",
+	"note",
 	"relation",
 	"objectType",
 	"dataview",
