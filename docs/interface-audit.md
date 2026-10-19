@@ -422,32 +422,29 @@ the state it would need to replay does not.
     the type's own grid rendered that row as `class="row isTask"` — the client's layout guard deciding
     the render, not our number.
 
-31. **A cold load of an object URL loses the requested object** — **root cause found; the route half
-    is fixed, the render half is open** (task #276).
-    *Fixed*: the app's own routes carry their parameters in the **query string**
-    (`U.Router.build` → `/main/object/?id=…&spaceId=…`), but the web boot kept only the pathname —
-    `entry.web.tsx` stored `window.location.pathname` as the redirect, `app.tsx:358` preferred
+31. **A cold load of an object URL loses the requested object** — **fixed** (task #276).
+    The app's own routes carry their parameters in the **query string**
+    (`U.Router.build` → `/main/object/?id=…&spaceId=…`), but the web boot kept only the pathname:
+    `entry.web.tsx` stored `window.location.pathname` as the post-auth redirect, `app.tsx:358` preferred
     `window.location.pathname` as the shared route, and `routeSync.ts:68` handed the popstate handler a
-    pathname. So a reloaded or shared object link reached the redirector page with `id` undefined, and
-    `U.Object.getById(undefined)` fell through to `openDashboardOrVoid()`. One module now owns the
-    question — `front_web/src/ts/lib/web/deepLink.ts` (`sharedRoute`, `stripConfigParams`), with six unit
-    tests — and all three call sites go through it, keeping the query while still dropping the boot-config
-    params (`server`, `dataPath`) that the entry point consumes. Live after the change: cold-loading
-    `/main/object/?id=cmvdkx3ab0002a83opxgbs16o&spaceId=cmvaxybk…` resolves to
-    `/main/edit/<id>/spaceId/<space>` and `S.Detail.get(id, id)` returns `{name: "Bergen wharf"}` —
-    previously the same load left that id `_empty_` and bounced to the dashboard.
-    *Still open*: the page then renders no content. On the resolved route
-    `/main/edit/<id>/spaceId/<space>` the `#head` stays its 124-byte empty shell, the title element is
-    absent, and the ProseMirror body is empty — even though the detail store holds the object
-    (`{name: "Bergen wharf"}`). And this is **not a boot-order race**: navigating to the same route inside
-    the already-booted app (`U.Router.go('/main/edit/<id>/spaceId/<space>')`) renders exactly the same
-    empty head. So what is missing is the object page's own render path — the legacy block leaf that
-    `head/controlButtons.tsx` and `head/simple.tsx` read through `S.Block.getLeaf(rootId, rootId)`, which
-    this build never populates for a Yjs-only object — not the transport or the route. The earlier
-    acceptance row §4-7 ("a reload or deep link loses the requested object") is now closed for the part
-    it was written about (the requested object *is* reached); the blank-page half is a separate, newly
-    named defect in task #276, and any claim that opening an object from the sidebar renders it must be
-    re-verified rather than assumed.
+    pathname. So a reloaded or shared object link reached the object redirector with `id` undefined, and
+    `U.Object.getById(undefined)` fell through to `openDashboardOrVoid()` — the link looked dead even
+    though every command answered correctly.
+    One module now owns the question — `front_web/src/ts/lib/web/deepLink.ts` (`sharedRoute`,
+    `stripConfigParams`) — with all three call sites reading it: the search survives, non-app paths are
+    ignored, and only the `server`/`dataPath` params the entry point consumes are dropped, so a shared
+    link cannot reconfigure the transport on later boots. Six unit tests in `deepLink.test.ts`.
+    Verified live on a cold load: `/main/object/?id=cmvcrw7mr…&spaceId=cmvaxybk…` resolves to
+    `/main/edit/<id>/spaceId/<space>`, `#header .side.center` reads **"Widgets"**, and the Tiptap body
+    renders the persisted document (`Clean component persists too1235 sfesf diff-probe …`).
+    **Two probe misreads corrected here, because both initially looked like defects:**
+    `#head` is not the object header (`#header` is), so "the head renders an empty 124-byte shell" was
+    my selector, not the page; an empty `.ProseMirror` on "Bergen wharf" matched that object's own
+    `snippet: ""` rather than a failed body load. And `ObjectOpen`'s wire field is `objectId`
+    (command.ts:1252), with `objectView` an object rather than an array — a hand-built
+    `{contextId}` probe answers NOT_FOUND and an `objectView[0]` read looks like an empty response.
+    Lesson for this repo, again: read the element the component actually renders and the field the
+    wrapper actually sends before recording a defect.
 
 ## 5. Dead code and obsolete surface to prune
 

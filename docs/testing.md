@@ -229,6 +229,7 @@ Flow executed in the browser, each step observed rather than assumed:
 | file drop | dropping a file onto a page stages it, `FileDrop` code 0, and the body gains an `attachment` node whose filename has the `<timestamp>-<rand>-` staging prefix stripped |
 | export (Settings → Export) | `ObjectListExport` code 0 with `report.objectCount` for the whole space; the returned `/api/export/<name>` serves `200 application/zip` starting `PK\x03\x04`, and the browser download saves it |
 | type recommended layout | sidebar sets a type to Task → `ObjectCreate` of that type answers `{layout: 2, resolvedLayout: 2}` and the type's grid renders the row as `class="row isTask"`; an object created before the recommendation stays `layout: 0` until `ObjectTypeResolveLayoutConflicts` answers code 0 and its projection becomes 2 |
+| deep link / reload | cold-load `/main/object/?id=…&spaceId=…` → resolves to `/main/edit/<id>/spaceId/<space>`, `#header .side.center` shows the title and the Tiptap body renders the persisted document; before the fix the same URL fell through to the space dashboard because only the pathname was restored |
 
 Interface sweep (each command called with the payload the client's `command.ts` actually sends):
 `ObjectShow`, `ObjectSearchWithMeta`, `ObjectCrossSpaceSearch`, `ObjectGraph`,
