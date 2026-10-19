@@ -56,6 +56,7 @@ import {
 	type DataviewWrite,
 	dataviewWrite,
 } from "./dataview-write.js";
+import { exportObjects } from "./export-service.js";
 import { dropFiles } from "./file-drop.js";
 import { uploadFile } from "./file-service.js";
 import { fileIngressError, importFiles } from "./import-service.js";
@@ -803,6 +804,27 @@ export async function run(
 			await subscriptionRegistry.reevaluate(spaceId);
 
 			return { error: OK, event: null, objectIds };
+		}
+
+		// ObjectListExport: the desktop command writes into a picked directory, which a browser
+		// has no equivalent of, so this build writes under its own export root and answers the
+		// download URL plus the report the result popup reads (exportReport.ts:13).
+		case "ObjectListExport": {
+			let exported: Awaited<ReturnType<typeof exportObjects>>;
+			try {
+				exported = await exportObjects(user, body);
+			} catch (error) {
+				const refused = fileIngressError(error);
+				return { error: refused ?? FORBIDDEN, event: null };
+			}
+
+			return {
+				error: OK,
+				event: null,
+				path: exported.path,
+				filename: exported.filename,
+				report: exported.report,
+			};
 		}
 
 		// ObjectCreateSet mints a fresh Set object (dataview.tsx:964, dataview/head.tsx:134,

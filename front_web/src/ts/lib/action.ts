@@ -578,18 +578,24 @@ class Action {
 	 */
 	export (spaceId: string, ids: string[], type: I.ExportType, param: any, onSelectPath?: () => void, callBack?: (message: any) => void): void {
 		const { zip, nested, files, archived, json, route } = param;
+		const electron = U.Common.getElectron();
 
-		this.openDirectoryDialog({ buttonLabel: translate('commonExport') }, paths => {
+		// A browser has no directory the server may write into, so there is no target to pass:
+		// ObjectListExport then writes under its own export root and answers a download URL,
+		// which the web adapter's download handler saves like any other browser download.
+		const downloads = electron.platform === 'web';
+
+		const run = (target: string) => {
 			onSelectPath?.();
 
-			C.ObjectListExport(spaceId, paths[0], ids, type, zip, nested, files, archived, json, (message: any) => {
+			C.ObjectListExport(spaceId, target, ids, type, zip, nested, files, archived, json, (message: any) => {
 				const status = getExportResultStatus(message.report, message.error.code);
 				if (status != 'Success') {
 					S.Popup.open('exportResult', {
 						data: {
 							report: message.report,
 							error: message.error,
-							path: message.path && !message.error.code ? paths[0] : '',
+							path: downloads ? '' : (message.path && !message.error.code ? target : ''),
 							spaceId,
 							exportType: type,
 						},
@@ -601,13 +607,24 @@ class Action {
 				};
 
 				if (status == 'Success') {
-					this.openPath(paths[0]);
+					if (downloads) {
+						electron.Api(0, 'download', [message.path, { filename: message.filename }]);
+					} else {
+						this.openPath(target);
+					};
 				};
 				analytics.event('Export', { type, middleTime: message.middleTime, route });
 
 				callBack?.(message);
 			});
-		});
+		};
+
+		if (downloads) {
+			run('');
+			return;
+		};
+
+		this.openDirectoryDialog({ buttonLabel: translate('commonExport') }, paths => run(paths[0]));
 	};
 
 	/**

@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import type { Context } from "hono";
@@ -24,6 +24,7 @@ export const filesRouter = new OpenAPIHono<{ Variables: AuthType }>();
 filesRouter.use("/file/*", sessionMiddleware, requireAuth);
 filesRouter.use("/image/*", sessionMiddleware, requireAuth);
 filesRouter.use("/web-upload", sessionMiddleware, requireAuth);
+filesRouter.use("/export/*", sessionMiddleware, requireAuth);
 
 // The browser file dialog stages a picked file's base64 here (lib/web/electronMock.ts), then
 // feeds the returned path to FileUpload as localPath. Mirrors the Vite dev middleware so the
@@ -111,3 +112,34 @@ filesRouter.get("/file/:id", (c) => serveStoredFile(c, c.req.param("id")));
 
 // The image endpoint serves the same bytes; width bucketing/resizing is a follow-up.
 filesRouter.get("/image/:id", (c) => serveStoredFile(c, c.req.param("id")));
+
+// ObjectListExport writes its archive here, because a browser cannot hand the server a
+// directory to export into. Only a bare file name is accepted and it is resolved inside
+// EXPORT_ROOT, so the URL cannot walk the filesystem.
+const EXPORT_NAME = /^[A-Za-z0-9._-]+$/;
+
+filesRouter.get("/export/:name", async (c) => {
+	const name = c.req.param("name");
+	if (!EXPORT_NAME.test(name)) {
+		return c.json({ error: "Not found." }, 404);
+	}
+
+	const bytes = await readFile(join(resolve(env.EXPORT_ROOT), name)).catch(
+		() => null,
+	);
+	if (!bytes) {
+		return c.json({ error: "Not found." }, 404);
+	}
+
+	const contentType = name.endsWith(".zip")
+		? "application/zip"
+		: name.endsWith(".json")
+			? "application/json"
+			: "text/markdown";
+
+	return c.body(bytes as unknown as ArrayBuffer, 200, {
+		"Content-Type": contentType,
+		"Content-Length": String(bytes.byteLength),
+		"Content-Disposition": `attachment; filename="${name.replace(/"/g, "")}"`,
+	});
+});

@@ -43,6 +43,14 @@ const envSchema = z.object({
 	 * resulting path is handed back to FileUpload, which moves them into the file store.
 	 */
 	FILE_UPLOAD_STAGING_ROOT: z.string().min(1).default(".data/uploads"),
+
+	/**
+	 * Directory the ObjectListExport command writes archives into so a browser can download
+	 * them (GET /api/export/{name}). A browser cannot hand the server a writable directory, so
+	 * this is the export target; the names served back are matched against a conservative
+	 * pattern and resolved inside this root.
+	 */
+	EXPORT_ROOT: z.string().min(1).default(".data/exports"),
 });
 
 const result = envSchema.safeParse(process.env);
