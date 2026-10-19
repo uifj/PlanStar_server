@@ -81,6 +81,8 @@
 
 验收清单已全部走完实盘（含 collection 网格行）。文件三兄弟（导入 #153、落盘 #152、导出 #274）也已逐个实现并实盘。仍然**延期**而非「待验收」的只剩：#100（ADR-0018 正文持久化水位与客户端 ack）、#154（`?width=` 缩略图，只是带宽）。
 
+审计最后一条**新发现、尚未修**的功能缺陷是 #275「类型的推荐布局对对象毫无作用」：类型侧栏把 `recommendedLayout` 写进了库（走已实现的 `ObjectListSetDetails`），类型页头部的「Reset to match the Type」也确实发了 `ObjectTypeResolveLayoutConflicts`，但客户端不接回调，所以确认框关掉后什么都没发生。两处根因都不是加一个 `case` 能了事的：`ObjectCreate` 从不读类型（固定写 `basic` + `details.layout: "page"`），而 Prisma 的 `ObjectLayout` 枚举里没有 `todo`/`note`，客户端能选的 `Task`/`Human` 根本存不下。修的顺序：扩枚举 + migration → `numericLayout` 的名字表 → 建对象时继承类型默认 → 再补批量重置（只做布局，对齐与 featured 需要单独决定）。详见 `docs/interface-audit.md` §4 第 30 条。
+
 但审计收尾时按客户端实际可达性复核后，#152 / #153 的标签并不一样，已写进 `docs/interface-audit.md` §3c：
 
 - ~~**#153 的导出半边确实不可达**~~ → **已实现（#274）**：目录确实拿不到（web picker 只会选文件、并把选中的文件上传后当作「目录」返回），所以不再要目录 —— `Action.export` 在 web 分支跳过 picker、传空 path，服务端把归档写到自己的 `EXPORT_ROOT` 并回一个下载 URL，浏览器按普通下载保存。归档由 `src/modules/files/zip.ts` 手写 store-only ZIP（不压缩、零新依赖，因为任意大小的选择集都必须是一个文件），正确性用 `unzip -t` 的单测兜底。格式只支持 Markdown / JSON；Protobuf / Dot / Svg / GraphJson / AnyBlockV2 回 code 12 并写明原因。实盘：导出整个开发空间返回 `{objectCount: 43, objectErrors: 0}`，取回的 URL 是 200 / `application/zip` / 5136 字节 / `PK\x03\x04`。

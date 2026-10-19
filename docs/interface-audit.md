@@ -395,6 +395,27 @@ the state it would need to replay does not.
     `{objectCount: 43, objectErrors: 0}` and `GET` of the returned URL came back 200,
     `application/zip`, 5136 bytes, `PK\x03\x04`.
 
+30. **A type's recommended layout changes nothing** — **open, and not a shim case.** The type
+    sidebar's Layout section writes `recommendedLayout` through the answered `ObjectListSetDetails`
+    (`component/sidebar/section/type/layout.tsx:36` → `sidebar/page/type.tsx:175`), and the type page's
+    header offers "Reset to match the Type" (`page/elements/head/simple.tsx:248`), whose copy is
+    explicit: "reset layout type, alignment, and featured properties for all objects of this type".
+    Both are silent no-ops here, for two reasons that a `case` cannot fix:
+    - `ObjectCreate` never reads the type: it stamps `resolvedLayout: "basic"` with a `details.layout`
+      marker of `"page"` (`object-service.ts:128,149`), so an object's layout is decided at creation
+      and no type default reaches it. Inheriting at create is the first half of the fix;
+      `ObjectTypeResolveLayoutConflicts` is the second half, for the objects that already exist.
+    - The layouts the client can pick are wider than what this server can store. `recommendedLayout`
+      arrives as a number (`I.ObjectLayout.Task`, `Human`, …), but `Obj.resolvedLayout` is the Prisma
+      enum `ObjectLayout` (`prisma/schema.prisma:223`), whose members are exactly the layouts this
+      server's own creation paths produce — `basic, relation, objectType, dataview, collection, set,
+      file, image, audio, video, pdf, bookmark, discussion, date`. There is no `todo`/`note` member,
+      so a reset to Task cannot be persisted at all. A real fix starts with the enum and its
+      migration, then `numericLayout`'s name map, then the two command paths — which is a feature
+      slice, not a defect to paper over with a partial write that drifts back on the next object.
+    The command is dispatched without a callback, so the user gets no error either: the confirm
+    dialog closes and nothing changes.
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,
