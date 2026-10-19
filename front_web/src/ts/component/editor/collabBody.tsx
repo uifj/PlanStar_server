@@ -59,6 +59,15 @@ const CollabBody = (props: Props) => {
 	}, [provider]);
 
 	useEffect(() => {
+		// `editable` is only read when useEditor builds the instance, and the deps are the provider,
+		// so a page mounted before its object view reaches the store — which is every cold load and
+		// deep link — would keep the read-only verdict it guessed at mount forever.
+		if (editor) {
+			editor.setEditable(!readonly);
+		};
+	}, [editor, readonly]);
+
+	useEffect(() => {
 		return () => {
 			provider.destroy();
 		};

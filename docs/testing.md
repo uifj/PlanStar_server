@@ -230,6 +230,7 @@ Flow executed in the browser, each step observed rather than assumed:
 | export (Settings → Export) | `ObjectListExport` code 0 with `report.objectCount` for the whole space; the returned `/api/export/<name>` serves `200 application/zip` starting `PK\x03\x04`, and the browser download saves it |
 | type recommended layout | sidebar sets a type to Task → `ObjectCreate` of that type answers `{layout: 2, resolvedLayout: 2}` and the type's grid renders the row as `class="row isTask"`; an object created before the recommendation stays `layout: 0` until `ObjectTypeResolveLayoutConflicts` answers code 0 and its projection becomes 2 |
 | deep link / reload | cold-load `/main/object/?id=…&spaceId=…` → resolves to `/main/edit/<id>/spaceId/<space>`, `#header .side.center` shows the title and the Tiptap body renders the persisted document; before the fix the same URL fell through to the space dashboard because only the pathname was restored |
+| cold-load editing + single drag system | on that reloaded page `contenteditable="true"` and typing reaches the server (DOM text and `ObjectShow`'s `snippet` match); 0 `.dragHandle` nodes even after hovering a block, and an empty body shows one placeholder, not two (ADR-0023) |
 
 Interface sweep (each command called with the payload the client's `command.ts` actually sends):
 `ObjectShow`, `ObjectSearchWithMeta`, `ObjectCrossSpaceSearch`, `ObjectGraph`,

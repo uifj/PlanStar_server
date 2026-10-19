@@ -448,6 +448,27 @@ the state it would need to replay does not.
     Lesson for this repo, again: read the element the component actually renders and the field the
     wrapper actually sends before recording a defect.
 
+32. **The body editor carried a second block-drag system, and a cold load was read-only** — **fixed**
+    (ADR-0023). `component/editor/dragHandle.ts` installed `@tiptap/extension-drag-handle` +
+    `extension-node-range`, floating a `⠿` grip beside the hovered block, while the shell's own
+    `component/drag/provider.tsx` already owns every drag gesture in the app (files onto a page, rows in
+    the vault/widgets/dataviews through `@dnd-kit`). Two content-drag vocabularies on one page is an
+    ambiguity, not a redundancy of features, and the Tiptap handle could not express the store's block
+    semantics anyway — it moved a node inside one document. It is removed: the module and its test are
+    gone, `createCollabExtensions` no longer installs it, and the `.dragHandle` styles left
+    `collabBody.scss`. Body block reordering is simply not offered on web.
+    What the grip had been masking was worse: `CollabBody` passed `editable: !readonly` into `useEditor`
+    whose dependency list is `[provider]`, so the read-only verdict was taken once at mount — and on a
+    cold load the object view has not reached the store yet, so **every reloaded or deep-linked page was
+    read-only**, with the shell's virtual-block placeholder showing alongside the editor's own (the two
+    stacked placeholder lines in the report screenshot). `collabBody.tsx` now re-applies
+    `editor.setEditable(!readonly)` whenever `readonly` changes.
+    Verified live in the running client: the screenshot's own page (`Widgets`, empty body) now shows one
+    placeholder, 0 `.dragHandle` nodes (including after hovering the block), and
+    `contenteditable="true"`; typing into a cold-loaded page reaches the server — DOM text
+    `editable after cold load` and `ObjectShow` answering the same string as `snippet`. The probe page was
+    deleted afterwards (`ObjectShow` answers code 3).
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,

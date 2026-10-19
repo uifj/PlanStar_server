@@ -30,6 +30,7 @@ of implementation.** New migration records state pending/staged implementation e
 | [0020](0020-client-first-command-shim-transport.md) | Run the shell's command surface on a client-first shim during migration | accepted; shim + first boot slice implemented, typed end state pending |
 | [0021](0021-keep-rest-api-mark-superseded.md) | Keep the pre-pivot REST API mounted, mark the operations the shim superseded deprecated | accepted; implemented |
 | [0022](0022-type-recommended-layout.md) | Inherit a type's recommended layout at create, reset it on demand | accepted; implemented (layout half only) |
+| [0023](0023-no-body-block-drag.md) | No block drag-and-drop in the document body; the shell owns dragging | accepted; implemented |
 
 ## Current migration status, 2026-10-16
 
