@@ -39,13 +39,36 @@ const fallbackAddress = (): string => {
 	return `${origin || "http://localhost"}/api`;
 };
 
+/**
+ * Every interface the client calls lives under the API base — `/api/command/:name`, `/api/events`,
+ * `/api/publish` — so an address that names only an origin has to grow that base. Without this the
+ * advertised `?server=http://HOST:PORT` form posts to `/command/:name`, which the backend answers
+ * with a CORS-headerless 404, and the entry point then stores the broken address for later boots.
+ */
+export const apiBase = (address: string): string => {
+	const trimmed = String(address || "").replace(/\/+$/, "");
+
+	if (!trimmed) {
+		return "";
+	}
+
+	let path = "";
+	try {
+		path = new URL(trimmed).pathname;
+	} catch {
+		return trimmed;
+	}
+
+	return path === "/" || path === "" ? `${trimmed}/api` : trimmed;
+};
+
 export const serverAddress = (): string => {
 	if (typeof window === "undefined" || typeof localStorage === "undefined") {
-		return fallbackAddress();
+		return apiBase(fallbackAddress());
 	}
 
 	const requested = new URLSearchParams(window.location?.search || "").get("server") || "";
 	const stored = usableStoredAddress(localStorage.getItem("anytype_serverAddress") || "");
 
-	return requested || stored || fallbackAddress();
+	return apiBase(requested || stored || fallbackAddress());
 };

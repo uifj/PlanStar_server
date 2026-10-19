@@ -33,6 +33,27 @@ describe("serverAddress", () => {
 		vi.unstubAllEnvs();
 	});
 
+	// The boot hint advertises `?server=http://HOST:PORT`, but every interface the client calls is
+	// under the API base (`/api/command/*`, `/api/events`, `/api/publish`). An origin-only override
+	// must still reach those, not `/command/*`, which the backend 404s without CORS headers.
+	it("adds the API base to the advertised origin-only ?server= form", () => {
+		vi.stubEnv("VITE_API_BASE_URL", "http://localhost:8000/api");
+		browser("?server=http://10.0.0.9:8000", "http://localhost:8000/api");
+
+		expect(serverAddress()).toBe("http://10.0.0.9:8000/api");
+
+		vi.unstubAllEnvs();
+	});
+
+	it("keeps an explicit API path in the ?server= form", () => {
+		vi.stubEnv("VITE_API_BASE_URL", "http://localhost:8000/api");
+		browser("?server=http://10.0.0.9:8000/gateway/api/", "http://localhost:8000/api");
+
+		expect(serverAddress()).toBe("http://10.0.0.9:8000/gateway/api");
+
+		vi.unstubAllEnvs();
+	});
+
 	it("keeps the address a previous boot resolved", () => {
 		vi.stubEnv("VITE_API_BASE_URL", "http://localhost:8000/api");
 		browser("", "http://10.0.0.9:8000/api");
