@@ -15,7 +15,7 @@
 
 - 提及 / @对象（mention / object-link 节点）
 - 标题层级、列表、待办项、代码块、分隔线等块类型
-- 斜杠菜单（slash menu）与块拖拽排序
+- 斜杠菜单（slash menu）（块拖拽排序已明确不做，见 ADR-0023）
 - 行内格式与颜色
 
 该阶段完成后才解锁：后端「正文链路投影到 Link 表」以及 Yjs 下的 dataview 视图块节点。可行性核对见下方「P3 可行性结论」——纯工作量阻塞，非工具能力阻塞。
@@ -108,7 +108,7 @@
 | 行内颜色/高亮 | `@tiptap/extension-text-style` + `@tiptap/extension-color` + `@tiptap/extension-highlight` | 需新增 |
 | @对象/提及（object-link chip） | `@tiptap/extension-mention` + `@tiptap/suggestion` + 自定义 Node + React NodeView | 需自建（Tiptap 给原语） |
 | 斜杠菜单 | `@tiptap/suggestion` + 官方 Slash Commands 示例 | 需自建 React 浮层 |
-| 块拖拽排序 | `@tiptap/extension-drag-handle`（免费） | 需新增 |
+| 块拖拽排序 | ~~`@tiptap/extension-drag-handle`~~ | **明确不做**（ADR-0023：与外壳自己的块拖放是两套并行逻辑，grip 已摘除） |
 | 占位符 | `@tiptap/extensions`（v3） | 需新增 |
 | 代码语法高亮（可选） | `@tiptap/extension-code-block-lowlight` + `lowlight` | 可选 |
 | 协作/撤销重做 | `@tiptap/extension-collaboration` + Hocuspocus（MIT，替代付费 Tiptap Cloud） | 已装 |

@@ -20,31 +20,6 @@
 	}
 }
 
-// Block reorder grip floated beside the hovered block by @tiptap/extension-drag-handle.
-// The extension owns positioning/visibility; this only styles the affordance.
-.dragHandle {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 20px;
-	height: 20px;
-	border-radius: 4px;
-	color: var(--color-icon);
-	cursor: grab;
-	user-select: none;
-	font-size: 16px;
-	line-height: 1;
-
-	&:hover {
-		background: var(--color-shape-secondary);
-		color: var(--color-icon-hover);
-	}
-
-	&:active {
-		cursor: grabbing;
-	}
-}
-
 // Anytype callout: a highlighted block with a clickable emoji icon beside editable content.
 .collabBody .ProseMirror .callout {
 	display: flex;

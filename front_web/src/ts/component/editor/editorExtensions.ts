@@ -12,7 +12,6 @@ import type { Doc } from 'yjs';
 import { Attachment } from './attachment';
 import { Callout } from './callout';
 import { Dataview } from './dataview';
-import { createDragHandle } from './dragHandle';
 import { Embed } from './embed';
 import { createImage } from './image';
 import { createPlaceholder } from './placeholder';
@@ -91,7 +90,6 @@ export function createCollabExtensions (
 ): Extensions {
 	const extensions: Extensions = [
 		...createBlockExtensions(objectLinkNode, calloutNode, toggleNode),
-		...createDragHandle(),
 		createPlaceholder(placeholder),
 		Collaboration.configure({ document }),
 	];
