@@ -389,6 +389,17 @@ Verified through the real form on `localhost:3030`: register → the page reload
 title `Widgets - My Space - Anytype`, sidebar present, no `.pageAuth` left. The throwaway
 `login-flow-*@example.com` account and its 12 objects were deleted afterwards (`7 users`, `0` probes left).
 
+**The link auth interrupted** was the third defect. `entry.web.tsx` already saved the requested route,
+but under `anytype_redirect` — the very key `Storage` maps `redirect` onto — so a boot the visitor never
+finished read it and cleared it before the sign-in screen could ever use it. `lib/web/deepLink.ts` now
+owns a key of its own (`anytype_authReturn`) behind `rememberRoute` / `takeRememberedRoute`. The stored
+value is handed straight to `location.href`, so the take re-checks the `/main/` prefix (a hand-set
+`"//evil.example.test"` must not turn into an open redirect) and clears it, so a link nobody signed in
+for cannot reopen on a later launch. Verified live: cold-load a deep link while signed out and the key
+still holds it after the bounced boot; with the address bar then nudged to `/`, signing in still lands on
+the deep link — and with nothing remembered it lands on `/`. `deepLink.test.ts` covers the round trip, the
+untouched store slot, and the refused values.
+
 Two probe traps on this route, both cost me a misreading before the notes above:
 
 * A signed-in browser tab never shows the login page — the boot gate calls `getSession()` and routes to

@@ -1,6 +1,25 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { sharedRoute, stripConfigParams } from "./deepLink";
+import {
+	rememberRoute,
+	sharedRoute,
+	stripConfigParams,
+	takeRememberedRoute,
+} from "./deepLink";
+
+const memoryStore = () => {
+	const values = new Map<string, string>();
+
+	return {
+		getItem: (key: string) => (values.has(key) ? (values.get(key) as string) : null),
+		setItem: (key: string, value: string) => {
+			values.set(key, String(value));
+		},
+		removeItem: (key: string) => {
+			values.delete(key);
+		},
+	};
+};
 
 // The app's own routes put their parameters in the query string (`/main/object/?id=…&spaceId=…`),
 // so a shared or reloaded link is only whole when the search survives with the path. Truncating to
@@ -49,5 +68,50 @@ describe("stripConfigParams", () => {
 			stripConfigParams("?server=http://10.0.0.9:8000/api&dataPath=/tmp&spaceId=cmvaxybk"),
 		).toBe("?spaceId=cmvaxybk");
 		expect(stripConfigParams("?server=http://10.0.0.9:8000/api")).toBe("");
+	});
+});
+
+// The auth gate rewrites the address bar to the sign-in screen, so the requested route has to be
+// remembered before that happens and handed back once a session exists.
+describe("rememberRoute / takeRememberedRoute", () => {
+	beforeEach(() => {
+		vi.stubGlobal("localStorage", memoryStore());
+	});
+
+	afterEach(() => {
+		vi.unstubAllGlobals();
+	});
+
+	it("gives an interrupted app route back exactly once", () => {
+		rememberRoute({ pathname: "/main/object/", search: "?id=cmvdkx3ab&spaceId=cmvaxybk" });
+
+		expect(takeRememberedRoute()).toBe("/main/object/?id=cmvdkx3ab&spaceId=cmvaxybk");
+		expect(takeRememberedRoute()).toBe("");
+	});
+
+	// `anytype_redirect` is the store's own `redirect` slot (Storage maps onto it), so writing there
+	// would let a half-finished boot read and clear the visitor's link.
+	it("leaves the store's redirect slot alone", () => {
+		rememberRoute({ pathname: "/main/chat/cmvd9oavd", search: "" });
+
+		expect(localStorage.getItem("anytype_redirect")).toBe(null);
+		expect(localStorage.getItem("anytype_authReturn")).toBe('"/main/chat/cmvd9oavd"');
+	});
+
+	it("remembers nothing for the landing page or the auth screens", () => {
+		rememberRoute({ pathname: "/auth/better-login", search: "" });
+		expect(takeRememberedRoute()).toBe("");
+
+		rememberRoute({ pathname: "/", search: "" });
+		expect(takeRememberedRoute()).toBe("");
+	});
+
+	// The stored value is browser storage handed straight to `location.href`, so a stale or hand-set
+	// entry must not be able to send the app somewhere else.
+	it("refuses a stored value that is not an app route", () => {
+		for (const stored of ['"//evil.example.test/main"', '"https://evil.example.test"', '"notjson', "42"]) {
+			localStorage.setItem("anytype_authReturn", stored);
+			expect(takeRememberedRoute()).toBe("");
+		}
 	});
 });

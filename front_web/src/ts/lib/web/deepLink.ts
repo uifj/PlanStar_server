@@ -35,3 +35,45 @@ export const sharedRoute = (location: PageLocation): string => {
 
 	return `${location.pathname}${stripConfigParams(location.search || "")}`;
 };
+
+/**
+ * Owned by this module, and deliberately not `anytype_redirect`: that is the key `Storage` maps
+ * `redirect` onto, so the store reads and clears it during a boot the visitor never finished.
+ */
+const RETURN_KEY = "anytype_authReturn";
+
+/**
+ * Remember what the address bar asked for, so it survives the sign-in that auth puts in the way.
+ * The gate rewrites the URL to `/auth/better-login`, which erases the requested route from the only
+ * place the boot could still read it.
+ */
+export const rememberRoute = (location: PageLocation): void => {
+	const route = sharedRoute(location);
+
+	if (route) {
+		localStorage.setItem(RETURN_KEY, JSON.stringify(route));
+	}
+};
+
+/**
+ * The remembered route, consumed. Reading it clears it: a link the visitor never signed in for must
+ * not reopen on some later launch. The `/main/` prefix is re-checked rather than trusted, because the
+ * stored value comes from browser storage and is handed straight to `location.href`.
+ */
+export const takeRememberedRoute = (): string => {
+	const raw = localStorage.getItem(RETURN_KEY) || "";
+	localStorage.removeItem(RETURN_KEY);
+
+	if (!raw) {
+		return "";
+	}
+
+	let route: unknown;
+	try {
+		route = JSON.parse(raw);
+	} catch {
+		return "";
+	}
+
+	return typeof route === "string" && route.startsWith("/main/") ? route : "";
+};

@@ -1,6 +1,7 @@
 import { Button, Error, Footer, Frame, Header, Input, Label } from "Component";
 import type * as I from "Interface";
 import { signIn, signUp } from "Lib/api/better-auth";
+import { takeRememberedRoute } from "Lib/web/deepLink";
 // Classic JSX runtime: React must stay a value import or every element fails to compile.
 import React, { forwardRef, useRef, useState } from "react";
 
@@ -75,7 +76,8 @@ const PageAuthBetterLogin = forwardRef<I.PageRef, I.PageComponent>(
 				// Only the cold-boot gate in app.tsx selects the account and opens a space, so hand
 				// the browser back to the entry instead of navigating inside the mounted shell -
 				// an in-app route change would leave the user on a page with no account behind it.
-				window.location.href = "/";
+				// The entry remembered whichever link auth interrupted, so land there when there is one.
+				window.location.href = takeRememberedRoute() || "/";
 			} catch (err) {
 				setError(thrownMessage(err, translate("pageAuthLoginUnknownError")));
 			} finally {

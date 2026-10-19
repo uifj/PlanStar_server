@@ -14,7 +14,7 @@ import { electronMock } from "./lib/web/electronMock";
 import {
 	serverAddress as resolveServerAddress,
 } from "./lib/web/serverAddress";
-import { sharedRoute, stripConfigParams } from "./lib/web/deepLink";
+import { rememberRoute, stripConfigParams } from "./lib/web/deepLink";
 
 // Set up global configuration from URL params or defaults
 const urlParams = new URLSearchParams(window.location.search);
@@ -36,12 +36,9 @@ if (cleanSearch !== window.location.search) {
 	window.history.replaceState({}, "", `${window.location.pathname}${cleanSearch}`);
 }
 
-// Deep link: save the whole route for the app to pick up after auth. The app's routes carry their
-// parameters in the query string, so storing only the pathname would open the object page with no id.
-const route = sharedRoute(window.location);
-if (route) {
-	localStorage.setItem("anytype_redirect", JSON.stringify(route));
-}
+// Deep link: remember the whole route now, before the auth gate rewrites the address bar and the
+// sign-in screen has nothing left to hand back after a successful session.
+rememberRoute(window.location);
 
 // Configure the global config object
 (window as any).AnytypeGlobalConfig = {
