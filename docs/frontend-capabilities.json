@@ -22,7 +22,7 @@
     ]
   },
   "summary": {
-    "sourceFiles": 1618,
+    "sourceFiles": 1619,
     "capabilitiesByKind": {
       "command-use": 236,
       "command-wrapper": 265,
@@ -178,7 +178,7 @@
     },
     {
       "file": "front_web/src/ts/app.tsx",
-      "sha256": "34d1586d7de4ff9aa8d8f3fed7deae483bc87cb5d2a8327c23e7976ae0ce3b41"
+      "sha256": "a0e7733217f0a42ff0b4414383058d2495e151ecf1ad7fa74efa63659a91f158"
     },
     {
       "file": "front_web/src/ts/component/block/bookmark.tsx",
@@ -5902,7 +5902,7 @@
     },
     {
       "file": "front_web/src/ts/entry.web.tsx",
-      "sha256": "8f24fb03520bb648f5b6c7ced624d6a618be19389045a3749d0b90c9bce102f1"
+      "sha256": "7d3884516472cfa5726f278d34f7dd6cfb557d5e45fad9bb8d03102ef9bb7da0"
     },
     {
       "file": "front_web/src/ts/hook/index.ts",
@@ -6361,12 +6361,16 @@
       "sha256": "4a86838d247eb69783566cd8827c693d40187ba3212f41e364a9e444e1adacd6"
     },
     {
+      "file": "front_web/src/ts/lib/web/deepLink.ts",
+      "sha256": "dc0f882c5927ffa2f38c9280c62b35c27e0d82c0e3fb317c9e53f1f6be8e7838"
+    },
+    {
       "file": "front_web/src/ts/lib/web/electronMock.ts",
       "sha256": "32d34140f900120e80623bb4f6be5ca95a68785ec536605e9cccda1adc4b55f8"
     },
     {
       "file": "front_web/src/ts/lib/web/routeSync.ts",
-      "sha256": "323e35c791e5582562863b7549a11fa1f3200cbf5b82727ee5bc7d34f01dcddf"
+      "sha256": "e9aacdb5acc0c7f71c6b837e64c26761fc3543c233bf2ccdd08f0011da673ad7"
     },
     {
       "file": "front_web/src/ts/lib/web/serverAddress.ts",
@@ -6624,7 +6628,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 789,
+          "line": 790,
           "column": 3,
           "usage": "call"
         }
@@ -6784,13 +6788,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 493,
+          "line": 494,
           "column": 4,
           "usage": "call"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 561,
+          "line": 562,
           "column": 4,
           "usage": "call"
         },
@@ -29261,13 +29265,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 351,
+          "line": 352,
           "column": 17,
           "expression": "electron.tabId"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 656,
+          "line": 657,
           "column": 24,
           "expression": "electron.tabId"
         },
@@ -35667,7 +35671,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 164,
+          "line": 165,
           "column": 4,
           "expression": "Renderer.send"
         }
@@ -35699,7 +35703,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 180,
+          "line": 181,
           "column": 4,
           "expression": "Renderer.send"
         }
@@ -35715,7 +35719,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 623,
+          "line": 624,
           "column": 3,
           "expression": "Renderer.send"
         }
@@ -35821,7 +35825,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 627,
+          "line": 628,
           "column": 5,
           "expression": "Renderer.send"
         },
@@ -35895,7 +35899,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 790,
+          "line": 791,
           "column": 4,
           "expression": "Renderer.send"
         }
@@ -35911,7 +35915,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 807,
+          "line": 808,
           "column": 14,
           "expression": "Renderer.send"
         }
@@ -36293,7 +36297,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 290,
+          "line": 291,
           "column": 4,
           "expression": "Renderer.send"
         },
@@ -36771,7 +36775,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 660,
+          "line": 661,
           "column": 4,
           "expression": "Renderer.sendIpc"
         }
@@ -36819,7 +36823,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 756,
+          "line": 757,
           "column": 6,
           "expression": "Renderer.send"
         },
@@ -36891,7 +36895,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 753,
+          "line": 754,
           "column": 6,
           "expression": "Renderer.send"
         }
@@ -36969,13 +36973,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 303,
+          "line": 304,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 337,
+          "line": 338,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37013,7 +37017,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 232,
+          "line": 233,
           "column": 3,
           "expression": "Renderer.on"
         }
@@ -37073,13 +37077,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 229,
+          "line": 230,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 323,
+          "line": 324,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37095,13 +37099,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 231,
+          "line": 232,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 325,
+          "line": 326,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37111,6 +37115,28 @@
       "id": "renderer-event:download-progress",
       "kind": "renderer-event",
       "name": "download-progress",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 199,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 315,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:download-started",
+      "kind": "renderer-event",
+      "name": "download-started",
       "protocol": "electron-ipc",
       "target": null,
       "status": "pending",
@@ -37130,113 +37156,9 @@
       ]
     },
     {
-      "id": "renderer-event:download-started",
-      "kind": "renderer-event",
-      "name": "download-started",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 197,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 313,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
       "id": "renderer-event:enter-full-screen",
       "kind": "renderer-event",
       "name": "enter-full-screen",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 227,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 321,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:file-download-done",
-      "kind": "renderer-event",
-      "name": "file-download-done",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 204,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 316,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:file-download-progress",
-      "kind": "renderer-event",
-      "name": "file-download-progress",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 203,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 315,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:init",
-      "kind": "renderer-event",
-      "name": "init",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 307,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:leave-full-screen",
-      "kind": "renderer-event",
-      "name": "leave-full-screen",
       "protocol": "electron-ipc",
       "target": null,
       "status": "pending",
@@ -37256,407 +37178,9 @@
       ]
     },
     {
-      "id": "renderer-event:link-approval-decision",
+      "id": "renderer-event:file-download-done",
       "kind": "renderer-event",
-      "name": "link-approval-decision",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 226,
-          "column": 3,
-          "expression": "Renderer.on"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:logout",
-      "kind": "renderer-event",
-      "name": "logout",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 230,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 324,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:native-theme",
-      "kind": "renderer-event",
-      "name": "native-theme",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 260,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 329,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:notification-callback",
-      "kind": "renderer-event",
-      "name": "notification-callback",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 238,
-          "column": 3,
-          "expression": "Renderer.on"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:payload-broadcast",
-      "kind": "renderer-event",
-      "name": "payload-broadcast",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 239,
-          "column": 3,
-          "expression": "Renderer.on"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:pin-check",
-      "kind": "renderer-event",
-      "name": "pin-check",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 279,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 331,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:pin-remove",
-      "kind": "renderer-event",
-      "name": "pin-remove",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 207,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 319,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:pin-set",
-      "kind": "renderer-event",
-      "name": "pin-set",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 206,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 318,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:pin-unlocked",
-      "kind": "renderer-event",
-      "name": "pin-unlocked",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 208,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 320,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:popup",
-      "kind": "renderer-event",
-      "name": "popup",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 193,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 309,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:power-event",
-      "kind": "renderer-event",
-      "name": "power-event",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 293,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 333,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:reload",
-      "kind": "renderer-event",
-      "name": "reload",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 289,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 332,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:route",
-      "kind": "renderer-event",
-      "name": "route",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 192,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 308,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:set-active-tab",
-      "kind": "renderer-event",
-      "name": "set-active-tab",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 240,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 336,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:set-hide-sidebar",
-      "kind": "renderer-event",
-      "name": "set-hide-sidebar",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 269,
-          "column": 3,
-          "expression": "Renderer.on"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:set-pinned",
-      "kind": "renderer-event",
-      "name": "set-pinned",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 233,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 330,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:set-send-typing",
-      "kind": "renderer-event",
-      "name": "set-send-typing",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 275,
-          "column": 3,
-          "expression": "Renderer.on"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:set-single-tab",
-      "kind": "renderer-event",
-      "name": "set-single-tab",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 234,
-          "column": 3,
-          "expression": "Renderer.on"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:set-theme",
-      "kind": "renderer-event",
-      "name": "set-theme",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 265,
-          "column": 3,
-          "expression": "Renderer.on"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:shutdownStart",
-      "kind": "renderer-event",
-      "name": "shutdownStart",
-      "protocol": "electron-ipc",
-      "target": null,
-      "status": "pending",
-      "references": [
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 250,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 327,
-          "column": 3,
-          "expression": "Renderer.remove"
-        }
-      ]
-    },
-    {
-      "id": "renderer-event:spellcheck",
-      "kind": "renderer-event",
-      "name": "spellcheck",
+      "name": "file-download-done",
       "protocol": "electron-ipc",
       "target": null,
       "status": "pending",
@@ -37676,97 +37200,249 @@
       ]
     },
     {
-      "id": "renderer-event:tab-hide-tooltip",
+      "id": "renderer-event:file-download-progress",
       "kind": "renderer-event",
-      "name": "tab-hide-tooltip",
+      "name": "file-download-progress",
       "protocol": "electron-ipc",
       "target": null,
       "status": "pending",
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 302,
+          "line": 204,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 335,
+          "line": 316,
           "column": 3,
           "expression": "Renderer.remove"
         }
       ]
     },
     {
-      "id": "renderer-event:tab-show-tooltip",
+      "id": "renderer-event:init",
       "kind": "renderer-event",
-      "name": "tab-show-tooltip",
+      "name": "init",
       "protocol": "electron-ipc",
       "target": null,
       "status": "pending",
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 301,
-          "column": 3,
-          "expression": "Renderer.on"
-        },
-        {
-          "file": "front_web/src/ts/app.tsx",
-          "line": 334,
+          "line": 308,
           "column": 3,
           "expression": "Renderer.remove"
         }
       ]
     },
     {
-      "id": "renderer-event:update-downloaded",
+      "id": "renderer-event:leave-full-screen",
       "kind": "renderer-event",
-      "name": "update-downloaded",
+      "name": "leave-full-screen",
       "protocol": "electron-ipc",
       "target": null,
       "status": "pending",
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 195,
+          "line": 229,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 311,
+          "line": 323,
           "column": 3,
           "expression": "Renderer.remove"
         }
       ]
     },
     {
-      "id": "renderer-event:update-error",
+      "id": "renderer-event:link-approval-decision",
       "kind": "renderer-event",
-      "name": "update-error",
+      "name": "link-approval-decision",
       "protocol": "electron-ipc",
       "target": null,
       "status": "pending",
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 196,
+          "line": 227,
+          "column": 3,
+          "expression": "Renderer.on"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:logout",
+      "kind": "renderer-event",
+      "name": "logout",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 231,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 312,
+          "line": 325,
           "column": 3,
           "expression": "Renderer.remove"
         }
       ]
     },
     {
-      "id": "renderer-event:update-not-available",
+      "id": "renderer-event:native-theme",
       "kind": "renderer-event",
-      "name": "update-not-available",
+      "name": "native-theme",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 261,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 330,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:notification-callback",
+      "kind": "renderer-event",
+      "name": "notification-callback",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 239,
+          "column": 3,
+          "expression": "Renderer.on"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:payload-broadcast",
+      "kind": "renderer-event",
+      "name": "payload-broadcast",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 240,
+          "column": 3,
+          "expression": "Renderer.on"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:pin-check",
+      "kind": "renderer-event",
+      "name": "pin-check",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 280,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 332,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:pin-remove",
+      "kind": "renderer-event",
+      "name": "pin-remove",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 208,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 320,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:pin-set",
+      "kind": "renderer-event",
+      "name": "pin-set",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 207,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 319,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:pin-unlocked",
+      "kind": "renderer-event",
+      "name": "pin-unlocked",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 209,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 321,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:popup",
+      "kind": "renderer-event",
+      "name": "popup",
       "protocol": "electron-ipc",
       "target": null,
       "status": "pending",
@@ -37786,6 +37462,334 @@
       ]
     },
     {
+      "id": "renderer-event:power-event",
+      "kind": "renderer-event",
+      "name": "power-event",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 294,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 334,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:reload",
+      "kind": "renderer-event",
+      "name": "reload",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 290,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 333,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:route",
+      "kind": "renderer-event",
+      "name": "route",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 193,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 309,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:set-active-tab",
+      "kind": "renderer-event",
+      "name": "set-active-tab",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 241,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 337,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:set-hide-sidebar",
+      "kind": "renderer-event",
+      "name": "set-hide-sidebar",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 270,
+          "column": 3,
+          "expression": "Renderer.on"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:set-pinned",
+      "kind": "renderer-event",
+      "name": "set-pinned",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 234,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 331,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:set-send-typing",
+      "kind": "renderer-event",
+      "name": "set-send-typing",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 276,
+          "column": 3,
+          "expression": "Renderer.on"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:set-single-tab",
+      "kind": "renderer-event",
+      "name": "set-single-tab",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 235,
+          "column": 3,
+          "expression": "Renderer.on"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:set-theme",
+      "kind": "renderer-event",
+      "name": "set-theme",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 266,
+          "column": 3,
+          "expression": "Renderer.on"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:shutdownStart",
+      "kind": "renderer-event",
+      "name": "shutdownStart",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 251,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 328,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:spellcheck",
+      "kind": "renderer-event",
+      "name": "spellcheck",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 206,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 318,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:tab-hide-tooltip",
+      "kind": "renderer-event",
+      "name": "tab-hide-tooltip",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 303,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 336,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:tab-show-tooltip",
+      "kind": "renderer-event",
+      "name": "tab-show-tooltip",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 302,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 335,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:update-downloaded",
+      "kind": "renderer-event",
+      "name": "update-downloaded",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 196,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 312,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:update-error",
+      "kind": "renderer-event",
+      "name": "update-error",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 197,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 313,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
+      "id": "renderer-event:update-not-available",
+      "kind": "renderer-event",
+      "name": "update-not-available",
+      "protocol": "electron-ipc",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 195,
+          "column": 3,
+          "expression": "Renderer.on"
+        },
+        {
+          "file": "front_web/src/ts/app.tsx",
+          "line": 311,
+          "column": 3,
+          "expression": "Renderer.remove"
+        }
+      ]
+    },
+    {
       "id": "renderer-event:will-close-window",
       "kind": "renderer-event",
       "name": "will-close-window",
@@ -37795,7 +37799,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 326,
+          "line": 327,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37811,13 +37815,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 255,
+          "line": 256,
           "column": 3,
           "expression": "Renderer.on"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 328,
+          "line": 329,
           "column": 3,
           "expression": "Renderer.remove"
         }
@@ -37929,7 +37933,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 602,
+          "line": 603,
           "column": 26,
           "expression": "'/auth/better-login'"
         },
@@ -38027,7 +38031,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 286,
+          "line": 287,
           "column": 4,
           "expression": "'/auth/pin-check'"
         },
@@ -38061,13 +38065,13 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 452,
+          "line": 453,
           "column": 4,
           "expression": "'/auth/select'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 619,
+          "line": 620,
           "column": 4,
           "expression": "'/auth/select'"
         },
@@ -38161,37 +38165,37 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 482,
+          "line": 483,
           "column": 5,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 506,
+          "line": 507,
           "column": 6,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 515,
+          "line": 516,
           "column": 6,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 633,
+          "line": 634,
           "column": 7,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 640,
+          "line": 641,
           "column": 8,
           "expression": "'/auth/setup/init'"
         },
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 649,
+          "line": 650,
           "column": 6,
           "expression": "'/auth/setup/init'"
         },
@@ -38413,7 +38417,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 221,
+          "line": 222,
           "column": 16,
           "expression": "redirect"
         },
@@ -38435,7 +38439,7 @@
       "references": [
         {
           "file": "front_web/src/ts/app.tsx",
-          "line": 775,
+          "line": 776,
           "column": 4,
           "expression": "route"
         },
@@ -38695,7 +38699,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/app.tsx",
-        "line": 221,
+        "line": 222,
         "column": 28,
         "expression": "redirect"
       }
@@ -38706,7 +38710,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/app.tsx",
-        "line": 775,
+        "line": 776,
         "column": 16,
         "expression": "route"
       }
@@ -38717,7 +38721,7 @@
       "reason": "Runtime path/URL; expression retained, no resolved endpoint asserted.",
       "reference": {
         "file": "front_web/src/ts/app.tsx",
-        "line": 849,
+        "line": 850,
         "column": 23,
         "expression": "path"
       }
