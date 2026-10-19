@@ -14,7 +14,9 @@ What the shipped web client actually reaches:
 | `POST /api/command/<Name>` | `lib/api/service.ts:427` (`ServiceClient.request`) | `src/modules/command/router.ts` → `run()` | live, 134 commands answered |
 | `GET /api/events` (SSE) | `lib/api/service.ts:461` (`listenSessionEvents`) | `src/modules/pubsub/router.ts` | live |
 | `GET/POST /api/spaces` | `lib/api/spaces.ts:34,47` | `src/modules/spaces/router.ts` | live, but only the auth bootstrap path |
-| `POST /api/web-upload` | `lib/web/electronMock.ts:27` | `src/modules/files/router.ts:26` | live (file picker) |
+| `POST /api/web-upload` | `lib/web/electronMock.ts:27` | `src/modules/files/router.ts:26` | live (file picker + drag-drop staging) |
+| `GET /api/export/:name` | `lib/action.ts:611` → `electron.Api('download')` → `electronMock` anchor click | `src/modules/files/router.ts:121` | live (Settings → Export download), session-gated |
+| `GET /api/publish/:uri` | `lib/util/space.ts:887` builds the link the user opens in a browser tab | `src/routes/index.ts:41` → `src/modules/publish/router.ts:10` | live, public (no session) |
 | `/api/auth/*` (better-auth) | `lib/api/better-auth.ts:5` | `src/modules/auth` | live |
 | `<gateway>/file/<id>`, `<gateway>/image/<id>?width=N` | `store/common.ts:598,608` | `files/router.ts:110,113` | live; `?width=` is ignored (P5-g) |
 | `ws://<api>/collab` (Hocuspocus) | `component/editor/collabBody.tsx:19` | `src/modules/collab` | live |
