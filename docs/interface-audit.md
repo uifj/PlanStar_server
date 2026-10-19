@@ -422,6 +422,23 @@ the state it would need to replay does not.
     the type's own grid rendered that row as `class="row isTask"` — the client's layout guard deciding
     the render, not our number.
 
+31. **A cold load of an object URL opens an empty page** — **open, and reproduced.** Hard-navigating
+    the running client to `/main/object/cmvdkx3ab0002a83opxgbs16o` ("Bergen wharf", a live, unarchived
+    page in the space the client itself has open) mounts `pageMainObject<id>` — so the route parsed and
+    the id reached the page — but `#head` stays the 124-byte empty shell, no `.ProseMirror` appears, and
+    `S.Detail.get(id, id)` keeps `_empty_: true` after 5 s. Ruled out by probe: the object exists and is
+    not archived (`ObjectSearch`), `ObjectShow` for it answers code 0, and `ObjectOpen` with the client's
+    own payload `{objectId, traceId, spaceId}` answers code 0 with an objectView — so the server side of
+    the deep link works, and what fails is the boot-time hand-off. Both restoration paths exist
+    (`app.tsx:358` keeps a shared `/main/...` route, `routeSync.ts:68` calls `router.go(window.location.pathname)`
+    on init), so the suspect is ordering: the page mounts before the space is open, and its own
+    `ObjectOpen` either never fires or fires with a space the shim then cannot resolve. Not fixed here
+    because the next step needs the payload the page actually sent (browser network bodies, not
+    reproducible from a hand-built fetch), and guessing a boot-order patch would leave a silent
+    regression in the one path every acceptance run depends on. Task #276.
+    Earlier acceptance row §4-7 ("a reload or deep link loses the requested object") is therefore **not
+    fully closed**: the space is restored and the route is parsed, but the object is not loaded.
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,
