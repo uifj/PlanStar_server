@@ -1066,7 +1066,7 @@
     },
     {
       "file": "front_web/src/ts/component/page/auth/betterAuthLogin.tsx",
-      "sha256": "e8e15fb4b8ba408e48e174e5b4fe8c9b7c247a5d46563894cb10e4019ac53353"
+      "sha256": "c3183bd1689d0a8778fe95c6e76ce65a14960fcfcb0b712035a3f5e25f87fabd"
     },
     {
       "file": "front_web/src/ts/component/page/auth/deleted.tsx",
@@ -37913,7 +37913,7 @@
       "references": [
         {
           "file": "front_web/src/ts/component/page/auth/betterAuthLogin.tsx",
-          "line": 74,
+          "line": 75,
           "column": 5,
           "expression": "\"/auth/better-account\""
         }
