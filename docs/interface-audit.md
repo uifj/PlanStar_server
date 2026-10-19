@@ -469,6 +469,29 @@ the state it would need to replay does not.
     `editable after cold load` and `ObjectShow` answering the same string as `snippet`. The probe page was
     deleted afterwards (`ObjectShow` answers code 3).
 
+33. **The address the boot advertises breaks the transport and then outlives the boot** — **fixed**
+    (task #277). `entry.web.tsx` tells the operator to configure the client with
+    `?server=http://HOST:PORT`, and `lib/web/serverAddress.ts` returned that value verbatim — so the
+    command transport posted to `http://localhost:8000/command/AccountSelect`. The backend has no bare
+    `/command/*` route: it answers 404 **without** an `Access-Control-Allow-Origin` header, which the
+    browser reports as a CORS block, so `AccountSelect` failed, `bootWebAccount` logged
+    `Failed to fetch`, and the app fell through to `/auth/better-login` even though a valid Better Auth
+    session existed. And because the entry point writes whatever it resolved back to
+    `localStorage.anytype_serverAddress`, the origin-only address then outranked the API base on every
+    later boot — the same poisoning-by-storage that the retired `:31008` proxy address was fixed for.
+    The interface that was wrong is the *resolution*, not the advert: every surface the client calls
+    lives under the API base (`/api/command/:name`, `/api/events`, `/api/publish/:uri`). One normalizer
+    now sits inside the module that owns the question: `apiBase()` trims trailing slashes, appends
+    `/api` to an address whose URL carries no path, and leaves an explicit path (`…/gateway/api`)
+    alone; it is applied to all three precedence branches, and since the entry point stores the
+    resolved value, an already-poisoned store self-heals on the next boot. Two cases in
+    `serverAddress.test.ts` (nine in the file) pin the origin-only and explicit-path forms.
+    Measured in the running client: `?server=http://localhost:8000` now boots with
+    `[App] Init http://localhost:8000/api`, stores `http://localhost:8000/api`, and reaches the widgets
+    page; bare `POST /command/WorkspaceOpen` answers 404 with no CORS header while
+    `POST /api/command/WorkspaceOpen` answers 401 *with* `access-control-allow-credentials` and its
+    preflight answers 204 with `access-control-allow-origin: http://localhost:3030`.
+
 ## 5. Dead code and obsolete surface to prune
 
 **Backend (unreferenced by the client, per §1's grep of path literals):** `/api/objects`,

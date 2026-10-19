@@ -274,3 +274,46 @@ Gates at this commit: integration 605 passed / 5 skipped, unit 174 passed, `tsc 
 remains red on the vendored `front_web/dist` assets — see the note in the memory index; scope the
 check with `npx biome check src tests front_web/src/ts`.
 
+# Re-run after the block-drag removal — 2026-10-19 (task #277)
+
+Both dev servers were stopped and relaunched (API `pnpm dev` on `:8000`, client `pnpm dev` on `:3030`)
+after `@tiptap/extension-drag-handle` and `@tiptap/extension-node-range` were dropped from
+`front_web/package.json`; Vite reported `Re-optimizing dependencies because lockfile has changed`,
+which is the point at which a leftover import of a removed package would surface.
+
+Driven in the running client, observed rather than assumed:
+
+| Step | Evidence |
+| --- | --- |
+| boot with the advertised `?server=http://localhost:8000` | `[App] Init http://localhost:8000/api`, stored address `http://localhost:8000/api`, lands on `Widgets - My Space` (before the fix this boot dead-ended on `/auth/better-login`; audit §4-33) |
+| screen sweep | `U.Router.go` over void/set/media/archive/graph/navigation/chat/settings/import/history/date/relation/edit: 24 command calls, all code 0 except the three documented `code 12` file commands and `GalleryDownloadManifest` (code 12, gallery install has no web backend) |
+| object page | cold deep-link load of `/main/object/?id=…&spaceId=…` resolves to `/main/edit/<id>/spaceId/<space>`, `#header .side.center` shows `Grid`, body restores `sweep 2026-10-19 interface check second sweep line`, `contenteditable="true"`, **0 `.dragHandle` nodes**, one placeholder |
+| body persistence | typing reaches the server through Hocuspocus: `ObjectShow` answers the same string as `snippet` |
+| history | the two stores produced two `versions`; `HistoryShowVersion` answers an `objectView` with 2 blocks; `HistoryDiffVersions` answers one `historyEvents` entry, `blockSetText` on `<id>-body-1` carrying the new text |
+| chat | `ObjectAddDiscussion` → `discussionId`; `ChatAddMessage` → `messageId`; `ChatGetMessages` returns the message with `creator` = the account id; `ChatDeleteMessage` then lists 0; `ChatUnreadMessages` code 0 |
+| write paths | `ObjectCreate` (code 0, `objectId`), `ObjectOpen` 0, `TemplateCreateFromObject` 0 (`id`), `ObjectApplyTemplate` 0, `ObjectListDuplicate` 0 (`ids[1]`), `ObjectListDelete` 0 twice, and the purged probe answers `ObjectOpen` code 3 |
+| publish | `PublishingCreate` 0 → `GET /api/publish/<uri>` 200 → `PublishingGetStatus` 0 → `PublishingRemove` 0 |
+| type layout | `ObjectTypeResolveLayoutConflicts` on a real `objectType` row answers code 0 with 0 reset objects (no recommendation set); on non-type ids it answers code 12, which is the `notAType` branch working |
+| export | `ObjectListExport` with the numeric `format: 0` answers `/api/export/<name>`; the browser fetch gets 200 `application/zip`, 5515 bytes starting `PK\x03\x04` (curl gets 401 — the route is session-cookie scoped) |
+| push channel | `GET /api/events` → 200 `text/event-stream` from the booted page |
+
+Wire keys that made an earlier hand-probe read a healthy interface as broken — check these before
+concluding a defect from a raw `POST /api/command/<Name>`:
+
+* filters are keyed **`RelationKey`** (`Mapper.To.Filter`), not `relation`; a filter without it adds no
+  constraint, so `ObjectSearch` looks like it ignores filtering. With the right key,
+  `name`/`Equal` narrowed 30 records to 4.
+* `ObjectSearch` records project name/layout/type at the **top level**, not under `fields`.
+* `HistoryGetVersions` answers **`versions`**; `HistoryDiffVersions` answers **`historyEvents`**;
+  `ObjectListDuplicate` answers `ids`, `ObjectAddDiscussion` answers `discussionId`,
+  `TemplateCreateFromObject` answers `id`, `ChatAddMessage` answers `messageId`.
+* `ObjectListExport` needs the **numeric** format (0 Markdown, 2 JSON); a format string reaches the
+  `ImportUnsupportedError` branch and reads back as code 12.
+* `ObjectDuplicate` (declared, no call site in the client) is genuinely code 12; the UI's duplicate
+  action is `ObjectListDuplicate`.
+
+Gates at this commit: unit 185 passed, integration 694 passed / 5 skipped (140 files), root
+`tsc --noEmit` and `pnpm build` clean, client `tsc` clean and **1403** client tests passing,
+`pnpm coverage` unchanged at 265 declared / 236 called / 134 answered / 107 unanswered, and
+`pnpm inventory:check` matches after regenerating the manifest for the removed `dragHandle.ts`.
+
