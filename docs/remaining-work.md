@@ -53,7 +53,7 @@
 | 成员 / 邀请面板 | `/main/settings/spaceShare` → 截图 | 修复后通过：`subSpace` 订阅应答后 `isMyOwner`/`canManageInvite` 为真，分享开关与 Copy link / QR / Manage link / Reset link 全部渲染（#259） |
 | 邀请链接 | `getInviteLink` 单测 + 实盘 | 修复：web 构建此前只发 `anytype://` 链接（本站没有协议处理程序），改发本应用 `/invite/` 路由 |
 | 设置-通用 | 截图 | 通过：空间卡 + Copy link / QR + Homepage / Sidebar View / Default Object Type 偏好项 |
-| 设置-通知 / 远程存储 / 回收站 / 导入 / 导出 | 逐屏 `Action.openSettings`，控制台零错误 | 渲染通过；导入/导出的**执行**仍属 #153，存储用量依赖 `FileNodeUsage`（桌面能力，NOT_SUPPORTED） |
+| 设置-通知 / 远程存储 / 回收站 / 导入 / 导出 | 逐屏 `Action.openSettings`，控制台零错误 + 实盘执行 | 渲染通过；导入已可执行（#153）、导出已可执行并下载归档（#274）、拖拽落文件写入正文（#152）；存储用量依赖 `FileNodeUsage`（桌面能力，NOT_SUPPORTED） |
 | 内容模型（Object Types / Properties） | 打开侧栏 rail → 截图 | 修复后通过：`library` 订阅改由注册表投影应答，rail 列出 4 个类型并能进入类型编辑器（#261） |
 | 移除历史 | 新建对象 → 删除 → 重开该屏 | 通过：新行「Removed by = P1 Fresh、Removed = October 18, 2026」；旧行三列为破折号，因为删除发生在 deletedBy/deletedDate 迁移之前 |
 | 记录形状契约 | 白屏崩溃定位 | 修复：`restrictions` 必须是**数组**——`S.Block.isAllowed` 用 `indexOf` 读它，`{}` 会让整棵 React 树白屏；spaceview 的 `creator` 必须是 participant id，`U.Space.getCreator` 才能解析 |
@@ -79,11 +79,11 @@
 
 | 历史差异标记（#273） | 同一对象写三份快照 → `/main/history/<id>` → 读渲染出的 DOM 类名 | 修复：`HistoryDiffVersions` 事件按 `prisma.block` 行 id 出题，而预览块树是 `HistoryShowVersion` 现场投影的（Yjs 对象往往零 Block 行），客户端 `renderDiff` 找不到任何 `#block-<id>` → 差异面板什么都没标。现在两侧共用同一套「行序号」投影 id（`bodyLineId`），改行→blockSetText、增行→blockAdd、删行→root 的 blockSetChildrenIds，并跳过只因位置移动而行内容没变的配对。实盘：新增行 `.wrapContent.diffAdd`、改写行渲染出 `<markupchange> south</markupchange>`、删行 `.diffRemove` 都落在预览树上。残余近似：快照只是扁平文本行，中间删除的红色标记落在序号不再对齐处，不是被删行的精确位置 |
 
-验收清单已全部走完实盘（含 collection 网格行）。仍然**延期**而非「待验收」的是：#100（ADR-0018 正文持久化水位与客户端 ack）、#154（`?width=` 缩略图，只是带宽）。
+验收清单已全部走完实盘（含 collection 网格行）。文件三兄弟（导入 #153、落盘 #152、导出 #274）也已逐个实现并实盘。仍然**延期**而非「待验收」的只剩：#100（ADR-0018 正文持久化水位与客户端 ack）、#154（`?width=` 缩略图，只是带宽）。
 
 但审计收尾时按客户端实际可达性复核后，#152 / #153 的标签并不一样，已写进 `docs/interface-audit.md` §3c：
 
-- **#153 的导出半边确实不可达**：`Action.export` 要的是**目录**，而 web 的 picker 只能选文件并会把文件上传后当作目录返回，浏览器根本没有「给服务端一个可写目录」的接口 → 需要改成服务端打包 + 下载，不是补一个 shim case。
+- ~~**#153 的导出半边确实不可达**~~ → **已实现（#274）**：目录确实拿不到（web picker 只会选文件、并把选中的文件上传后当作「目录」返回），所以不再要目录 —— `Action.export` 在 web 分支跳过 picker、传空 path，服务端把归档写到自己的 `EXPORT_ROOT` 并回一个下载 URL，浏览器按普通下载保存。归档由 `src/modules/files/zip.ts` 手写 store-only ZIP（不压缩、零新依赖，因为任意大小的选择集都必须是一个文件），正确性用 `unzip -t` 的单测兜底。格式只支持 Markdown / JSON；Protobuf / Dot / Svg / GraphJson / AnyBlockV2 回 code 12 并写明原因。实盘：导出整个开发空间返回 `{objectCount: 43, objectErrors: 0}`，取回的 URL 是 200 / `application/zip` / 5136 字节 / `PK\x03\x04`。
 - ~~**#153 的导入半边是可达且缺的**~~ → **已实现（#153）**：picker 已经把字节 POST 到 `/api/web-upload` 并返回真实暂存路径，服务端 `importFiles` 现在读这些路径：Markdown / Obsidian / HTML / 纯文本各自成页（名字取第一个标题或 `<h1>`，纯文本取文件名），正文用 `storeDocument` 正规写入，块形状是 `Y.XmlElement("paragraph")` + `Y.XmlText` 子节点（不是历史预览那套裸 XmlText，否则编辑器打开是空文档）。Notion / CSV / Protobuf 仍回 code 12 并在 description 里说明原因。顺带把 **两个文件命令共用的任意路径读取** 关进围栏：`FileUpload` 的 `localPath` 以前直接 `readFile`，任何空间 writer 都能把 `/etc/passwd` 存成文件对象再用 `GET /file/:id` 取回；现在 `staged-path.ts` 只允许两个上传暂存根目录。实盘：经应用自身上传通道落盘的真实 .md 用 `C.ObjectImport` 导入返回 0，打开该页编辑器渲染出两个段落。
 - ~~**#152 拖拽落文件在到达服务端之前就坏了**~~ → **已实现（#152）**：mock 新增 `uploadStaged(files)`，把落下的 File 走 picker 同一条 `/api/web-upload` 通道换成真实暂存路径，`drag/provider.tsx` 在调用 FileDrop 前 await 它（桌面仍用它自己的路径）；服务端 `file-drop.ts` 把每个路径变成文件对象，并在正文尾部追加编辑器的 `attachment` 节点。第三处缺陷是查结果时发现的：两条上传通道都会把落盘文件改名成 `<时间戳>-<随机>-<原名>`，谁都没还原，所以用户会看到 `1792376026484-awwcne-ferry-timetable.txt`；现在 `stagedFileName` 为 FileUpload/导入/落盘统一剥掉前缀。dataview 单元格那一侧（`block/dataview.tsx:1877`）明确回 code 12：落到 set 视图上「这个文件属于哪条记录」没有可猜的答案。`popup/upload.tsx:82` 在浏览器里根本不会触发（它只在目录时调用，而 mock 的 isDirectory 恒 false），不是坏掉。
 
@@ -121,12 +121,7 @@
 ## 明确延后（Deferred）
 
 - **#100** ADR-0018 持久提交 watermark + 客户端 ack 状态。
-- **#152** P5-e FileDrop 正文插入：依赖 P3 正文模型。
 - **#154** P5-g 图片缩略图缩放（`?width=`）：带宽优化；浏览器可对原始字节做 CSS 缩放，延后。
-
-## Web 等价范围外（有意不实现）
-
-- **#153** P5-f `ObjectListExport` / `ObjectImport`：导出/导入需要客户端下载路径，属自托管 Web 范围外。
 
 ## 明确不实现（客户端无调用路径，不视为未完成）
 
@@ -137,4 +132,5 @@
 - `ObjectCollectionSort`、`SpaceJoinCancel`、`ObjectDuplicate`
 - `ObjectChatAdd`、`ObjectShareByLink`、`PublishingResolveUri`
 - 78 个 `Block*` 与 `History/Undo/Redo` 命令：由 Yjs 正文模型取代（ADR-0018）。
-- 云盘 / native / debug / 文件节点 / 导入导出 / wallet / AI / 画廊 / 会员计费等命令族：范围外。
+- 云盘 / native / debug / 文件节点 / wallet / AI / 画廊 / 会员计费等命令族：范围外。
+  （`ObjectListExport`、`ObjectImport`、`FileDrop` 已从这一族中拆出并在 Web 侧落地，见 `docs/interface-audit.md` §3c 与上面的 P8 验收记录。）

@@ -1,9 +1,9 @@
 # Interface audit — front_web ↔ harness server
 
-Audited 2026-10-18 against commit `57dc702`. Every claim below is a call site or a route
-registration, not an inference: the command counts come from the client's own wrapper list
-(`front_web/src/ts/lib/api/command.ts`) diffed against the shim's `case` list
-(`src/modules/command/service.ts`), and the REST counts from `src/routes/index.ts`.
+Audited 2026-10-18 against commit `57dc702`, re-measured 2026-10-19. Every claim below is a call
+site or a route registration, not an inference: the command split is produced by `pnpm coverage`
+(`scripts/command-coverage.ts`), which joins the client inventory against the shim's dispatch arms,
+and the REST counts come from `src/routes/index.ts`.
 
 ## 1. The live transport surface
 
@@ -11,7 +11,7 @@ What the shipped web client actually reaches:
 
 | Surface | Client side | Server side | State |
 | --- | --- | --- | --- |
-| `POST /api/command/<Name>` | `lib/api/service.ts:427` (`ServiceClient.request`) | `src/modules/command/router.ts` → `run()` | live, 105 commands answered |
+| `POST /api/command/<Name>` | `lib/api/service.ts:427` (`ServiceClient.request`) | `src/modules/command/router.ts` → `run()` | live, 133 commands answered |
 | `GET /api/events` (SSE) | `lib/api/service.ts:461` (`listenSessionEvents`) | `src/modules/pubsub/router.ts` | live |
 | `GET/POST /api/spaces` | `lib/api/spaces.ts:34,47` | `src/modules/spaces/router.ts` | live, but only the auth bootstrap path |
 | `POST /api/web-upload` | `lib/web/electronMock.ts:27` | `src/modules/files/router.ts:26` | live (file picker) |
@@ -24,29 +24,33 @@ downloads are same-host, cross-port requests carrying the session cookie.
 
 ## 2. Command coverage
 
-Reproduce with `pnpm inventory` (`scripts/client-inventory.ts` → `docs/frontend-capabilities.json`,
-2,196 entries: 236 `command-use`, 265 wrappers, 346 registry names, 347 proto RPCs). The inventory
-deliberately records every capability as `pending` — it joins the client's surface, never claims the
-migration is done — so the answered/pending split below comes from diffing it against the shim.
+Reproduce with `pnpm coverage` (`scripts/command-coverage.ts`), which joins the client inventory
+(`pnpm inventory` → `docs/frontend-capabilities.json`) against the shim's dispatch arms
+(`case "X"` / `name === "X"` in `src/modules/command/`). The inventory itself deliberately records
+every capability as `pending` — it describes the client's surface, never claims the migration is
+done — so the split below is the join's output, not a hand-diff.
 
-- 259 exported wrappers in `command.ts`; **231 of them are called** from client code.
-- The shim answers **131** distinct command names (105 at the audit's first pass, the 22
-  `BlockDataview*` writes added by task #250, the inline-block binding of item 24, `AIListModels`,
-  `ObjectImport` of item 27 and `FileDrop` of item 28).
-- **104 called commands have no server case.** They are not one bucket — see §3.
-- Only **2 answered commands are never called**: `ChatUnreadMessages` (the client's unread path uses
-  `ChatSubscribeToMessagePreviews` counters instead) and `ObjectToSet` (see §4 — the set screen calls
-  a *different* entry point). Both still have integration tests, so they are live-but-unreached
-  rather than dead.
-- **Measurement caveat:** the split above is derived from literal `C.<Name>(` call sites. Four names
-  are dispatched through a computed reference (`C[cmd]`) and so are outside those counts —
-  `BlockCopy`/`BlockCut` from `lib/action.ts:679` and `BlockTextListSetColor`/
-  `BlockListSetBackgroundColor` from `component/menu/block/action.tsx:497`. All four are legacy
-  `Block*` writes; §3b records which of their call sites this build can actually reach. The inventory's
-  own `unresolved` list (`needs-review`, 59 entries) is where the generator parks exactly this kind of
-  dynamic expression — read it rather than assuming the counts are exhaustive.
+- The client dispatches **265** command names; **236** of them have a call site.
+- The shim answers **133** of them (105 at the audit's first pass, the 22 `BlockDataview*` writes
+  added by task #250, the inline-block binding of item 24, `AIListModels`, `ObjectImport` of item 27,
+  `FileDrop` of item 28, `ObjectListExport` of item 29, plus `AccountStop`, which `router.ts` answers
+  outside the switch).
+- **108 called commands have no server answer.** They are not one bucket — see §3.
+- **5 answered commands have no literal call site**: `ChatUnreadMessages` (the client's unread path
+  uses `ChatSubscribeToMessagePreviews` counters instead), `ObjectToSet` (see §4 — the set screen calls
+  a *different* entry point), and `BlockDataviewFilterSort` / `BlockDataviewSetSource` /
+  `BlockDataviewViewRelationRemove`, which arrived with the family sweep of task #250. All five have
+  integration tests, so they are live-but-unreached rather than dead.
+- No dispatch arm fails to name a client command, so the switch carries no answer nobody asks for.
+- **Measurement caveat:** `called` is a syntactic pass over literal `C.<Name>` references, so
+  computed dispatch is outside it: the join counts **2** such expressions — `C[cmd]` at
+  `lib/action.ts:679` (selecting `BlockCopy`/`BlockCut`) and at
+  `component/menu/block/action.tsx:497` (selecting `BlockTextListSetColor`/`BlockListSetBackgroundColor`).
+  All four are legacy `Block*` writes; §3b records which of their call sites this build can actually
+  reach. The inventory's own `unresolved` list (`needs-review`) is where the generator parks exactly
+  this kind of dynamic expression — read it rather than assuming the counts are exhaustive.
 
-## 3. The 106 unhandled commands, classified
+## 3. The 108 unanswered commands, classified
 
 **(a) Genuine feature gaps — the set/collection/board/gallery screens.** The client renders those
 screens from `component/page/main/set.tsx` and `media.tsx`, which mount the block tree and drive the
@@ -98,11 +102,12 @@ transport, so nothing in `src/ts` asks for a stream).
 **The file-transfer family is not one bucket, and two of its labels were wrong.** Checked against the
 web build's Electron mock (`lib/web/electronMock.ts`) rather than assumed:
 
-- `ObjectListExport` — **unreachable in the browser, verified.** `Action.export` asks for a *directory*
-  (`openDirectoryDialog`), and the mock's picker (`showOpenFilePicker`, or an `<input type=file>`
-  fallback) can only choose files, which it then *uploads* and returns as the "directory". There is no
-  browser surface that hands the server a writable directory, so answering this command would need a
-  client redesign (export to a server-side archive, then download), not a shim case.
+- `ObjectListExport` — **answered** (item 29) for Markdown and JSON. The blocker was real but not
+  fatal: `Action.export` asks for a *directory*, and no browser surface yields one the server may
+  write into. So the web branch skips the picker entirely, passes an empty target, and downloads the
+  archive the server wrote under its own export root (`EXPORT_ROOT`, served by
+  `GET /api/export/:name`). A store-only ZIP is built in `src/modules/files/zip.ts` — no compression,
+  no new dependency — because a selection of any size has to arrive as one file.
 - `ObjectImport` — **answered** (item 27) for the four formats a staged file can carry: Markdown and
   Obsidian (`markdownParams.path`), HTML (`htmlParams.path`) and plain text (`txtParams.path`). Notion
   (`notionParams`), CSV (`csvParams`) and Protobuf (`pbParams`) still answer code 12, each with the
@@ -372,6 +377,23 @@ the state it would need to replay does not.
     `File` staged through `electron.uploadStaged`, dropped through `C.FileDrop`, then opened in the
     editor renders `a.fileAttachment` labelled `ferry-timetable.txt`, and its href serves the dropped
     bytes as `text/plain` (200 with the session cookie).
+
+29. **Settings → Export exported nothing** — **fixed**. The command was unanswered, and even with an
+    answer the desktop flow could not work here: it picks a directory for the middleware to write
+    into, and a browser picker returns *files* (then uploads them). `Action.export` now branches on
+    the platform: no dialog, an empty `path`, and the answered `path` goes to the browser's own
+    download. Server-side, `exportObjects` reads the space's objects (or just the requested ids),
+    refuses another space's objects only by scoping its query, and emits one `.md`/`.json` per object
+    — as separate files when `zip` is off and one object is chosen, otherwise inside a store-only
+    archive written under `EXPORT_ROOT` and served at `GET /api/export/:name` behind the session
+    middleware. Names inside the archive keep the object title (deduplicated, control characters and
+    separators replaced); the download name is additionally URL-safe because the route only accepts
+    a bare name. Formats this build cannot serialise (Protobuf, Dot, Svg, GraphJson, AnyBlockV2)
+    answer code 12 with the reason.
+    `unzip -t` in the unit tests is what vouches for the hand-written archive, since the repo has no
+    zip dependency to hide behind. Verified live: exporting the whole dev space answered
+    `{objectCount: 43, objectErrors: 0}` and `GET` of the returned URL came back 200,
+    `application/zip`, 5136 bytes, `PK\x03\x04`.
 
 ## 5. Dead code and obsolete surface to prune
 

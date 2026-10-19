@@ -36,8 +36,9 @@
       "http-fetch": 4,
       "media-gateway-path": 2,
       "media-use": 2,
+      "native-command": 1,
       "native-handler": 32,
-      "native-method": 30,
+      "native-method": 31,
       "page-route": 29,
       "proto-rpc": 347,
       "renderer-command": 78,
@@ -60,8 +61,9 @@
       "http-fetch": 4,
       "media-gateway-path": 2,
       "media-use": 50,
+      "native-command": 1,
       "native-handler": 32,
-      "native-method": 73,
+      "native-method": 75,
       "page-route": 29,
       "proto-rpc": 347,
       "renderer-command": 120,
@@ -508,7 +510,7 @@
     },
     {
       "file": "front_web/src/ts/component/drag/provider.tsx",
-      "sha256": "2162cdaa7a0a5399a0eb9b483f8294c4ba0071e6d2d21729baaf3299dbc26d03"
+      "sha256": "b604485df8f3e068f3ab3227426906feb354b0a0b1d810d255fa7620e8feb3d2"
     },
     {
       "file": "front_web/src/ts/component/drag/target.tsx",
@@ -6060,7 +6062,7 @@
     },
     {
       "file": "front_web/src/ts/lib/action.ts",
-      "sha256": "1df1c058cb408eb4b29c6286142a38903688baebc9b38a1906d505236c10df51"
+      "sha256": "28edcf1aca626fc00ce0398e8d6511bf9fc8113e323bf1dcd8c85ea46ddde092"
     },
     {
       "file": "front_web/src/ts/lib/analytics.ts",
@@ -6360,7 +6362,7 @@
     },
     {
       "file": "front_web/src/ts/lib/web/electronMock.ts",
-      "sha256": "c5b5b4780600d73650560291812f5e03aff1f91679c6a96caee03586c12a3a02"
+      "sha256": "32d34140f900120e80623bb4f6be5ca95a68785ec536605e9cccda1adc4b55f8"
     },
     {
       "file": "front_web/src/ts/lib/web/routeSync.ts",
@@ -6954,13 +6956,13 @@
         },
         {
           "file": "front_web/src/ts/component/drag/provider.tsx",
-          "line": 634,
+          "line": 654,
           "column": 7,
           "usage": "call"
         },
         {
           "file": "front_web/src/ts/component/drag/provider.tsx",
-          "line": 712,
+          "line": 732,
           "column": 9,
           "usage": "call"
         },
@@ -7042,7 +7044,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 932,
+          "line": 949,
           "column": 3,
           "usage": "call"
         }
@@ -7838,19 +7840,19 @@
         },
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 959,
+          "line": 976,
           "column": 3,
           "usage": "call"
         },
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 991,
+          "line": 1008,
           "column": 3,
           "usage": "call"
         },
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1007,
+          "line": 1024,
           "column": 4,
           "usage": "call"
         }
@@ -9424,7 +9426,7 @@
         },
         {
           "file": "front_web/src/ts/component/drag/provider.tsx",
-          "line": 279,
+          "line": 299,
           "column": 5,
           "usage": "call"
         },
@@ -10092,7 +10094,7 @@
         },
         {
           "file": "front_web/src/ts/component/drag/provider.tsx",
-          "line": 624,
+          "line": 644,
           "column": 6,
           "usage": "call"
         },
@@ -10122,7 +10124,7 @@
         },
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1259,
+          "line": 1276,
           "column": 3,
           "usage": "call"
         }
@@ -10662,7 +10664,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 585,
+          "line": 591,
           "column": 4,
           "usage": "call"
         }
@@ -10754,7 +10756,7 @@
         },
         {
           "file": "front_web/src/ts/component/drag/provider.tsx",
-          "line": 707,
+          "line": 727,
           "column": 8,
           "usage": "call"
         },
@@ -11054,7 +11056,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1295,
+          "line": 1312,
           "column": 4,
           "usage": "call"
         }
@@ -11092,7 +11094,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1297,
+          "line": 1314,
           "column": 4,
           "usage": "call"
         }
@@ -11514,7 +11516,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1393,
+          "line": 1410,
           "column": 3,
           "usage": "call"
         }
@@ -11616,7 +11618,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 838,
+          "line": 855,
           "column": 6,
           "usage": "call"
         }
@@ -11672,13 +11674,13 @@
         },
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1072,
+          "line": 1089,
           "column": 5,
           "usage": "call"
         },
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1199,
+          "line": 1216,
           "column": 7,
           "usage": "call"
         }
@@ -11710,13 +11712,13 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1142,
+          "line": 1159,
           "column": 6,
           "usage": "call"
         },
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1191,
+          "line": 1208,
           "column": 6,
           "usage": "call"
         }
@@ -11782,7 +11784,7 @@
         },
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1065,
+          "line": 1082,
           "column": 4,
           "usage": "call"
         }
@@ -11814,7 +11816,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1242,
+          "line": 1259,
           "column": 6,
           "usage": "call"
         }
@@ -11848,13 +11850,13 @@
         },
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1083,
+          "line": 1100,
           "column": 7,
           "usage": "call"
         },
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1087,
+          "line": 1104,
           "column": 7,
           "usage": "call"
         }
@@ -28154,6 +28156,22 @@
       ]
     },
     {
+      "id": "native-command:download",
+      "kind": "native-command",
+      "name": "download",
+      "protocol": "native-bridge",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/lib/action.ts",
+          "line": 611,
+          "column": 7,
+          "expression": "electron.Api"
+        }
+      ]
+    },
+    {
       "id": "native-handler:checkDiskSpace",
       "kind": "native-handler",
       "name": "checkDiskSpace",
@@ -28674,6 +28692,12 @@
       "status": "pending",
       "references": [
         {
+          "file": "front_web/src/ts/lib/action.ts",
+          "line": 611,
+          "column": 7,
+          "expression": "electron.Api"
+        },
+        {
           "file": "front_web/src/ts/lib/renderer.ts",
           "line": 25,
           "column": 10,
@@ -28977,7 +29001,7 @@
         },
         {
           "file": "front_web/src/ts/component/drag/provider.tsx",
-          "line": 240,
+          "line": 260,
           "column": 9,
           "expression": "electron.isDirectory"
         },
@@ -29278,6 +29302,22 @@
       ]
     },
     {
+      "id": "native-method:uploadStaged",
+      "kind": "native-method",
+      "name": "uploadStaged",
+      "protocol": "native-bridge",
+      "target": null,
+      "status": "pending",
+      "references": [
+        {
+          "file": "front_web/src/ts/component/drag/provider.tsx",
+          "line": 243,
+          "column": 21,
+          "expression": "electron.uploadStaged"
+        }
+      ]
+    },
+    {
       "id": "native-method:userPath",
       "kind": "native-method",
       "name": "userPath",
@@ -29339,7 +29379,7 @@
         },
         {
           "file": "front_web/src/ts/component/drag/provider.tsx",
-          "line": 235,
+          "line": 255,
           "column": 18,
           "expression": "electron.webFilePath"
         },
@@ -35429,7 +35469,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1302,
+          "line": 1319,
           "column": 3,
           "expression": "Renderer.send"
         }
@@ -36039,7 +36079,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1453,
+          "line": 1470,
           "column": 3,
           "expression": "Renderer.send"
         },
@@ -36453,7 +36493,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 859,
+          "line": 876,
           "column": 3,
           "expression": "Renderer.send"
         }
@@ -36523,7 +36563,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 888,
+          "line": 905,
           "column": 3,
           "expression": "Renderer.send"
         }
@@ -36555,7 +36595,7 @@
       "references": [
         {
           "file": "front_web/src/ts/lib/action.ts",
-          "line": 1275,
+          "line": 1292,
           "column": 3,
           "expression": "Renderer.send"
         }
@@ -38820,7 +38860,7 @@
       "reason": "Computed expression; no data-flow or alias resolution is attempted.",
       "reference": {
         "file": "front_web/src/ts/lib/action.ts",
-        "line": 679,
+        "line": 696,
         "column": 3,
         "expression": "C[cmd]"
       }
