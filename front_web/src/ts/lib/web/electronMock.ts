@@ -545,6 +545,12 @@ class ElectronMock {
 
 	webFilePath = (file: File) => file.name;
 
+	// The drop handlers (component/drag/provider.tsx) collect paths synchronously, but a browser
+	// File has no path: staging it through the same upload ingress the picker uses is the only
+	// way a server-side command can read the bytes. Desktop has no such method and keeps its
+	// real paths, so callers feature-detect rather than branch on the platform.
+	uploadStaged = async (files: File[]) => Promise.all(files.map((file) => uploadFileToServer(file)));
+
 	fileWrite = (name: string, data: any, _options?: any) => {
 		// Create a blob and download it
 		const blob = new Blob([data]);

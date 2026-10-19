@@ -85,7 +85,7 @@
 
 - **#153 的导出半边确实不可达**：`Action.export` 要的是**目录**，而 web 的 picker 只能选文件并会把文件上传后当作目录返回，浏览器根本没有「给服务端一个可写目录」的接口 → 需要改成服务端打包 + 下载，不是补一个 shim case。
 - ~~**#153 的导入半边是可达且缺的**~~ → **已实现（#153）**：picker 已经把字节 POST 到 `/api/web-upload` 并返回真实暂存路径，服务端 `importFiles` 现在读这些路径：Markdown / Obsidian / HTML / 纯文本各自成页（名字取第一个标题或 `<h1>`，纯文本取文件名），正文用 `storeDocument` 正规写入，块形状是 `Y.XmlElement("paragraph")` + `Y.XmlText` 子节点（不是历史预览那套裸 XmlText，否则编辑器打开是空文档）。Notion / CSV / Protobuf 仍回 code 12 并在 description 里说明原因。顺带把 **两个文件命令共用的任意路径读取** 关进围栏：`FileUpload` 的 `localPath` 以前直接 `readFile`，任何空间 writer 都能把 `/etc/passwd` 存成文件对象再用 `GET /file/:id` 取回；现在 `staged-path.ts` 只允许两个上传暂存根目录。实盘：经应用自身上传通道落盘的真实 .md 用 `C.ObjectImport` 导入返回 0，打开该页编辑器渲染出两个段落。
-- **#152 拖拽落文件在到达服务端之前就坏了**：drop 走的是 `electron.webFilePath(file)`，而 mock 里它就是 `file.name`（`electronMock.ts:546`），所以 `localFilePaths` 只带文件名、没有字节；三个调用点（`drag/provider.tsx:279`、`popup/upload.tsx:82`、`block/dataview.tsx:1877`）都是活屏，失败表现为一条错误 toast。修它是两个可度量的半边：drop 复用 picker 已在用的 `uploadFileToServer`，服务端再应答 `FileDrop`（用暂存路径建文件对象 + 插入正文的附件节点 #227）。
+- ~~**#152 拖拽落文件在到达服务端之前就坏了**~~ → **已实现（#152）**：mock 新增 `uploadStaged(files)`，把落下的 File 走 picker 同一条 `/api/web-upload` 通道换成真实暂存路径，`drag/provider.tsx` 在调用 FileDrop 前 await 它（桌面仍用它自己的路径）；服务端 `file-drop.ts` 把每个路径变成文件对象，并在正文尾部追加编辑器的 `attachment` 节点。第三处缺陷是查结果时发现的：两条上传通道都会把落盘文件改名成 `<时间戳>-<随机>-<原名>`，谁都没还原，所以用户会看到 `1792376026484-awwcne-ferry-timetable.txt`；现在 `stagedFileName` 为 FileUpload/导入/落盘统一剥掉前缀。dataview 单元格那一侧（`block/dataview.tsx:1877`）明确回 code 12：落到 set 视图上「这个文件属于哪条记录」没有可猜的答案。`popup/upload.tsx:82` 在浏览器里根本不会触发（它只在目录时调用，而 mock 的 isDirectory 恒 false），不是坏掉。
 
 > 教训：`EMPTY_SUB_IDS` 里「不是对象列表」的判断必须由客户端实际解析路径反证。`subSpace` 与 `library` 都曾以「非对象列表」名义被留空，结果分别是所有权闸门全灭与内容模型 rail 空白。
 

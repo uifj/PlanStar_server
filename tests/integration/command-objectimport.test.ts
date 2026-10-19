@@ -32,7 +32,8 @@ describe.skipIf(!databaseAvailable)("ObjectImport of staged files", () => {
 	const stage = (filename: string, content: string) => {
 		const dir = resolve(env.FILE_UPLOAD_STAGING_ROOT);
 		mkdirSync(dir, { recursive: true });
-		const path = resolve(dir, `vitest-${Date.now()}-${filename}`);
+		// The same shape both upload ingresses stamp: `<ms>-<random>-<name>` (see staged-path.ts).
+		const path = resolve(dir, `${Date.now()}-vitest-${filename}`);
 		writeFileSync(path, content, "utf8");
 		return path;
 	};
@@ -228,6 +229,25 @@ describe.skipIf(!databaseAvailable)("ObjectImport of staged files", () => {
 		expect(page.name).toBe("Wharf notes");
 		expect(page.body).toBe("Bergen & the morning fog.");
 		expect(page.body).not.toContain("evil");
+	});
+
+	it("names a plain-text import after the file, not its staging stamp", async () => {
+		const path = stage("trip notes.txt", "Depart 06:15.\n\nFerry at odds.");
+
+		signInAs(owner);
+		const body = await (
+			await post("/api/command/ObjectImport", {
+				spaceId,
+				type: 5,
+				mode: 1,
+				snapshots: [],
+				txtParams: { path: [path] },
+			})
+		).json();
+
+		const page = await openPage(body.objectIds[0]);
+		expect(page.name).toBe("trip notes");
+		expect(page.body).toContain("Depart 06:15.");
 	});
 
 	it("refuses a reader of the space, because import writes objects", async () => {

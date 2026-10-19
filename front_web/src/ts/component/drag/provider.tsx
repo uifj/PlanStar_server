@@ -117,7 +117,7 @@ const DragProvider = forwardRef<I.DragProviderRefProps, Props>((props, ref: any)
 		return { x, y, width, height };
 	};
 
-	const onDropCommon = (e: any) => {
+	const onDropCommon = async (e: any) => {
 		e.preventDefault();
 		dragData.current = null;
 
@@ -231,7 +231,27 @@ const DragProvider = forwardRef<I.DragProviderRefProps, Props>((props, ref: any)
 			const filePaths: string[] = [];
 			const dirPaths: string[] = [];
 
-			for (const file of dataTransfer.files) {
+			// A browser has no filesystem, so webFilePath(file) is only the name — the commands
+			// that take local paths would receive a name with no bytes behind it. The web build
+			// therefore stages the dropped files through the same upload ingress its file picker
+			// already uses (lib/web/electronMock.ts), which hands back real server paths. Desktop
+			// has no such method and keeps using its own paths.
+			const dropped = Array.from(dataTransfer.files);
+			let staged: string[] = [];
+			if (typeof electron.uploadStaged === 'function') {
+				try {
+					staged = await electron.uploadStaged(dropped);
+				} catch (err) {
+					console.error('[DragProvider].onDrop could not stage the dropped files', err);
+					clearState();
+					return;
+				};
+			};
+
+			if (staged.length) {
+				filePaths.push(...staged);
+			} else
+			for (const file of dropped) {
 				const path = electron.webFilePath(file);
 				if (!path) {
 					continue;

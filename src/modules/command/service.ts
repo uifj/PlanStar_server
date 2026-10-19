@@ -56,13 +56,9 @@ import {
 	type DataviewWrite,
 	dataviewWrite,
 } from "./dataview-write.js";
+import { dropFiles } from "./file-drop.js";
 import { uploadFile } from "./file-service.js";
-import {
-	ImportError,
-	ImportPathError,
-	ImportUnsupportedError,
-	importFiles,
-} from "./import-service.js";
+import { fileIngressError, importFiles } from "./import-service.js";
 import {
 	fetchLinkPreview,
 	PreviewNotAllowedError,
@@ -775,32 +771,36 @@ export async function run(
 			try {
 				objectIds = await importFiles(user, body);
 			} catch (error) {
-				if (error instanceof ImportPathError) {
-					return {
-						error: { code: 2, description: error.message },
-						event: null,
-					};
-				}
-				if (error instanceof ImportUnsupportedError) {
-					return {
-						error: { code: 12, description: error.message },
-						event: null,
-					};
-				}
-				if (error instanceof ImportError) {
-					return {
-						error: { code: 3, description: error.message },
-						event: null,
-					};
-				}
-				// ensureSpaceAccess rejects a caller without writer access to the space.
-				return { error: FORBIDDEN, event: null };
+				const refused = fileIngressError(error);
+				return { error: refused ?? FORBIDDEN, event: null };
 			}
 
 			// Same reveal as a create: the imported pages join the lists that already match.
 			await subscriptionRegistry.reevaluate(
 				typeof body.spaceId === "string" ? body.spaceId : "",
 			);
+
+			return { error: OK, event: null, objectIds };
+		}
+
+		// FileDrop: the drag-and-drop ingress (component/drag/provider.tsx:279). By the time the
+		// command arrives the browser has already put the bytes on this server, so each staged
+		// path becomes a file object and the page's body gains the editor's attachment node.
+		// The client reads only error.code; the new objects reach open lists through the same
+		// subscription reevaluate a create uses.
+		case "FileDrop": {
+			let objectIds: string[] = [];
+			let spaceId = "";
+			try {
+				const dropped = await dropFiles(user, body);
+				objectIds = dropped.objectIds;
+				spaceId = dropped.spaceId;
+			} catch (error) {
+				const refused = fileIngressError(error);
+				return { error: refused ?? FORBIDDEN, event: null };
+			}
+
+			await subscriptionRegistry.reevaluate(spaceId);
 
 			return { error: OK, event: null, objectIds };
 		}

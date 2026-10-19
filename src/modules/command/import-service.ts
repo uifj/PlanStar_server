@@ -6,7 +6,7 @@ import type { AuthUser } from "../../lib/auth.js";
 import { storeDocument } from "../collab/server.js";
 import { createObject } from "./object-service.js";
 import type { CommandBody } from "./schema.js";
-import { isStagedPath } from "./staged-path.js";
+import { isStagedPath, stagedFileName } from "./staged-path.js";
 
 // I.ImportType (front_web interface/common.ts:126). Markdown and Obsidian both ride
 // markdownParams, so one reader covers both; Html and Text carry their own params object.
@@ -21,6 +21,24 @@ const IMPORT_OBSIDIAN = 7;
 export class ImportPathError extends Error {}
 export class ImportUnsupportedError extends Error {}
 export class ImportError extends Error {}
+
+// The two file-ingress commands (ObjectImport, FileDrop) share these failure kinds, so one
+// mapping owns how they reach the client: a path outside the staging roots is an access
+// denial, an unsupported shape is a capability the shim does not claim, anything else is a bad
+// request. null means "not one of ours" — the caller falls back to the access-denial code,
+// because the only remaining throw is ensureSpaceAccess.
+export function fileIngressError(error: unknown) {
+	if (error instanceof ImportPathError) {
+		return { code: 2, description: error.message };
+	}
+	if (error instanceof ImportUnsupportedError) {
+		return { code: 12, description: error.message };
+	}
+	if (error instanceof ImportError) {
+		return { code: 3, description: error.message };
+	}
+	return null;
+}
 
 function assertStaged(path: string) {
 	if (!isStagedPath(path)) {
@@ -136,9 +154,16 @@ function htmlToPage(text: string) {
 	return { name, paragraphs };
 }
 
+// The name a file-derived page gets: its own name without extension, shed of the staging stamp
+// the browser ingress prefixed.
+function displayName(path: string) {
+	const name = stagedFileName(path);
+	return basename(name, extname(name)) || "Untitled";
+}
+
 function textToPage(text: string, path: string) {
 	return {
-		name: basename(path, extname(path)) || "Untitled",
+		name: displayName(path),
 		paragraphs: text
 			.replace(/\r\n/g, "\n")
 			.split(/\n{2,}/)
@@ -203,8 +228,7 @@ export async function importFiles(user: AuthUser, body: CommandBody) {
 				: type === IMPORT_TEXT
 					? textToPage(file.text, file.path)
 					: markdownToPage(file.text);
-		const name =
-			page.name || basename(file.path, extname(file.path)) || "Untitled";
+		const name = page.name || displayName(file.path) || "Untitled";
 		const paragraphs = page.paragraphs.length ? page.paragraphs : [name];
 
 		const obj = await createObject(user, { spaceId, details: { name } });

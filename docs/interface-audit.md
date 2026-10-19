@@ -30,10 +30,10 @@ deliberately records every capability as `pending` — it joins the client's sur
 migration is done — so the answered/pending split below comes from diffing it against the shim.
 
 - 259 exported wrappers in `command.ts`; **231 of them are called** from client code.
-- The shim answers **130** distinct command names (105 at the audit's first pass, the 22
+- The shim answers **131** distinct command names (105 at the audit's first pass, the 22
   `BlockDataview*` writes added by task #250, the inline-block binding of item 24, `AIListModels`,
-  and `ObjectImport` of item 27).
-- **105 called commands have no server case.** They are not one bucket — see §3.
+  `ObjectImport` of item 27 and `FileDrop` of item 28).
+- **104 called commands have no server case.** They are not one bucket — see §3.
 - Only **2 answered commands are never called**: `ChatUnreadMessages` (the client's unread path uses
   `ChatSubscribeToMessagePreviews` counters instead) and `ObjectToSet` (see §4 — the set screen calls
   a *different* entry point). Both still have integration tests, so they are live-but-unreached
@@ -108,16 +108,16 @@ web build's Electron mock (`lib/web/electronMock.ts`) rather than assumed:
   (`notionParams`), CSV (`csvParams`) and Protobuf (`pbParams`) still answer code 12, each with the
   reason in the description, because they need an external service or a structured-experience reader
   rather than a file parse.
-- `FileDrop` — **reachable, and broken before it reaches the server.** The drag-and-drop path does *not*
-  use the picker: it maps each dropped `File` through `electron.webFilePath(file)`, and the mock defines
-  that as `(file) => file.name` (electronMock.ts:546). So `localFilePaths` arrives as bare names like
-  `probe.txt` — no bytes, no staged path — and `isDirectory` is hardcoded false so folders are silently
-  skipped. Making drop work is two measured halves: route the drop through the same `uploadFileToServer`
-  the picker already uses, then answer `FileDrop` by creating file objects from the staged paths and
-  inserting the body's attachment node (task #227's `component/editor/attachment.ts`). It is listed here
-  rather than under (b) because the call sites in `drag/provider.tsx:279`, `popup/upload.tsx:82` and
-  `block/dataview.tsx:1877` are all mounted screens, and the failure is a visible error toast, not a
-  graceful degradation.
+- `FileDrop` — **answered, with its broken client half repaired** (item 28). The drop path did *not*
+  use the picker: it mapped each dropped `File` through `electron.webFilePath(file)`, and the mock
+  defines that as `(file) => file.name` (electronMock.ts:546), so `localFilePaths` arrived as bare
+  names with no bytes behind them. The mock now offers `uploadStaged(files)`, which puts the dropped
+  bytes through the same `POST /api/web-upload` ingress the picker already uses, and
+  `drag/provider.tsx` awaits it (desktop keeps its real paths). The other call site in a mounted
+  screen, `block/dataview.tsx:1877`, aims at a set/collection view, where "which record does this
+  file belong to" has no answer to guess at — that case answers code 12 with the reason.
+  `popup/upload.tsx:82` is unreachable in the browser rather than broken: it only fires when a
+  dropped path is a directory, and the mock's `isDirectory` is a constant false.
 
 **`ObjectUndo`/`ObjectRedo` (keyboard.ts:1298/1323) are a deliberate boundary, not a missing
 transport.** Body undo and redo work — the Yjs document's own `UndoManager` handles Cmd+Z in the
@@ -358,6 +358,20 @@ the state it would need to replay does not.
     writes to, or the dev mirror in the OS temp directory — the only two places the browser ingress can
     produce. Verified live: a real `.md` staged through the app's own uploader and imported through
     `C.ObjectImport` returned code 0, and the page opened in the editor as two rendered paragraphs.
+
+28. **Dropping a file on a page did nothing but toast** — **fixed**, on both sides. Server: `FileDrop`
+    was unanswered, so `component/drag/provider.tsx` got code 12 after a drop. It now makes a file
+    object of each staged path through the same ingress `FileUpload` uses and appends the body's
+    `attachment` node, so the page carries a real download link. Client: the drop never handed the
+    server anything to read — `webFilePath(file)` is just the filename in a browser — so the mock now
+    exposes `uploadStaged(files)`, which posts the bytes to `/api/web-upload` exactly as the picker
+    does, and the drop handler awaits it before calling `FileDrop`. A third defect surfaced while
+    checking the result: both ingresses stamp a staged file as `<timestamp>-<random>-<name>`, and
+    nothing undid that, so the user would have seen `1792376026484-awwcne-ferry-timetable.txt`;
+    `stagedFileName` now strips it for FileUpload, import and drop alike. Verified live: a real
+    `File` staged through `electron.uploadStaged`, dropped through `C.FileDrop`, then opened in the
+    editor renders `a.fileAttachment` labelled `ferry-timetable.txt`, and its href serves the dropped
+    bytes as `text/plain` (200 with the session cookie).
 
 ## 5. Dead code and obsolete surface to prune
 

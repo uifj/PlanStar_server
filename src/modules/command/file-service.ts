@@ -7,7 +7,7 @@ import { prisma } from "../../lib/prisma.js";
 import { writeFileBytes } from "../files/storage.js";
 import { ensureAccount } from "./account-service.js";
 import type { CommandBody } from "./schema.js";
-import { isStagedPath } from "./staged-path.js";
+import { isStagedPath, stagedFileName } from "./staged-path.js";
 
 // The Prisma ObjectLayout value a mime type maps onto (front_web interface/object.ts:
 // File = 6, Image = 8, Audio = 15, Video = 16, Pdf = 20). Anything else is a plain file.
@@ -84,15 +84,15 @@ async function readSourceBytes(body: CommandBody): Promise<Uint8Array | null> {
 	return null;
 }
 
-// A name for the file object: an explicit details.name wins, else the basename of the
-// path/url the bytes came from.
+// A name for the file object: an explicit details.name wins, else the name the ingress was
+// given (its staging prefix removed), else the basename of the url the bytes came from.
 function nameFor(body: CommandBody): string {
 	const details = detailsOf(body);
 	if (typeof details.name === "string" && details.name) {
 		return details.name;
 	}
 	const localPath = typeof body.localPath === "string" ? body.localPath : "";
-	if (localPath) return basename(localPath);
+	if (localPath) return stagedFileName(localPath);
 	const url = typeof body.url === "string" ? body.url : "";
 	if (url) {
 		try {
