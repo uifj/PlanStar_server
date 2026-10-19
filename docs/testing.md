@@ -351,3 +351,45 @@ carries an override. `front_web` also needs its own `pnpm-workspace.yaml` with `
 true`, because it is not a member of the root workspace and pnpm otherwise skips the install script
 that downloads the Electron binary.
 
+One more, learned the hard way: Node's global `fetch` ignores `*_PROXY` unless `NODE_USE_ENV_PROXY=1`
+is set, so on this machine `electron-builder` dies with a bare `fetch failed` at the packaging step even
+though `curl -x http://127.0.0.1:7897 https://github.com` answers 200. Package with
+`NODE_USE_ENV_PROXY=1 https_proxy=http://127.0.0.1:7897 npx electron-builder --mac --arm64`.
+
+# Auth screens (login / register / account)
+
+`/auth/better-login` had no stylesheet scope of its own — the page is ours, not the vendor's — so it
+inherited `.pageAuth .input { height: 40px; text-align: center }` (written for a *bare* `<input>`, not a
+wrapper) and the global `.input` pill. Each field wrapper was a 40px pill holding a 22px label plus a
+28px input, so every row spilled 10px onto the next one.
+
+Measured in the real page (`http://127.0.0.1:3030/auth/better-login`, after `pnpm dev`), per row:
+
+| Mode | Frame | Rows | Label → input | Row gap | Error row |
+| --- | --- | --- | --- | --- | --- |
+| Sign in | 424 × 478 (48px padding, 328 content) | 2 | 18px label, input top ≥ label bottom | 16px | — |
+| Register | 424 × 566 | 3 (Name / Email / Password) | same, `noOverlap: true` on all three | 16px | — |
+| Sign in, empty submit | 424 × 604 | 2 | — | — | 22px, left-aligned, 16px below the fields, 24px above the buttons |
+
+Inputs are 48px boxes with `text-align: left` (overriding the inherited `center`), a 1px
+`--color-shape-secondary` border and an accent ring on `.isFocused`. Enter submits: `Button` renders a
+`<div>`, so the form has no submit button and with two or more fields the browser refuses implicit
+submission — the handler is on the form's `onKeyDown`, and the button is disabled while a request is in
+flight.
+
+Two probe traps on this route, both cost me a misreading before the notes above:
+
+* A signed-in browser tab never shows the login page — the boot gate calls `getSession()` and routes to
+  `/main/...`. Reach it from **`http://127.0.0.1:3030`**: the `localhost` session cookie is host-scoped,
+  so the gate's auth check fails and it renders the login page, while the real `localhost` session stays
+  untouched. (Port does not matter — only the host does.)
+* The in-app browser is a hidden surface (`visibilityState=hidden`), so `requestAnimationFrame` never
+  fires there. `Frame` centres itself with rAF-set negative margins and `lib/animation.ts` fades with it,
+  so in a hidden tab the frame reports `marginTop: 0px` and sits below/right of centre. That is the
+  probe, not the layout: read row geometry, not absolute position, and take screenshots from a visible
+  surface.
+
+Gates at this commit: client `tsc` (both tsconfigs) clean, **1405** client tests passing, packaged app
+reinstalled into `~/Applications` and re-run through `HARNESS_DESKTOP_SMOKE=1` (`ok:true`, signUp 200,
+`accountSelectCode:0`), smoke account deleted again (`7 users`, `0` rows matching `desktop-smoke-%`).
+

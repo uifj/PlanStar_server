@@ -24,7 +24,7 @@ const PageAuthBetterLogin = forwardRef<I.PageRef, I.PageComponent>(
 		const [isRegister, setIsRegister] = useState(false);
 		const [name, setName] = useState("");
 
-		const onSubmit = async (e: React.FormEvent) => {
+		const onSubmit = async (e: React.SyntheticEvent) => {
 			e.preventDefault();
 			setError("");
 
@@ -41,6 +41,7 @@ const PageAuthBetterLogin = forwardRef<I.PageRef, I.PageComponent>(
 				return;
 			}
 
+			submitRef.current?.setDisabled(true);
 			submitRef.current?.setLoading(true);
 
 			try {
@@ -76,6 +77,15 @@ const PageAuthBetterLogin = forwardRef<I.PageRef, I.PageComponent>(
 				setError(thrownMessage(err, translate("pageAuthLoginUnknownError")));
 			} finally {
 				submitRef.current?.setLoading(false);
+				submitRef.current?.setDisabled(false);
+			}
+		};
+
+		// Button renders a div, so the form has no submit button and Enter in a field
+		// would otherwise do nothing.
+		const onKeyDown = (e: React.KeyboardEvent) => {
+			if (e.key === "Enter") {
+				onSubmit(e);
 			}
 		};
 
@@ -108,9 +118,13 @@ const PageAuthBetterLogin = forwardRef<I.PageRef, I.PageComponent>(
 						/>
 					</div>
 
-					<form onSubmit={onSubmit} className="authForm">
+					<form
+						onSubmit={onSubmit}
+						onKeyDown={onKeyDown}
+						className="authForm"
+					>
 						{isRegister && (
-							<div className="input animation">
+							<div className="field animation">
 								<Label text={translate("authName")} />
 								<Input
 									value={name}
@@ -121,7 +135,7 @@ const PageAuthBetterLogin = forwardRef<I.PageRef, I.PageComponent>(
 							</div>
 						)}
 
-						<div className="input animation">
+						<div className="field animation">
 							<Label text={translate("authEmail")} />
 							<Input
 								ref={emailRef}
@@ -131,7 +145,7 @@ const PageAuthBetterLogin = forwardRef<I.PageRef, I.PageComponent>(
 							/>
 						</div>
 
-						<div className="input animation">
+						<div className="field animation">
 							<Label text={translate("authPassword")} />
 							<Input
 								ref={passwordRef}
