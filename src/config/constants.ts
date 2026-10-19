@@ -16,6 +16,9 @@ export const TRUSTED_ORIGINS = [
 	env.CLIENT_URL,
 	"myapp://", // Flutter deep-link callback scheme (client scheme:'myapp' + expo-origin)
 	env.APP_URL, // the API's own origin, matching the Better Auth baseURL
+	// The Electron desktop shell serves its renderer from this fixed loopback origin so the session
+	// cookie stays same-site with the API; see front_web/electron/desktop.ts.
+	env.DESKTOP_ORIGIN,
 ];
 
 export const PAGINATION = {

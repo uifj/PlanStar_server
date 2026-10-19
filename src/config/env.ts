@@ -51,6 +51,14 @@ const envSchema = z.object({
 	 * pattern and resolved inside this root.
 	 */
 	EXPORT_ROOT: z.string().min(1).default(".data/exports"),
+
+	/**
+	 * The origin the Electron desktop shell serves its own renderer from. It has to be a fixed port:
+	 * CORS and Better Auth both compare the request Origin against this exact string, so an ephemeral
+	 * port would show up as an unexplained 401 rather than as a configuration problem. The shell loads
+	 * over http (not file://) precisely so the session cookie stays same-site with this API.
+	 */
+	DESKTOP_ORIGIN: z.string().min(1).default("http://localhost:8321"),
 });
 
 const result = envSchema.safeParse(process.env);
