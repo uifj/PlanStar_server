@@ -422,22 +422,32 @@ the state it would need to replay does not.
     the type's own grid rendered that row as `class="row isTask"` — the client's layout guard deciding
     the render, not our number.
 
-31. **A cold load of an object URL opens an empty page** — **open, and reproduced.** Hard-navigating
-    the running client to `/main/object/cmvdkx3ab0002a83opxgbs16o` ("Bergen wharf", a live, unarchived
-    page in the space the client itself has open) mounts `pageMainObject<id>` — so the route parsed and
-    the id reached the page — but `#head` stays the 124-byte empty shell, no `.ProseMirror` appears, and
-    `S.Detail.get(id, id)` keeps `_empty_: true` after 5 s. Ruled out by probe: the object exists and is
-    not archived (`ObjectSearch`), `ObjectShow` for it answers code 0, and `ObjectOpen` with the client's
-    own payload `{objectId, traceId, spaceId}` answers code 0 with an objectView — so the server side of
-    the deep link works, and what fails is the boot-time hand-off. Both restoration paths exist
-    (`app.tsx:358` keeps a shared `/main/...` route, `routeSync.ts:68` calls `router.go(window.location.pathname)`
-    on init), so the suspect is ordering: the page mounts before the space is open, and its own
-    `ObjectOpen` either never fires or fires with a space the shim then cannot resolve. Not fixed here
-    because the next step needs the payload the page actually sent (browser network bodies, not
-    reproducible from a hand-built fetch), and guessing a boot-order patch would leave a silent
-    regression in the one path every acceptance run depends on. Task #276.
-    Earlier acceptance row §4-7 ("a reload or deep link loses the requested object") is therefore **not
-    fully closed**: the space is restored and the route is parsed, but the object is not loaded.
+31. **A cold load of an object URL loses the requested object** — **root cause found; the route half
+    is fixed, the render half is open** (task #276).
+    *Fixed*: the app's own routes carry their parameters in the **query string**
+    (`U.Router.build` → `/main/object/?id=…&spaceId=…`), but the web boot kept only the pathname —
+    `entry.web.tsx` stored `window.location.pathname` as the redirect, `app.tsx:358` preferred
+    `window.location.pathname` as the shared route, and `routeSync.ts:68` handed the popstate handler a
+    pathname. So a reloaded or shared object link reached the redirector page with `id` undefined, and
+    `U.Object.getById(undefined)` fell through to `openDashboardOrVoid()`. One module now owns the
+    question — `front_web/src/ts/lib/web/deepLink.ts` (`sharedRoute`, `stripConfigParams`), with six unit
+    tests — and all three call sites go through it, keeping the query while still dropping the boot-config
+    params (`server`, `dataPath`) that the entry point consumes. Live after the change: cold-loading
+    `/main/object/?id=cmvdkx3ab0002a83opxgbs16o&spaceId=cmvaxybk…` resolves to
+    `/main/edit/<id>/spaceId/<space>` and `S.Detail.get(id, id)` returns `{name: "Bergen wharf"}` —
+    previously the same load left that id `_empty_` and bounced to the dashboard.
+    *Still open*: the page then renders no content. On the resolved route
+    `/main/edit/<id>/spaceId/<space>` the `#head` stays its 124-byte empty shell, the title element is
+    absent, and the ProseMirror body is empty — even though the detail store holds the object
+    (`{name: "Bergen wharf"}`). And this is **not a boot-order race**: navigating to the same route inside
+    the already-booted app (`U.Router.go('/main/edit/<id>/spaceId/<space>')`) renders exactly the same
+    empty head. So what is missing is the object page's own render path — the legacy block leaf that
+    `head/controlButtons.tsx` and `head/simple.tsx` read through `S.Block.getLeaf(rootId, rootId)`, which
+    this build never populates for a Yjs-only object — not the transport or the route. The earlier
+    acceptance row §4-7 ("a reload or deep link loses the requested object") is now closed for the part
+    it was written about (the requested object *is* reached); the blank-page half is a separate, newly
+    named defect in task #276, and any claim that opening an object from the sidebar renders it must be
+    re-verified rather than assumed.
 
 ## 5. Dead code and obsolete surface to prune
 

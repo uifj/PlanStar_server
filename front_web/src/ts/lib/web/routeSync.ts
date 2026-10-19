@@ -1,3 +1,5 @@
+import { sharedRoute } from './deepLink';
+
 /**
  * Syncs memory history ↔ browser URL.
  * Memory history is the source of truth for the app.
@@ -65,7 +67,9 @@ export function initRouteSync (memoryHistory: any, router: any) {
 
 		// Use router.go() which handles space switching when the route
 		// contains a different spaceId than the current space.
-		router.go(window.location.pathname, {});
+		// Keep the query string: an app route's parameters live there, so a
+		// pathname-only go() would reopen the page with no id.
+		router.go(sharedRoute(window.location) || window.location.pathname, {});
 
 		// For cross-space navigation, router.isOpening stays true during
 		// the async WorkspaceOpen call. Poll until it settles, then

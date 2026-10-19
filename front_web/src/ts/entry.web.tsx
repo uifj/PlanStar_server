@@ -14,6 +14,7 @@ import { electronMock } from "./lib/web/electronMock";
 import {
 	serverAddress as resolveServerAddress,
 } from "./lib/web/serverAddress";
+import { sharedRoute, stripConfigParams } from "./lib/web/deepLink";
 
 // Set up global configuration from URL params or defaults
 const urlParams = new URLSearchParams(window.location.search);
@@ -29,16 +30,17 @@ if (dataPath) {
 	localStorage.setItem("anytype_dataPath", dataPath);
 }
 
-// Clean config params from URL, keep the pathname
-if (urlParams.has("server") || urlParams.has("dataPath")) {
-	const cleanUrl = window.location.pathname || "/";
-	window.history.replaceState({}, "", cleanUrl);
+// Clean config params from URL, keep the pathname *and* the route's own query.
+const cleanSearch = stripConfigParams(window.location.search);
+if (cleanSearch !== window.location.search) {
+	window.history.replaceState({}, "", `${window.location.pathname}${cleanSearch}`);
 }
 
-// Deep link: save initial URL path as redirect for the app to pick up after auth
-const initialPath = window.location.pathname;
-if (initialPath && initialPath !== "/") {
-	localStorage.setItem("anytype_redirect", JSON.stringify(initialPath));
+// Deep link: save the whole route for the app to pick up after auth. The app's routes carry their
+// parameters in the query string, so storing only the pathname would open the object page with no id.
+const route = sharedRoute(window.location);
+if (route) {
+	localStorage.setItem("anytype_redirect", JSON.stringify(route));
 }
 
 // Configure the global config object

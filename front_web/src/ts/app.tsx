@@ -12,6 +12,7 @@ import * as M from 'Model';
 import Storage from 'Lib/storage';
 import Animation from 'Lib/animation';
 import { approvalSpaces } from 'Lib/linkApproval';
+import { sharedRoute } from 'Lib/web/deepLink';
 import Download from 'Lib/download';
 import { powerState } from 'Lib/powerState';
 import { membership } from 'Lib/membership';
@@ -354,9 +355,9 @@ const App: FC = () => {
 		//
 		// Memory history is created empty on a cold boot, so on web the address bar is the only
 		// record of what the user reloaded or shared: prefer it when it names an app route, and fall
-		// back to the stored redirect for the windows that never had one.
-		const sharedRoute = /^\/main\//.test(window.location.pathname) ? window.location.pathname : '';
-		let route = String(sharedRoute || data.route || redirect || '');
+		// back to the stored redirect for the windows that never had one. The helper keeps the query
+		// string, which is where the app's routes carry their parameters (`/main/object/?id=…`).
+		let route = String(sharedRoute(window.location) || data.route || redirect || '');
 
 		if (route) {
 			const rp = U.Router.getParam(route);
