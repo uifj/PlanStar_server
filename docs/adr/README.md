@@ -31,6 +31,7 @@ of implementation.** New migration records state pending/staged implementation e
 | [0021](0021-keep-rest-api-mark-superseded.md) | Keep the pre-pivot REST API mounted, mark the operations the shim superseded deprecated | accepted; implemented |
 | [0022](0022-type-recommended-layout.md) | Inherit a type's recommended layout at create, reset it on demand | accepted; implemented (layout half only) |
 | [0023](0023-no-body-block-drag.md) | No block drag-and-drop in the document body; the shell owns dragging | accepted; implemented |
+| [0024](0024-desktop-shell-serves-the-web-renderer.md) | One renderer, two targets: the Electron shell serves `dist-web` over a fixed loopback origin so the session cookie stays same-site | accepted; implemented (macOS `.app` + `.dmg` built, installed, self-checked) |
 
 ## Current migration status, 2026-10-16
 

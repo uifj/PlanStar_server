@@ -1,15 +1,17 @@
+# front_web is a vendored tree installed on its own (it is not a member of the root workspace), so the
+# root pnpm-workspace.yaml does not apply here and pnpm refuses to run dependency build scripts.
+# Electron's install script is the only thing that downloads the app binary, so without this the shell
+# installs cleanly and then cannot start.
 allowBuilds:
-  '@swc/core': true
+  electron: true
   esbuild: true
-minimumReleaseAgeExclude:
-  - '@better-auth/core@1.7.10'
-  - '@better-auth/drizzle-adapter@1.7.10'
-  - '@better-auth/kysely-adapter@1.7.10'
-  - '@better-auth/memory-adapter@1.7.10'
-  - '@better-auth/mongo-adapter@1.7.10'
-  - '@better-auth/prisma-adapter@1.7.10'
-  - '@better-auth/telemetry@1.7.10'
-  - better-auth@1.7.10
+  # Windows-only Authenticode helper; this repo packages macOS.
+  electron-winstaller: false
+  # Pre-existing optional accelerator; the web and desktop builds never invoke it.
+  '@swc/core': false
+
 overrides:
-  '@types/react': ^18.3.26
-  '@types/react-dom': ^18.3.7
+  # app-builder-lib@26.17.0 declares @electron/get ^3 but calls the v5-only Cache.ReadWrite enum, so
+  # the macOS packaging step dies with "Cannot read properties of undefined (reading 'ReadWrite')"
+  # before it downloads anything. v5 keeps the API it uses and adds the enum.
+  app-builder-lib>@electron/get: ^5.1.0

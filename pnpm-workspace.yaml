@@ -2,6 +2,11 @@ allowBuilds:
   # postinstall only acts when FIREBASE_WEBAPP_CONFIG is set; unused here
   '@firebase/util': false
   '@prisma/engines': true
+  # electron's install script is the only thing that fetches the app binary; without it the desktop
+  # shell installs cleanly and then fails to start.
+  electron: true
+  # Windows-only Authenticode helper; this repo packages macOS.
+  electron-winstaller: false
   esbuild: true
   # postinstall is a no-op unless a dependent uses protobufjs's legacy version scheme
   protobufjs: false

@@ -13,6 +13,8 @@ node_modules
 
 # Build output (vite build writes here)
 dist-web
+/electron-dist
+/build
 
 # Generated protobuf bindings (pnpm generate:protos). The transport in src/ts/lib/api/service.ts
 # is hand-written and tracked: it must never be regenerated into the retired gRPC-web client.

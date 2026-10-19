@@ -317,3 +317,37 @@ Gates at this commit: unit 185 passed, integration 694 passed / 5 skipped (140 f
 `pnpm coverage` unchanged at 265 declared / 236 called / 134 answered / 107 unanswered, and
 `pnpm inventory:check` matches after regenerating the manifest for the removed `dragHandle.ts`.
 
+# Desktop target (ADR-0024)
+
+`front_web` builds two ways from one renderer. Web: `pnpm dev` / `pnpm build` (Vite, `:3030` →
+`dist-web`). Desktop: `pnpm build:desktop` (the same `dist-web`, plus `electron-dist/*.cjs` from
+esbuild) and `pnpm dist:mac` for the package. The shell serves `dist-web` over the fixed origin
+`http://localhost:8321` — not `file://`, because the session cookie has to stay same-site with the API
+on `:8000` — and that origin is the only thing the backend gained (`DESKTOP_ORIGIN` in
+`src/config/env.ts`, listed in `TRUSTED_ORIGINS`, asserted in `tests/unit/middleware/cors.test.ts`).
+
+The backend must be running (`pnpm dev`); the shell probes `/api/health` and waits on a status page
+until it answers. If `:8321` is taken the shell refuses to move to another port and says why, since a
+different port would not be a trusted origin.
+
+Verification is `HARNESS_DESKTOP_SMOKE=1`, which runs inside the real renderer and prints one JSON
+line: sign up → reload → wait until the app leaves `/auth/` → `AccountSelect`.
+
+| Target | Evidence (2026-10-19) |
+| --- | --- |
+| unpackaged (`npx electron .`) | `DESKTOP_SMOKE {"ok":true,"signedUpStatus":200,"routeAfterLogin":"/main/edit/<home>/spaceId/<space>","titleAfterLogin":"Widgets - My Space - Anytype","accountSelectCode":0,"accountSeen":true}` |
+| packaged + installed (`~/Applications/Anytype Harness.app`) | same smoke, same result: `ok:true`, signUp 200, `AccountSelect` code 0, title `Widgets - My Space - Anytype` |
+| package artifacts | `front_web/build/Anytype Harness-0.57.4-arm64.dmg` (151 MB) and `build/mac-arm64/Anytype Harness.app`; bundle carries `Contents/Resources/renderer/{index.html,js,css,wasm,cmaps}` and `Contents/MacOS/Anytype Harness` |
+| install | copied into `~/Applications` (user domain, no privilege escalation needed), launched from its own binary |
+| web target unchanged | `pnpm typecheck` (now also `tsconfig.electron.json`), 1405 client tests, root 187 unit and 694 integration tests all pass after the shell landed |
+
+Both smoke runs created a throwaway `desktop-smoke-*@example.com` account; the users, their spaces and
+every dependent row were deleted afterwards (`0 users left`, `0 orphan spaces`).
+
+Two packaging details worth remembering: electron-builder 26's schema has **no `mac.arch`**
+(additionalProperties:false) — arch comes from `--arm64` — and `app-builder-lib@26.17.0` declares
+`@electron/get ^3` while calling the v5-only `Cache.ReadWrite`, which is why `front_web/pnpm-workspace.yaml`
+carries an override. `front_web` also needs its own `pnpm-workspace.yaml` with `allowBuilds.electron:
+true`, because it is not a member of the root workspace and pnpm otherwise skips the install script
+that downloads the Electron binary.
+

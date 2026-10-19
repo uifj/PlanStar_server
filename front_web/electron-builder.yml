@@ -1,0 +1,45 @@
+# macOS packaging for the desktop shell. Deliberately unsigned: this builds a local install, so the
+# upstream desktop pipeline's Developer ID, notarization, Sentry sourcemap hook and update feed
+# (identity J3NXTX3T5S, publish to a DigitalOcean space) are all dropped rather than stubbed.
+appId: com.harness.anytype
+productName: Anytype Harness
+copyright: Local self-hosted build
+asar: true
+npmRebuild: false
+
+directories:
+  output: build
+  buildResources: electron/build
+
+# The renderer is bundled by vite and the shell by esbuild, so nothing in node_modules belongs in the
+# asar — main.cjs requires only electron, which the builder provides.
+files:
+  - electron-dist/**/*
+  - package.json
+  - "!node_modules/**/*"
+
+extraResources:
+  - from: dist-web
+    to: renderer
+
+protocols:
+  - name: Anytype Harness
+    schemes:
+      - anytype-harness
+
+publish: null
+
+mac:
+  category: public.app-category.productivity
+  # No `arch` here: electron-builder 26 takes the architecture from the CLI (--arm64) or a target's
+  # own options; a mac-level arch fails its schema with additionalProperties:false.
+  target:
+    - dir
+    - dmg
+  # Unsigned: electron-builder ad-hoc signs an arm64 bundle, which is what a local install needs.
+  identity: null
+
+dmg:
+  sign: false
+
+forceCodeSigning: false
