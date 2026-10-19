@@ -478,6 +478,27 @@ Two of §5's items are now **closed**:
 doc comment inside the vendored `middleware/google/protobuf/descriptor.ts`. That closes the last open
 item of §5 and of task #251.
 
+Two more items closed against the code, in this pass:
+
+- *Dead constants in the command layer.* `object-service.ts` still declared `LAYOUT_PAGE`,
+  `LAYOUT_BOOKMARK` and `LAYOUT_DATE`, and `file-drop.ts` still imported `basename` after
+  `stagedFileName` moved into `staged-path.ts`. All four are gone; `biome check` reports no unused
+  symbol in either file.
+- **`pnpm check` is not a usable gate, and was not silently fixed.** `lint` runs `biome check .`, and
+  `vcs.useIgnoreFile` cannot help because `front_web` is a *tracked* vendored tree: the run walks
+  2,596 files, reports 15,766 errors that belong to Anytype's own source style, and stops before
+  `typecheck` and the tests. What is checkable is the first-party tree — `biome check src scripts tests`
+  (359 files) — which reports 17 errors and 258 warnings. The warnings are almost entirely
+  `noExplicitAny` on the shim's `any`-typed command bodies. The error sites include formatting drift in
+  four files (`scripts/client-inventory.ts`, `tests/integration/collab-live-sync.test.ts`,
+  `tests/unit/modules/pubsub/relay.test.ts`, `tests/unit/modules/pubsub/subscription-registry.test.ts`)
+  and five lint sites (`useOptionalChain` ×3 in `space-member-service.ts`, an unused `entity` parameter
+  in `import-service.ts` that the replace callback needs positionally, one rule in `openapi/config.ts`);
+  they are pre-existing and were left alone rather than bundled into this audit's commits.
+  Narrowing `lint` to the first-party tree would make the gate pass by moving the goalposts instead of
+  dealing with the vendored client, so the split is recorded here: run `pnpm typecheck`,
+  `pnpm test:unit` and the integration config as the gates, plus `biome check` on the files you touched.
+
 ## 6. Deepening candidates
 
 1. **One command-seam per domain instead of a 3,000-line switch.** `run()` is one shallow module

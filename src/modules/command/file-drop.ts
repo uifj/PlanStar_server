@@ -1,4 +1,3 @@
-import { basename } from "node:path";
 import * as Y from "yjs";
 import { ensureSpaceAccess } from "../../auth/space-access.js";
 import { API_PREFIX } from "../../config/constants.js";

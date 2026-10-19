@@ -22,9 +22,6 @@ import {
 	ensureSetViews,
 } from "./set-view.js";
 
-// I.ObjectLayout.Page in the client enum; the Prisma enum cannot hold numeric
-// Anytype layouts yet, so the marker lives in details (ADR-0020).
-const LAYOUT_PAGE = 0;
 // I.ObjectLayout.Option === 13 (front_web interface/object.ts:15).
 const LAYOUT_OPTION = 13;
 // I.ObjectLayout.Set === 3 (front_web interface/object.ts); a set reads as a dataview.
@@ -34,10 +31,6 @@ const LAYOUT_TYPE = 4;
 // I.ObjectLayout.Collection === 14; a collection opens at the same set screen, so it needs the same
 // dataview child. Its rows are not a query source: the screen sends collectionId instead of a source.
 const LAYOUT_COLLECTION = 14;
-// I.ObjectLayout.Bookmark === 11 (front_web interface/object.ts:13).
-const LAYOUT_BOOKMARK = 11;
-// I.ObjectLayout.Date === 17 (front_web interface/object.ts:19); the per-day date object.
-const LAYOUT_DATE = 17;
 // Anytype timestamps are unix seconds; a date object is keyed to the start of its UTC day.
 const SECONDS_PER_DAY = 86400;
 
