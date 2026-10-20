@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to the same branch/PR supersedes the in-flight run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Backend (Hono + Prisma API) ──────────────────────────────────────────────
+  # The root workspace is a standalone pnpm project; front_web is a separate
+  # nested workspace handled by the `frontend` job below.
+  backend:
+    name: Backend · lint / typecheck / build / test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: vanlife
+          POSTGRES_PASSWORD: vanlife
+          POSTGRES_DB: vanlife_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U vanlife -d vanlife_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Matches the committed .env.test so the Prisma CLI (which reads
+      # process.env, not .env.test) and the integration tests hit the same DB.
+      DATABASE_URL: postgresql://vanlife:vanlife@localhost:5432/vanlife_test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # biome is scoped to the backend dirs by the root `lint` script; it never
+      # walks into front_web (own biome) or _archvie (nested root config).
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+
+      - name: Prisma generate
+        run: pnpm db:generate
+
+      - name: Prisma migrate deploy
+        run: pnpm db:deploy
+
+      - name: Unit tests
+        run: pnpm test:unit
+
+      - name: Integration tests
+        run: pnpm test:integration
+
+  # ── front_web (Electron shell + web renderer) ────────────────────────────────
+  frontend:
+    name: front_web · lint / typecheck / test / build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front_web
+    env:
+      # No step launches the Electron binary: unit tests run under vitest in a
+      # node env with `electron` mocked, and esbuild marks it external. Skipping
+      # the ~100MB download keeps the job fast and hermetic.
+      ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: front_web/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # @harness/desktop-shared is consumed by name (main / preload / renderer),
+      # so its dist + .d.ts must exist before typecheck, tests and builds.
+      - name: Build shared contract package
+        run: pnpm build:shared
+
+      # Gate covers only the desktop code this repo owns (electron/, packages/,
+      # the parity script) — not the vendored single-quoted renderer baseline.
+      - name: Lint gate
+        run: pnpm lint:gate
+
+      - name: Desktop mock parity
+        run: pnpm check:desktop-parity
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build (web)
+        run: pnpm build
+
+      - name: Build (electron main + preload)
+        run: pnpm build:electron
