@@ -221,17 +221,10 @@ describe("subscription registry", () => {
 
 		// A general "All objects" sub: its runner returns the live query result, which now
 		// includes a freshly-created object the snapshot does not yet have.
-		registry.register(
-			"all-list",
-			"u-2",
-			"space-a",
-			["obj-a"],
-			"",
-			async () => [
-				{ id: "obj-a", name: "A" },
-				{ id: "obj-new", name: "New" },
-			],
-		);
+		registry.register("all-list", "u-2", "space-a", ["obj-a"], "", async () => [
+			{ id: "obj-a", name: "A" },
+			{ id: "obj-new", name: "New" },
+		]);
 
 		await registry.reevaluate("space-a");
 

@@ -261,9 +261,9 @@ describe.skipIf(!databaseAvailable)("HistoryDiffVersions event model", () => {
 		]);
 
 		const added = body.historyEvents.find((it: any) => it.blockAdd);
-		expect(added.blockAdd.blocks.map((it: any) => [it.id, it.text.text])).toEqual(
-			[[after.lineIds[3], "Delta added"]],
-		);
+		expect(
+			added.blockAdd.blocks.map((it: any) => [it.id, it.text.text]),
+		).toEqual([[after.lineIds[3], "Delta added"]]);
 	});
 
 	it("answers no events for two versions that read the same", async () => {

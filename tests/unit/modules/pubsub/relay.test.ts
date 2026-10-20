@@ -13,7 +13,12 @@ function bytes(value: string): Uint8Array {
 describe("pubsub relay", () => {
 	it("delivers a published topic to another account's connection, once", () => {
 		const relay = createPubsubRelay();
-		const received: Array<{ topic: string; identity: string; subIds: string[]; payload: Uint8Array }> = [];
+		const received: Array<{
+			topic: string;
+			identity: string;
+			subIds: string[];
+			payload: Uint8Array;
+		}> = [];
 
 		relay.connect("u-2", (message) => received.push(message));
 		relay.subscribe("u-2", "space-a", ["presence/obj-1"], "sub-2");

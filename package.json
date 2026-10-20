@@ -35,8 +35,8 @@
 		"test:integration:coverage": "dotenv -e .env.test -- vitest run --config vitest.integration.config.ts --coverage",
 		"test:coverage": "pnpm test:unit:coverage && pnpm test:integration:coverage",
 		"typecheck": "tsc --noEmit",
-		"lint": "biome check .",
-		"lint:fix": "biome check --write .",
+		"lint": "biome check src tests prisma scripts packages",
+		"lint:fix": "biome check --write src tests prisma scripts packages",
 		"check": "pnpm lint && pnpm typecheck && pnpm test:all",
 		"check:staged": "biome check --staged --no-errors-on-unmatched",
 		"prepare": "husky || true"

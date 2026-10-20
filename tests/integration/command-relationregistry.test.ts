@@ -48,8 +48,18 @@ describe.skipIf(!databaseAvailable)(
 
 			await prisma.relation.createMany({
 				data: [
-					{ spaceId, uniqueKey: "roofMaterial", name: "Roof", format: "shortText" },
-					{ spaceId, uniqueKey: "tripDone", name: "Packed", format: "checkbox" },
+					{
+						spaceId,
+						uniqueKey: "roofMaterial",
+						name: "Roof",
+						format: "shortText",
+					},
+					{
+						spaceId,
+						uniqueKey: "tripDone",
+						name: "Packed",
+						format: "checkbox",
+					},
 				],
 			});
 

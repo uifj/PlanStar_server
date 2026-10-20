@@ -44,3 +44,4 @@ test.db
 .dev.vars
 
 /front_web/_archive_src/
+.qoder/

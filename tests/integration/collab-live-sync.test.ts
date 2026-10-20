@@ -1,8 +1,8 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { HocuspocusProvider } from "@hocuspocus/provider";
-import { WebSocket as NodeWebSocket } from "ws";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { WebSocket as NodeWebSocket } from "ws";
 import { prisma } from "../../src/lib/prisma.js";
 import { createCollabServer } from "../../src/modules/collab/server.js";
 import { attachCollabUpgrade } from "../../src/modules/collab/upgrade.js";
@@ -15,7 +15,11 @@ vi.mock("../../src/lib/auth.js", () => ({
 
 const databaseAvailable = await isDatabaseAvailable();
 
-const waitFor = async (predicate: () => boolean, attempts = 60, stepMs = 50) => {
+const waitFor = async (
+	predicate: () => boolean,
+	attempts = 60,
+	stepMs = 50,
+) => {
 	let ok = predicate();
 	for (let i = 0; i < attempts && !ok; i++) {
 		await new Promise((resolve) => setTimeout(resolve, stepMs));
@@ -168,9 +172,7 @@ describe.skipIf(!databaseAvailable)("collab two-end live sync", () => {
 			const converged = await waitFor(() => {
 				const left = a.document.getText("body").toString();
 				const right = b.document.getText("body").toString();
-				return (
-					left === right && left.includes("[A]") && left.includes("[B]")
-				);
+				return left === right && left.includes("[A]") && left.includes("[B]");
 			});
 			expect(converged).toBe(true);
 		} finally {

@@ -1,9 +1,9 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { HocuspocusProvider } from "@hocuspocus/provider";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { WebSocket as NodeWebSocket } from "ws";
 import * as Y from "yjs";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { auth } from "../../src/lib/auth.js";
 import { prisma } from "../../src/lib/prisma.js";
 import { createCollabServer } from "../../src/modules/collab/server.js";
@@ -16,7 +16,11 @@ vi.mock("../../src/lib/auth.js", () => ({
 
 const databaseAvailable = await isDatabaseAvailable();
 
-const waitFor = async (predicate: () => boolean, attempts = 60, stepMs = 50) => {
+const waitFor = async (
+	predicate: () => boolean,
+	attempts = 60,
+	stepMs = 50,
+) => {
 	let ok = predicate();
 	for (let i = 0; i < attempts && !ok; i++) {
 		await new Promise((resolve) => setTimeout(resolve, stepMs));
@@ -44,7 +48,9 @@ const sessionCookie = (userId: string | null) =>
 	userId ? `collab_user=${userId}` : "";
 
 function mockSessionByCookie() {
-	vi.mocked(auth.api.getSession).mockImplementation((async ({ headers }: any) => {
+	vi.mocked(auth.api.getSession).mockImplementation((async ({
+		headers,
+	}: any) => {
 		const cookie = headers?.get?.("cookie") ?? "";
 		const match = /collab_user=([^;]+)/.exec(cookie);
 		const userId = match?.[1];

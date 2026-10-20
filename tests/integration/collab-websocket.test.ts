@@ -1,8 +1,8 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { HocuspocusProvider } from "@hocuspocus/provider";
-import { WebSocket as NodeWebSocket } from "ws";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { WebSocket as NodeWebSocket } from "ws";
 import { prisma } from "../../src/lib/prisma.js";
 import { createCollabServer } from "../../src/modules/collab/server.js";
 import { attachCollabUpgrade } from "../../src/modules/collab/upgrade.js";
@@ -95,7 +95,9 @@ describe.skipIf(!databaseAvailable)("collab websocket persistence", () => {
 		// A fresh server must reload exactly the binary the socket client stored.
 		const reopened = createCollabServer({ debounce: 50, maxDebounce: 100 });
 		let text = "";
-		const reopen = await reopened.openDirectConnection(objectId, { user: userId });
+		const reopen = await reopened.openDirectConnection(objectId, {
+			user: userId,
+		});
 		await reopen.transact((doc) => {
 			text = doc.getText("body").toString();
 		});
