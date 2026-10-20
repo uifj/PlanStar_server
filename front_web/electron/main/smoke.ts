@@ -1,6 +1,6 @@
-import type { BrowserWindow } from 'electron';
+import type { BrowserWindow } from "electron";
 
-import { DESKTOP_ORIGIN, apiUrl } from './desktop';
+import { apiUrl, DESKTOP_ORIGIN } from "./desktop";
 
 /**
  * A self-check of the *desktop* path, run inside the real renderer rather than a browser tab.
@@ -13,7 +13,8 @@ import { DESKTOP_ORIGIN, apiUrl } from './desktop';
  * Only runs when HARNESS_DESKTOP_SMOKE is set; an ordinary launch never touches it.
  */
 
-const wait = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+const wait = (ms: number): Promise<void> =>
+	new Promise((resolve) => setTimeout(resolve, ms));
 
 const waitFor = async (
 	win: BrowserWindow,
@@ -32,8 +33,10 @@ const waitFor = async (
 	return false;
 };
 
-const inPage = async <T,>(win: BrowserWindow, script: string): Promise<T> =>
-	win.webContents.executeJavaScript(`(async () => { ${script} })()`) as Promise<T>;
+const inPage = async <T>(win: BrowserWindow, script: string): Promise<T> =>
+	win.webContents.executeJavaScript(
+		`(async () => { ${script} })()`,
+	) as Promise<T>;
 
 export async function runSmoke(win: BrowserWindow): Promise<boolean> {
 	const email = `desktop-smoke-${Date.now()}@example.com`;
@@ -41,11 +44,14 @@ export async function runSmoke(win: BrowserWindow): Promise<boolean> {
 
 	// 1. The shell loaded its own renderer, and the app reached a route (not a network error page).
 	const booted = await waitFor(win, () =>
-		inPage(win, `return location.href.startsWith(${JSON.stringify(DESKTOP_ORIGIN)});`),
+		inPage(
+			win,
+			`return location.href.startsWith(${JSON.stringify(DESKTOP_ORIGIN)});`,
+		),
 	);
 	const beforeLogin = await inPage<{ href: string; title: string }>(
 		win,
-		'return { href: location.href, title: document.title };',
+		"return { href: location.href, title: document.title };",
 	);
 
 	// 2. Sign up through the backend from inside the renderer. If the origins were not same-site for
@@ -86,18 +92,23 @@ export async function runSmoke(win: BrowserWindow): Promise<boolean> {
 
 	const afterLogin = await inPage<{ href: string; title: string }>(
 		win,
-		'return { href: location.href, title: document.title };',
+		"return { href: location.href, title: document.title };",
 	);
 
-	const ok = booted && restored && signed.status < 300 && command.code === 0 && command.hasAccount;
+	const ok =
+		booted &&
+		restored &&
+		signed.status < 300 &&
+		command.code === 0 &&
+		command.hasAccount;
 
 	console.log(
 		`DESKTOP_SMOKE ${JSON.stringify({
 			ok,
 			signedUpStatus: signed.status,
 			signUpError: signed.error,
-			routeBeforeLogin: beforeLogin.href.replace(DESKTOP_ORIGIN, ''),
-			routeAfterLogin: afterLogin.href.replace(DESKTOP_ORIGIN, ''),
+			routeBeforeLogin: beforeLogin.href.replace(DESKTOP_ORIGIN, ""),
+			routeAfterLogin: afterLogin.href.replace(DESKTOP_ORIGIN, ""),
 			titleAfterLogin: afterLogin.title,
 			accountSelectCode: command.code,
 			accountSeen: command.hasAccount,

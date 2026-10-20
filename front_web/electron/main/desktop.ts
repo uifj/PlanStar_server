@@ -1,4 +1,4 @@
-import path from 'node:path';
+import path from "node:path";
 
 /**
  * The desktop shell's one design decision that shapes everything else: the renderer is served over a
@@ -10,7 +10,7 @@ import path from 'node:path';
  * CORS whitelist once this origin is listed there (src/config/constants.ts).
  */
 
-const host = 'localhost';
+const host = "localhost";
 
 // Fixed, not ephemeral: the backend trusts this exact origin, so a random port would silently break
 // the session cookie. A busy port is reported instead of worked around.
@@ -21,11 +21,11 @@ export const DESKTOP_PORT = port;
 
 // Deep links arrive as anytype-harness://<route>, e.g.
 // anytype-harness://main/edit/<rootId>/spaceId/<spaceId>
-export const PROTOCOL_SCHEME = 'anytype-harness';
+export const PROTOCOL_SCHEME = "anytype-harness";
 
 // Where the shell looks for the self-hosted server before it opens the app.
 export const apiUrl = (): string =>
-	(process.env.HARNESS_API_URL || 'http://localhost:8000').replace(/\/+$/, '');
+	(process.env.HARNESS_API_URL || "http://localhost:8000").replace(/\/+$/, "");
 
 export const healthUrl = (): string => `${apiUrl()}/api/health`;
 
@@ -33,5 +33,5 @@ export const healthUrl = (): string => `${apiUrl()}/api/health`;
 // Unpackaged (`pnpm dev:electron`): the same dist-web the web target already produces.
 export const rendererRoot = (packed: boolean): string =>
 	packed
-		? path.join(process.resourcesPath, 'renderer')
-		: path.resolve(__dirname, '..', 'dist-web');
+		? path.join(process.resourcesPath, "renderer")
+		: path.resolve(__dirname, "..", "dist-web");

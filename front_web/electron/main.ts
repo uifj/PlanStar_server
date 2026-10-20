@@ -1,132 +1,97 @@
-import { app, BrowserWindow, Menu, shell } from 'electron';
-import fs from 'node:fs';
-import path from 'node:path';
-
+import fs from "node:fs";
+import path from "node:path";
 import {
+	type DesktopCapabilities,
+	type Locale,
+	type LogPayload,
+	normalizeLocale,
+	PlatformChannels,
+} from "@harness/desktop-shared";
+import { app, BrowserWindow, ipcMain, shell } from "electron";
+import {
+	type AutoUpdaterController,
+	initAutoUpdater,
+} from "./main/autoUpdater";
+import {
+	createExecuteDesktopCommand,
+	type ExecuteDesktopCommand,
+} from "./main/commandHandlers";
+import { initCrashReporter } from "./main/crashReporter";
+import {
+	createDeepLinkSingleInstanceData,
+	extractDeepLinkUrlFromArgs,
+	extractDeepLinkUrlFromSingleInstanceData,
+	routeFromArgv,
+	routeFromUrl,
+} from "./main/deepLink";
+import {
+	apiUrl,
 	DESKTOP_ORIGIN,
 	DESKTOP_PORT,
-	PROTOCOL_SCHEME,
-	apiUrl,
 	healthUrl,
+	PROTOCOL_SCHEME,
 	rendererRoot,
-} from './desktop';
-import { createRendererServer, listen } from './server';
-import { runSmoke } from './smoke';
+} from "./main/desktop";
+import { exportLogs } from "./main/exportLogs";
+// Subsystems (Stage 0-6). Every import is unconditional; the feature flags decide whether the
+// subsystem is *wired*, not whether the module loads.
+import { featureFlags } from "./main/featureFlags";
+import { type FeedbackController, initFeedback } from "./main/feedback";
+import {
+	type ForceUpdateGuardController,
+	initForceUpdateGuard,
+} from "./main/forceUpdateGuard";
+import { bindFileLogger, getLogDir, initLogger, logger } from "./main/logger";
+import { cleanupExpiredLogFiles } from "./main/logRetention";
+import {
+	type ApplicationMenuController,
+	initApplicationMenu,
+	resolveSystemApplicationLocale,
+} from "./main/menu";
+import { runSmoke } from "./main/smoke";
+import { waitingHtml } from "./main/waitingPage";
+import { createWindowStateTracker, readWindowState } from "./main/windowState";
+import { createRendererServer, listen } from "./server";
 
-type WindowState = {
-	x?: number;
-	y?: number;
-	width: number;
-	height: number;
-	maximized: boolean;
-};
+const PRELOAD = path.join(__dirname, "preload.cjs");
 
-const DEFAULT_STATE: WindowState = { width: 1280, height: 840, maximized: false };
-const PRELOAD = path.join(__dirname, 'preload.cjs');
-
-// The last non-maximized frame, so closing while maximized does not persist the zoomed bounds.
-let lastRestored: { x?: number; y?: number; width: number; height: number } | null = null;
-
-const stateFile = (): string => path.join(app.getPath('userData'), 'window.json');
-
-const readState = (): WindowState => {
-	try {
-		return { ...DEFAULT_STATE, ...(JSON.parse(fs.readFileSync(stateFile(), 'utf8')) as Partial<WindowState>) };
-	} catch {
-		return { ...DEFAULT_STATE };
-	}
-};
-
-const saveState = (win: BrowserWindow): void => {
-	if (win.isDestroyed()) {
-		return;
-	}
-	const maximized = win.isMaximized();
-	// While maximized, getBounds() reports the zoomed frame; keep the restored size from that.
-	const bounds = maximized ? (lastRestored ?? win.getBounds()) : win.getBounds();
-	lastRestored = bounds;
-	try {
-		fs.mkdirSync(path.dirname(stateFile()), { recursive: true });
-		fs.writeFileSync(
-			stateFile(),
-			JSON.stringify({ ...bounds, maximized } satisfies WindowState),
-		);
-	} catch {
-		// A unreadable userData dir must not stop the app from closing.
-	}
-};
-
-const waitingHtml = (): string => `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Harness server needed</title>
-<style>
- body { font: 14px/1.6 -apple-system, system-ui, sans-serif; margin: 0; min-height: 100vh;
-   display: grid; place-items: center; background: #f4f4f4; color: #111;
-   -webkit-app-region: drag; }
- main { max-width: 34rem; padding: 2rem; background: #fff; border-radius: 12px;
-   box-shadow: 0 1px 3px rgba(0,0,0,.12); -webkit-app-region: no-drag; }
- h1 { font-size: 1.1rem; margin: 0 0 .6rem; }
- code { background: #f0f0f0; padding: .15rem .4rem; border-radius: 4px; }
- p { margin: .5rem 0; }
- .dot { display:inline-block; width:.5rem; height:.5rem; border-radius:50%; background:#e0a100; margin-right:.4rem; }
-</style></head>
-<body><main>
- <h1><span class="dot"></span>Waiting for the local harness server</h1>
- <p>This desktop app is a shell around your own backend. It is looking for the API at
- <code>${apiUrl()}</code> and will connect as soon as it answers.</p>
- <p>Start it from the repository root:</p>
- <p><code>podman start vanlife-postgres</code> then <code>pnpm dev</code></p>
- <p>Nothing is sent anywhere else — commands go only to that origin.</p>
-</main></body></html>`;
-
-// A route handed to the shell before the document is ready would be dropped by the history API, so
-// it is parked until the first load settles.
+// A route handed to the shell before the document is ready would be dropped by the history API,
+// so it is parked until the first load settles.
 const pendingRoutes: string[] = [];
+let mainWindow: BrowserWindow | null = null;
+let menuController: ApplicationMenuController | null = null;
+let feedbackController: FeedbackController | null = null;
+let autoUpdaterController: AutoUpdaterController | null = null;
+let forceUpdateGuard: ForceUpdateGuardController | null = null;
+let executeDesktopCommand: ExecuteDesktopCommand | null = null;
 
 const sendRoute = (win: BrowserWindow, route: string): void => {
 	const deliver = (): void => {
 		if (!win.isDestroyed()) {
-			win.webContents.send('desktop:route', route);
+			win.webContents.send(PlatformChannels.DesktopRoute, route);
 		}
 	};
 	if (win.webContents.isLoading()) {
-		win.webContents.once('did-finish-load', deliver);
+		win.webContents.once("did-finish-load", deliver);
 		return;
 	}
 	deliver();
 };
 
-// anytype-harness://main/edit/<id>/spaceId/<space> -> /main/edit/<id>/spaceId/<space>
-const routeFromUrl = (raw: string): string | null => {
-	if (!raw.startsWith(`${PROTOCOL_SCHEME}://`)) {
-		return null;
-	}
-	try {
-		const url = new URL(raw);
-		const host = url.host ? `/${url.host}` : '';
-		const route = `${host}${url.pathname}${url.search}`.replace(/\/$/, '') || '/';
-		return route.startsWith('/main/') || route.startsWith('/auth/') || route === '/' ? route : null;
-	} catch {
-		return null;
-	}
-};
-
-const routeFromArgv = (argv: string[]): string | null =>
-	argv.map(routeFromUrl).find((route): route is string => !!route) ?? null;
-
 const healthy = async (): Promise<boolean> => {
 	try {
-		const response = await fetch(healthUrl(), { signal: AbortSignal.timeout(2000) });
+		const response = await fetch(healthUrl(), {
+			signal: AbortSignal.timeout(2000),
+		});
 		return response.ok;
 	} catch {
 		return false;
 	}
 };
 
-let mainWindow: BrowserWindow | null = null;
-
 const createWindow = (): BrowserWindow => {
-	const state = readState();
-	lastRestored = { x: state.x, y: state.y, width: state.width, height: state.height };
+	const state = readWindowState();
+	const tracker = createWindowStateTracker(state);
 
 	const win = new BrowserWindow({
 		x: state.x,
@@ -136,46 +101,46 @@ const createWindow = (): BrowserWindow => {
 		minWidth: 900,
 		minHeight: 600,
 		show: false,
-		title: 'Anytype Harness',
-		backgroundColor: '#ffffff',
-		// The ported stylesheet already carries -webkit-app-region rules, which only mean something
-		// under an inset title bar.
-		titleBarStyle: 'hiddenInset',
+		title: "Anytype Harness",
+		backgroundColor: "#ffffff",
+		titleBarStyle: "hiddenInset",
 		trafficLightPosition: { x: 16, y: 16 },
 		webPreferences: {
 			preload: PRELOAD,
 			contextIsolation: true,
 			nodeIntegration: false,
+			sandbox: true,
 			spellcheck: true,
 		},
 	});
 
-	win.once('ready-to-show', () => {
+	tracker.attach(win);
+
+	win.once("ready-to-show", () => {
 		win.show();
 		if (state.maximized) {
 			win.maximize();
 		}
 	});
 
-	const trackFrame = (): void => {
-		if (!win.isDestroyed() && !win.isMaximized()) {
-			lastRestored = win.getBounds();
-		}
-	};
-	win.on('resize', trackFrame);
-	win.on('move', trackFrame);
-	win.on('close', () => saveState(win));
-
-	// External destinations leave the shell; anything else stays inside it.
 	win.webContents.setWindowOpenHandler(({ url }) => {
 		if (/^https?:\/\//.test(url) && !url.startsWith(DESKTOP_ORIGIN)) {
 			shell.openExternal(url).catch(() => undefined);
 		}
-		return { action: 'deny' };
+		return { action: "deny" };
 	});
-	win.webContents.on('will-navigate', (event, url) => {
-		if (!url.startsWith(DESKTOP_ORIGIN) && !url.startsWith('data:')) {
+	win.webContents.on("will-navigate", (event, url) => {
+		if (!url.startsWith(DESKTOP_ORIGIN) && !url.startsWith("data:")) {
 			event.preventDefault();
+		}
+	});
+
+	win.webContents.on("did-finish-load", () => {
+		while (pendingRoutes.length) {
+			const route = pendingRoutes.shift();
+			if (route) {
+				sendRoute(win, route);
+			}
 		}
 	});
 
@@ -187,9 +152,10 @@ const loadApp = async (win: BrowserWindow): Promise<void> => {
 		await win.loadURL(DESKTOP_ORIGIN);
 		return;
 	}
-	await win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(waitingHtml()));
+	await win.loadURL(
+		"data:text/html;charset=utf-8," + encodeURIComponent(waitingHtml()),
+	);
 
-	// Poll rather than give up: the backend is usually a `pnpm dev` away.
 	const timer = setInterval(async () => {
 		if (win.isDestroyed()) {
 			clearInterval(timer);
@@ -200,40 +166,6 @@ const loadApp = async (win: BrowserWindow): Promise<void> => {
 			await win.loadURL(DESKTOP_ORIGIN);
 		}
 	}, 2000);
-};
-
-const buildMenu = (win: BrowserWindow): void => {
-	const template: Electron.MenuItemConstructorOptions[] = [
-		{ role: 'appMenu' },
-		{ role: 'fileMenu' },
-		{ role: 'editMenu' },
-		{
-			label: 'View',
-			submenu: [
-				{ role: 'reload' },
-				{ role: 'forceReload' },
-				{ role: 'toggleDevTools' },
-				{ type: 'separator' },
-				{ role: 'resetZoom' },
-				{ role: 'zoomIn' },
-				{ role: 'zoomOut' },
-				{ type: 'separator' },
-				{ role: 'togglefullscreen' },
-			],
-		},
-		{ role: 'windowMenu' },
-	];
-	Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-
-	// The shell owns the window, so the deep-link queue needs a live target.
-	win.webContents.on('did-finish-load', () => {
-		while (pendingRoutes.length) {
-			const route = pendingRoutes.shift();
-			if (route) {
-				sendRoute(win, route);
-			}
-		}
-	});
 };
 
 const openRoute = (route: string | null): void => {
@@ -248,13 +180,141 @@ const openRoute = (route: string | null): void => {
 	pendingRoutes.push(route);
 };
 
+const dialogError = async (message: string): Promise<void> => {
+	const { dialog } = await import("electron");
+	await dialog.showErrorBox("Anytype Harness", message);
+};
+
+function wireCommandBus(): ExecuteDesktopCommand {
+	return createExecuteDesktopCommand({
+		openFeedbackDialog: featureFlags.feedback
+			? () => feedbackController?.openFeedbackDialog()
+			: undefined,
+		captureScreenshot: featureFlags.feedback
+			? (win) =>
+					feedbackController?.captureScreenshot(win) ?? {
+						png: "",
+						width: 0,
+						height: 0,
+						unsupported: true,
+					}
+			: undefined,
+		exportLogs: featureFlags.exportLogs ? () => exportLogs() : undefined,
+		checkForUpdates: featureFlags.autoUpdate
+			? (id) => autoUpdaterController?.checkForUpdates(id)
+			: undefined,
+		downloadUpdate: featureFlags.autoUpdate
+			? () => autoUpdaterController?.downloadUpdate()
+			: undefined,
+		cancelUpdateDownload: featureFlags.autoUpdate
+			? () => autoUpdaterController?.cancelDownload()
+			: undefined,
+		quitAndInstallUpdate: featureFlags.autoUpdate
+			? () => autoUpdaterController?.quitAndInstall()
+			: undefined,
+		setApplicationLocale: (locale) => menuController?.setLocale(locale),
+	});
+}
+
+function wireIpc(): void {
+	ipcMain.on(PlatformChannels.Log, (_event, payload: LogPayload) => {
+		if (!payload || typeof payload !== "object") {
+			return;
+		}
+		const level = normalizeLogLevel(payload.level);
+		logger.fromRenderer(
+			level,
+			Array.isArray(payload.args) ? payload.args : [payload.args],
+		);
+	});
+
+	ipcMain.handle(
+		PlatformChannels.ExecuteDesktopCommand,
+		(event, command: unknown, payload: unknown) => {
+			const win = BrowserWindow.fromWebContents(event.sender);
+			if (!executeDesktopCommand) {
+				return { ok: false, reason: "command-bus-not-ready" };
+			}
+			return executeDesktopCommand(command as never, win, payload);
+		},
+	);
+
+	ipcMain.handle(
+		PlatformChannels.GetSystemLocale,
+		() => menuController?.getLocale() ?? "en-US",
+	);
+
+	ipcMain.handle(PlatformChannels.GetDesktopZoomLevel, (event) => {
+		const win = BrowserWindow.fromWebContents(event.sender);
+		return { zoomLevel: win?.webContents.getZoomLevel() ?? 0 };
+	});
+
+	// Capability snapshot (B1): the renderer queries this once at boot so UI can hide entries for
+	// subsystems that are flagged off, instead of calling a method and inferring "disabled" from a
+	// failure. Mirrors the resolved feature flags; `isDesktop` is always true here (this is the shell).
+	ipcMain.handle(
+		PlatformChannels.GetCapabilities,
+		(): DesktopCapabilities => ({
+			isDesktop: true,
+			feedback: featureFlags.feedback,
+			exportLogs: featureFlags.exportLogs,
+			notifications: featureFlags.notifications,
+			tray: featureFlags.tray,
+			autoUpdate: featureFlags.autoUpdate,
+			crashReporter: featureFlags.crashReporter,
+			forceUpdate: featureFlags.forceUpdate,
+		}),
+	);
+
+	ipcMain.on(
+		PlatformChannels.SetApplicationLocale,
+		(_event, locale: unknown) => {
+			const next = normalizeLocale(locale);
+			menuController?.setLocale(next);
+			for (const win of BrowserWindow.getAllWindows()) {
+				if (!win.isDestroyed()) {
+					win.webContents.send(PlatformChannels.ApplicationLocaleChanged, next);
+				}
+			}
+		},
+	);
+
+	ipcMain.on(PlatformChannels.RendererReady, () => {
+		// Reserved for future telemetry; currently a no-op acknowledgement.
+	});
+}
+
+function normalizeLogLevel(
+	value: unknown,
+): "debug" | "info" | "warn" | "error" {
+	return value === "debug" || value === "warn" || value === "error"
+		? value
+		: "info";
+}
+
 const boot = async (): Promise<void> => {
+	// Stage 1: logger. Must run before anything else logs.
+	if (featureFlags.logger) {
+		const logDir =
+			process.env.HARNESS_E2E_LOG_DIR ??
+			path.join(app.getPath("userData"), "logs");
+		initLogger({ logDir });
+		bindFileLogger();
+		cleanupExpiredLogFiles(logDir);
+		logger.info("[boot] logger initialised at", getLogDir());
+	}
+
+	// Stage 6: crash reporter (flag-gated, default off).
+	if (featureFlags.crashReporter) {
+		initCrashReporter();
+	}
+
 	if (!app.setAsDefaultProtocolClient(PROTOCOL_SCHEME)) {
-		console.warn(`[desktop] could not register the ${PROTOCOL_SCHEME}:// handler`);
+		logger.warn(`[boot] could not register the ${PROTOCOL_SCHEME}:// handler`);
 	}
 
 	const root = rendererRoot(app.isPackaged);
-	if (!fs.existsSync(path.join(root, 'index.html'))) {
+	if (!fs.existsSync(path.join(root, "index.html"))) {
 		const message = `The renderer is missing at ${root}. Build it first:\n  pnpm run build:desktop`;
 		await dialogError(message);
 		app.quit();
@@ -266,7 +326,7 @@ const boot = async (): Promise<void> => {
 	} catch (error) {
 		const code = (error as NodeJS.ErrnoException).code;
 		await dialogError(
-			code === 'EADDRINUSE'
+			code === "EADDRINUSE"
 				? `Port ${DESKTOP_PORT} is busy, and the desktop origin http://localhost:${DESKTOP_PORT} is fixed — the backend only trusts that one. Free the port, or start the shell with HARNESS_DESKTOP_PORT and add the matching origin to the server's TRUSTED_ORIGINS.`
 				: `The desktop shell could not start its local server: ${String(error)}`,
 		);
@@ -274,10 +334,49 @@ const boot = async (): Promise<void> => {
 		return;
 	}
 
+	// Stage 2: command bus + menu.
+	executeDesktopCommand = wireCommandBus();
+	wireIpc();
+
+	const initialLocale: Locale = resolveSystemApplicationLocale();
+	menuController = initApplicationMenu({
+		executeDesktopCommand,
+		initialLocale,
+		capabilities: {
+			autoUpdate: featureFlags.autoUpdate,
+			feedback: featureFlags.feedback,
+			exportLogs: featureFlags.exportLogs,
+			devTools: !app.isPackaged,
+		},
+	});
+
+	// Stage 3: feedback (flag-gated, default on).
+	if (featureFlags.feedback) {
+		feedbackController = initFeedback();
+	}
+
+	// Stage 5: auto-update (flag-gated, default off).
+	if (featureFlags.autoUpdate && app.isPackaged) {
+		autoUpdaterController = initAutoUpdater();
+		autoUpdaterController.startPolling();
+	}
+
+	// Stage 6: force-update guard (flag-gated, default off).
+	if (featureFlags.forceUpdate) {
+		forceUpdateGuard = initForceUpdateGuard();
+	}
+
 	mainWindow = createWindow();
-	buildMenu(mainWindow);
 	await loadApp(mainWindow);
-	openRoute(routeFromArgv(process.argv));
+
+	// Deep link: prefer additionalData (macOS protocol handler) over argv.
+	const additionalData = (
+		app as unknown as { getAdditionalData?: () => unknown }
+	).getAdditionalData?.();
+	const deepLinkUrl =
+		extractDeepLinkUrlFromSingleInstanceData(additionalData) ??
+		extractDeepLinkUrlFromArgs(process.argv);
+	openRoute(routeFromUrl(deepLinkUrl) ?? routeFromArgv(process.argv));
 
 	if (process.env.HARNESS_DESKTOP_SMOKE) {
 		const ok = await runSmoke(mainWindow);
@@ -285,46 +384,60 @@ const boot = async (): Promise<void> => {
 	}
 };
 
-const dialogError = async (message: string): Promise<void> => {
-	const { dialog } = await import('electron');
-	await dialog.showErrorBox('Anytype Harness', message);
-};
-
-if (!app.requestSingleInstanceLock()) {
+// Single-instance lock with deep-link additionalData so macOS protocol launches reach the
+// already-running instance even when argv contains only the app path.
+const singleInstanceData = createDeepLinkSingleInstanceData(process.argv);
+if (!app.requestSingleInstanceLock(singleInstanceData)) {
 	app.quit();
 } else {
-	app.on('second-instance', (_event, argv) => openRoute(routeFromArgv(argv)));
+	app.on(
+		"second-instance",
+		(_event, argv, _workingDirectory, additionalData) => {
+			const url =
+				extractDeepLinkUrlFromSingleInstanceData(additionalData) ??
+				extractDeepLinkUrlFromArgs(argv);
+			openRoute(routeFromUrl(url) ?? routeFromArgv(argv));
+		},
+	);
 
-	app.on('open-url', (event, url) => {
+	app.on("open-url", (event, url) => {
 		event.preventDefault();
 		openRoute(routeFromUrl(url));
 	});
 
-	app.on('web-contents-created', (_event, contents) => {
-		// A rendered link must never take the shell off its own origin.
-		contents.on('will-navigate', (e, url) => {
-			if (!url.startsWith(DESKTOP_ORIGIN) && !url.startsWith('data:')) {
+	app.on("web-contents-created", (_event, contents) => {
+		contents.on("will-navigate", (e, url) => {
+			if (!url.startsWith(DESKTOP_ORIGIN) && !url.startsWith("data:")) {
 				e.preventDefault();
 			}
 		});
 	});
 
-	app.whenReady().then(boot).catch(async (error) => {
-		await dialogError(String(error));
-		app.quit();
-	});
+	app
+		.whenReady()
+		.then(boot)
+		.catch(async (error) => {
+			await dialogError(String(error));
+			app.quit();
+		});
 
-	app.on('activate', () => {
+	app.on("activate", () => {
 		if (BrowserWindow.getAllWindows().length === 0) {
 			const win = createWindow();
-			buildMenu(win);
 			void loadApp(win);
 		}
 	});
 
-	app.on('window-all-closed', () => {
-		if (process.platform !== 'darwin') {
+	app.on("window-all-closed", () => {
+		if (process.platform !== "darwin") {
 			app.quit();
 		}
+	});
+
+	app.on("before-quit", () => {
+		autoUpdaterController?.stopPolling();
+		autoUpdaterController?.dispose();
+		feedbackController?.dispose();
+		forceUpdateGuard?.dispose();
 	});
 }
