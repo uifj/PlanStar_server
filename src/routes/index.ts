@@ -5,6 +5,7 @@ import { blocksRouter, objectBlocksRouter } from "../modules/blocks/router.js";
 import { bookingsRouter } from "../modules/bookings/router.js";
 import { commandRouter } from "../modules/command/router.js";
 import { dataviewsRouter } from "../modules/dataviews/router.js";
+import { desktopRouter } from "../modules/desktop/router.js";
 import { filesRouter } from "../modules/files/router.js";
 import { hostRouter } from "../modules/host/router.js";
 import { meRouter } from "../modules/me/router.js";
@@ -42,6 +43,7 @@ const routes = new OpenAPIHono()
 	.route("/events", pubsubRouter)
 	.route("/", filesRouter)
 	.route("/agent", agentRouter)
-	.route("/ai", agentProtocolRouter);
+	.route("/ai", agentProtocolRouter)
+	.route("/desktop", desktopRouter);
 
 export default routes;

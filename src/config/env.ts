@@ -59,6 +59,29 @@ const envSchema = z.object({
 	 * over http (not file://) precisely so the session cookie stays same-site with this API.
 	 */
 	DESKTOP_ORIGIN: z.string().min(1).default("http://localhost:8321"),
+
+	/**
+	 * Root directory for desktop-shell intake artifacts: feedback submissions and crash dumps the
+	 * Electron shell forwards to `/api/desktop/*`. Mirrors FILE_STORAGE_ROOT's flat, id-keyed layout
+	 * so a self-hosted deployment keeps everything under `.data/` with no extra infra. Relative paths
+	 * resolve against the process working directory.
+	 */
+	DESKTOP_DATA_ROOT: z.string().min(1).default(".data/desktop"),
+
+	/**
+	 * Release manifest published to the desktop auto-updater (`GET /api/desktop/releases/manifest`).
+	 * When VERSION and PATH are both unset the endpoint answers 404 — "no release published" — which
+	 * the shell's manifest provider surfaces as update-not-available rather than an error. Setting
+	 * them is how an operator cuts a release without a code change.
+	 */
+	DESKTOP_RELEASE_VERSION: z.string().min(1).optional(),
+	DESKTOP_RELEASE_PATH: z.string().min(1).optional(),
+	DESKTOP_RELEASE_NOTES: z.string().optional(),
+	DESKTOP_RELEASE_SHA512: z.string().min(1).optional(),
+	DESKTOP_RELEASE_DATE: z.string().min(1).optional(),
+	DESKTOP_RELEASE_FORCED: z
+		.enum(["1", "true", "yes", "on", "0", "false", "no", "off"])
+		.default("false"),
 });
 
 const result = envSchema.safeParse(process.env);
