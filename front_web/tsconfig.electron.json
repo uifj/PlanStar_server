@@ -9,7 +9,12 @@
 		"noEmit": true,
 		"skipLibCheck": true,
 		"esModuleInterop": true,
+		// C4: same contract as the renderer — depend on the shared project's built `.d.ts`, not its
+		// source, so `tsc -b` ordering (build:shared first) is the single source of truth for both.
+		"disableSourceOfProjectReferenceRedirect": true,
 		"forceConsistentCasingInFileNames": true
 	},
-	"include": ["electron/**/*.ts"]
+	"include": ["electron/**/*.ts"],
+	// C4: main + preload depend on the shared contract; the contract references nothing back.
+	"references": [{ "path": "./packages/desktop-shared" }]
 }

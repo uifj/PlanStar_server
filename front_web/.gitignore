@@ -16,6 +16,10 @@ dist-web
 /electron-dist
 /build
 
+# Built workspace-package artifacts (tsc -b packages/desktop-shared) — generated, never tracked
+packages/*/dist/
+packages/*/*.tsbuildinfo
+
 # Generated protobuf bindings (pnpm generate:protos). The transport in src/ts/lib/api/service.ts
 # is hand-written and tracked: it must never be regenerated into the retired gRPC-web client.
 middleware/
@@ -30,6 +34,9 @@ dist/css/style.css
 .env.*
 !.env.example
 *.local
+
+# Agent/IDE skill cache (mirror of _archvie tooling) — not a project deliverable
+.agents/
 
 # Editor directories and files
 .vscode/*

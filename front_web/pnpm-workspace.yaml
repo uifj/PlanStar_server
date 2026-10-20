@@ -2,6 +2,13 @@
 # root pnpm-workspace.yaml does not apply here and pnpm refuses to run dependency build scripts.
 # Electron's install script is the only thing that downloads the app binary, so without this the shell
 # installs cleanly and then cannot start.
+
+# front_web is its own workspace root: `packages/*` holds the cross-process contract package
+# (@harness/desktop-shared) that main, preload and renderer all depend on by name instead of by
+# build alias. Listed first so pnpm links it before resolving the app's own dependencies.
+packages:
+  - 'packages/*'
+
 allowBuilds:
   electron: true
   esbuild: true

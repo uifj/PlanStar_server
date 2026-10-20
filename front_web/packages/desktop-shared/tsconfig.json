@@ -1,0 +1,26 @@
+{
+	// Standalone composite project (C4): the shared contract compiles on its own — ES2020 lib, its
+	// own target — and emits declarations that main (ES2022), preload and the renderer (ES5 lib)
+	// all consume as built output. Because consumers resolve `@harness/desktop-shared` to the
+	// emitted `.d.ts` rather than this source, the renderer's ES5 program never typechecks these
+	// files, so the contract is no longer held to the renderer's lowest-common-denominator lib (C2).
+	"compilerOptions": {
+		"composite": true,
+		"declaration": true,
+		"declarationMap": true,
+		"sourceMap": true,
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"target": "ES2020",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"lib": ["ES2020"],
+		"types": [],
+		"strict": true,
+		"noUncheckedIndexedAccess": false,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"verbatimModuleSyntax": true
+	},
+	"include": ["src/**/*.ts"]
+}

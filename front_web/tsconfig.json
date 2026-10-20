@@ -17,6 +17,11 @@
 		"lib": ["es5", "dom"],
 		"isolatedModules": true,
 		"incremental": true,
+		// C4: consume the shared contract as a built project reference, never its source. Without
+		// this flag TS redirects `@harness/desktop-shared` imports to packages/desktop-shared/src and
+		// typechecks them under this program's ES5 lib, re-introducing the C2 regression (the source
+		// uses Object.values). Keeping it true pins the renderer to the emitted ES2020 `.d.ts`.
+		"disableSourceOfProjectReferenceRedirect": true,
 		"types": ["node", "vite/client"],
 
 		"paths": {
@@ -39,13 +44,9 @@
 			"Proto/*": ["../middleware/*"]
 		}
 	},
-	"include": [
-		"src/**/*",
-		"src/ts/auto-imports.d.ts"
-	],
-	"exclude": [
-		"node_modules/**/*",
-		"dist/**/*",
-		"src/**/*.stories.tsx"
-	]
+	"include": ["src/**/*", "src/ts/auto-imports.d.ts"],
+	"exclude": ["node_modules/**/*", "dist/**/*", "src/**/*.stories.tsx"],
+	// C4: fixes the dependency direction — the renderer depends on the shared contract project, and
+	// that project references nothing, so the contract can never import back into the renderer.
+	"references": [{ "path": "./packages/desktop-shared" }]
 }

@@ -1,0 +1,27 @@
+{
+	"name": "@harness/desktop-shared",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"sideEffects": false,
+	"description": "Cross-process contract for the front_web desktop shell: IPC channels, command ids, payload types and the window.Desktop wire interface. Pure TypeScript — never imports electron, so main, preload and renderer all compile against one definition.",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsc -b tsconfig.json",
+		"clean": "rm -rf dist tsconfig.tsbuildinfo"
+	},
+	"devDependencies": {
+		"typescript": "^5.9.3"
+	}
+}
