@@ -444,5 +444,20 @@ offers 26 languages and every one of them currently renders English until the re
 files beside them). `src/ts/lib/web/electronMock.test.ts` covers the field-not-spread write, the
 reload-on-change / no-reload-when-same, the value surviving into the next boot, and the raw data path.
 
+4 is now done: `dist/lib/json/lang/` holds the 26 enabled locales (the `src/json/lang.ts` list). The
+source is upstream's canonical Crowdin mirror **`anyproto/l10n-anytype-ts`** (a public repo the
+vendored tree names in its own `.github/workflows/mirror-text.yml`), package `locales/<lang>.json`,
+not the archive checkout — both the archive's and this checkout's `dist/lib/json/lang/` were empty
+because upstream keeps them as gitignored mirror output. Copies are ~3082 keys per locale; 24 keys of
+our base `src/json/text.json` are ours-only (auth-page strings added for this harness) and stay
+English, and a handful of upstream values are empty strings in ru/ko/id/lt/pt-BR/ro (fall back to
+English, not an error). `translate()` bundles them eagerly
+(`import.meta.glob('../../../dist/lib/json/lang/*.json')` in `src/ts/lib/translate.ts`), so they ship
+**inside the web bundle at build time** — a desktop repackage is required after changing them, and the
+`viteStaticCopy` targets in `vite.web.config.ts` do **not** copy them to `dist-web` (they ride in
+`main.js`). Verify with `grep -c 对象类型 dist-web/js/main.js` after `build:desktop`. No keys were
+invented: anything not in the upstream file (e.g. the newer `popupConfirmObjectOpenErrorText`) still
+renders the `⚠️key⚠️` fallback in English mode.
+
 
 
