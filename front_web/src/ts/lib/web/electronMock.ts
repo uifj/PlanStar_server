@@ -286,11 +286,11 @@ class ElectronMock {
 		// picker silently stopped working.
 		const setField =
 			(field: "channel" | "interfaceLang"): ApiHandler =>
-				(args) => {
-					this.config = { ...this.config, [field]: String(args[0] || "") };
-					this.storage.set("config", this.config);
-					return true;
-				};
+			(args) => {
+				this.config = { ...this.config, [field]: String(args[0] || "") };
+				this.storage.set("config", this.config);
+				return true;
+			};
 		handlers.set("setChannel", setField("channel"));
 		handlers.set("setUserDataPath", (args) => {
 			// getDataPath() reads this key raw, so it is written raw rather than through WebStorage
@@ -331,10 +331,171 @@ class ElectronMock {
 		["updateCheck", "updateDownload", "updateConfirm", "updateCancel"].forEach(
 			(cmd) => {
 				handlers.set(cmd, () => {
-					console.log("[Web] Updates not supported in web mode");
+					// Legacy string commands predate the bridge and use anytype-era names. Since B2 the
+					// update actions live only on the command bus, so each maps onto a command id rather
+					// than a direct `window.Desktop` method (those no longer exist).
+					const desktop = (
+						window as unknown as { Desktop?: Record<string, unknown> }
+					).Desktop;
+					const exec =
+						desktop && typeof desktop.executeCommand === "function"
+							? (desktop.executeCommand as (
+									id: string,
+									payload?: unknown,
+								) => unknown)
+							: null;
+					if (exec) {
+						if (cmd === "updateCheck") {
+							return exec("check-for-updates");
+						}
+						if (cmd === "updateDownload") {
+							return exec("download-update");
+						}
+						if (cmd === "updateCancel") {
+							return exec("cancel-update-download");
+						}
+						if (
+							cmd === "updateConfirm" &&
+							desktop &&
+							typeof desktop.getUpdateState === "function"
+						) {
+							// The banner's confirm means "get me onto the new version": install when the
+							// download is already staged, otherwise start (or resume) the download — the
+							// shell's state pushes will bring the banner back for the install step.
+							return Promise.resolve(
+								(desktop.getUpdateState as () => Promise<any>)(),
+							).then((state: any) => {
+								if (state && state.kind === "update-downloaded") {
+									return exec("quit-and-install-update");
+								}
+								return exec("download-update");
+							});
+						}
+					}
+					console.log("[Web] Updates not supported in web mode:", cmd);
 					return true;
 				});
 			},
+		);
+
+		// Desktop bridge parity: the shell exposes `window.Desktop.*` methods that the web mock
+		// must mirror so renderer code never branches on `isDesktop`. Each entry below is a no-op
+		// or a Web-API fallback; the parity check script (`scripts/check-desktop-mock-parity.mjs`)
+		// asserts this list stays in sync with `electron/preload/bridge.ts`.
+		handlers.set("log", (args) => {
+			const level = (args[0] as string) || "info";
+			const payload = args[1];
+			const fn =
+				level === "error"
+					? console.error
+					: level === "warn"
+						? console.warn
+						: console.log;
+			fn("[renderer]", ...(Array.isArray(payload) ? payload : [payload]));
+			return true;
+		});
+
+		handlers.set("executeCommand", (args) => {
+			const id = args[0] as string;
+			// Mirror the subset of commands that make sense in a browser tab.
+			switch (id) {
+				case "reload":
+					window.location.reload();
+					return Promise.resolve({ ok: true });
+				case "open-external": {
+					const url = args[1];
+					if (typeof url === "string" && /^https?:\/\//i.test(url)) {
+						window.open(url, "_blank");
+						return Promise.resolve({ ok: true });
+					}
+					return Promise.resolve({ ok: false, reason: "invalid-url" });
+				}
+				// B2: actions that converged onto the command bus. In the browser they degrade to
+				// the same "unavailable" shapes the dedicated handlers used to return, so the
+				// facade's result adaptation (e.g. downloadUpdate → null) behaves identically.
+				case "export-logs":
+					return Promise.resolve({ success: false, error: "web-mode" });
+				case "capture-screenshot":
+					return Promise.resolve({
+						png: "",
+						width: 0,
+						height: 0,
+						unsupported: true,
+					});
+				case "download-update":
+				case "cancel-update-download":
+				case "quit-and-install-update":
+					return Promise.resolve({ ok: false, reason: "web-mode" });
+				default:
+					console.log("[Web] executeCommand not supported:", id);
+					return Promise.resolve({ ok: false, reason: "web-mode" });
+			}
+		});
+
+		handlers.set("submitFeedback", (args) => {
+			const payload = args[0] as { text?: string };
+			// Web mode has no userData directory; keep the text in localStorage so nothing the user
+			// typed is lost, and report success so the dialog can close with a thank-you.
+			try {
+				const queue = JSON.parse(
+					window.localStorage.getItem("anytype_feedbackQueue") || "[]",
+				);
+				queue.push({ ...payload, submittedAt: new Date().toISOString() });
+				window.localStorage.setItem(
+					"anytype_feedbackQueue",
+					JSON.stringify(queue.slice(-20)),
+				);
+			} catch (e) {
+				console.warn("[Web] feedback persistence failed:", e);
+			}
+			return Promise.resolve({ success: true, path: "web-localStorage" });
+		});
+
+		handlers.set("getUpdateState", () =>
+			Promise.resolve({ kind: "idle", enabled: false }),
+		);
+
+		handlers.set("getAutoUpdatePreferences", () =>
+			Promise.resolve({ autoDownloadAndInstall: false, skippedVersions: [] }),
+		);
+		handlers.set("setAutoDownloadAndInstallUpdates", () => Promise.resolve());
+
+		handlers.set("setApplicationLocale", () => true);
+		handlers.set("getSystemLocale", () => Promise.resolve("en-US"));
+		handlers.set("getZoomLevel", () => Promise.resolve({ zoomLevel: 0 }));
+
+		// Subscription helpers: return a disposer that does nothing, and immediately invoke the
+		// callback with a benign payload where the bridge replays the latest value.
+		const noopDisposer = () => undefined;
+		handlers.set("onOpenFeedbackDialog", () => noopDisposer);
+		handlers.set("onUpdateStateChanged", (args) => {
+			const cb = args[0] as (state: unknown) => void;
+			if (typeof cb === "function") {
+				cb({ kind: "idle", enabled: false });
+			}
+			return noopDisposer;
+		});
+		handlers.set("onUpdateCheckResult", () => noopDisposer);
+		handlers.set("onPostUpdateReleaseNotes", () => noopDisposer);
+		handlers.set("onForceUpdateRequired", () => noopDisposer);
+		handlers.set("onApplicationLocaleChanged", () => noopDisposer);
+		handlers.set("onZoomLevelChanged", () => noopDisposer);
+		handlers.set("notifyRendererReady", () => true);
+
+		// Capability snapshot for the web mock (B1): only feedback is genuinely available in the
+		// browser (persisted to localStorage); every shell-only subsystem reports false so UI hides
+		// those entries instead of calling a method that would only degrade to null.
+		handlers.set("getCapabilities", () =>
+			Promise.resolve({
+				isDesktop: false,
+				feedback: true,
+				exportLogs: false,
+				notifications: false,
+				tray: false,
+				autoUpdate: false,
+				crashReporter: false,
+				forceUpdate: false,
+			}),
 		);
 
 		// No OS-level global shortcuts in the browser - null tells callers to skip
@@ -580,7 +741,8 @@ class ElectronMock {
 	// File has no path: staging it through the same upload ingress the picker uses is the only
 	// way a server-side command can read the bytes. Desktop has no such method and keeps its
 	// real paths, so callers feature-detect rather than branch on the platform.
-	uploadStaged = async (files: File[]) => Promise.all(files.map((file) => uploadFileToServer(file)));
+	uploadStaged = async (files: File[]) =>
+		Promise.all(files.map((file) => uploadFileToServer(file)));
 
 	fileWrite = (name: string, data: any, _options?: any) => {
 		// Create a blob and download it
@@ -619,6 +781,64 @@ class ElectronMock {
 		}
 		console.log("[Web] Unknown API command:", cmd, args);
 		return null;
+	};
+
+	/**
+	 * Mount the same method surface the Electron preload exposes as `window.Desktop`, so the
+	 * renderer's `Lib/desktop` facade has a single bridge to talk to in BOTH modes instead of a
+	 * dead `window.Desktop` in the browser. Each method forwards to the matching parity handler
+	 * registered in `initApiHandlers` (the same map `Api()` dispatches through), so there is one
+	 * implementation per capability and the parity script keeps it honest.
+	 *
+	 * Guarded on `window.Desktop` already being present: in the real Electron shell the preload
+	 * installs the genuine bridge (isDesktop: true) before any page script runs, and this mock must
+	 * never shadow it. Only the browser build — where no preload ran — gets the mock facade, which
+	 * reports `isDesktop: false` so `desktop.isShell()` still distinguishes the two.
+	 */
+	installDesktopFacade = (): void => {
+		if ((window as any).Desktop) {
+			return;
+		}
+
+		const call = (name: string, args: any[]) => {
+			const handler = this.apiHandlers.get(name);
+			return handler ? handler(args) : undefined;
+		};
+
+		(window as any).Desktop = {
+			isDesktop: false,
+			platform: this.platform,
+			electronVersion: "",
+			chromeVersion: "",
+
+			executeCommand: (id: string, payload?: unknown) =>
+				call("executeCommand", [id, payload]),
+			log: (level: string, args: unknown[]) => call("log", [level, args]),
+			getCapabilities: () => call("getCapabilities", []),
+
+			setApplicationLocale: (locale: string) =>
+				call("setApplicationLocale", [locale]),
+			getSystemLocale: () => call("getSystemLocale", []),
+			getZoomLevel: () => call("getZoomLevel", []),
+			onApplicationLocaleChanged: (cb: any) =>
+				call("onApplicationLocaleChanged", [cb]),
+			onZoomLevelChanged: (cb: any) => call("onZoomLevelChanged", [cb]),
+
+			submitFeedback: (payload: any) => call("submitFeedback", [payload]),
+			onOpenFeedbackDialog: (cb: any) => call("onOpenFeedbackDialog", [cb]),
+
+			getUpdateState: () => call("getUpdateState", []),
+			getAutoUpdatePreferences: () => call("getAutoUpdatePreferences", []),
+			setAutoDownloadAndInstallUpdates: (enabled: boolean) =>
+				call("setAutoDownloadAndInstallUpdates", [enabled]),
+			onUpdateStateChanged: (cb: any) => call("onUpdateStateChanged", [cb]),
+			onUpdateCheckResult: (cb: any) => call("onUpdateCheckResult", [cb]),
+			onPostUpdateReleaseNotes: (cb: any) =>
+				call("onPostUpdateReleaseNotes", [cb]),
+			onForceUpdateRequired: (cb: any) => call("onForceUpdateRequired", [cb]),
+
+			notifyRendererReady: () => call("notifyRendererReady", []),
+		};
 	};
 }
 
