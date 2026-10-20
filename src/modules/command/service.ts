@@ -89,6 +89,7 @@ import {
 	fetchBookmarkFor,
 	findOrCreateDateObject,
 	isPersonalWidgetsId,
+	isSettingsLibraryId,
 	loadObjectView,
 	modifyObjectDetailValues,
 	objectDetails,
@@ -104,6 +105,7 @@ import {
 	setObjectsArchived,
 	setObjectsType,
 	setObjectType,
+	settingsLibraryView,
 	softDeleteObjects,
 	versionBodyView,
 } from "./object-service.js";
@@ -2816,6 +2818,28 @@ export async function run(
 				}
 
 				return { error: OK, event: null, objectView: widgetsView };
+			}
+
+			// Settings → Types / Relations mount the object library pages
+			// (component/page/main/set.tsx, relation.tsx) with the settings menu id
+			// "set" / "relation" as their route object, which has no Obj row. Answer a
+			// minimal synthetic view; the rows come from the page's own subscriptions.
+			if (isSettingsLibraryId(objectId)) {
+				const requestedSpaceId =
+					typeof body.spaceId === "string" ? body.spaceId : "";
+
+				let libraryView: Awaited<ReturnType<typeof settingsLibraryView>>;
+				try {
+					libraryView = await settingsLibraryView(
+						user,
+						objectId,
+						requestedSpaceId,
+					);
+				} catch {
+					return { error: FORBIDDEN, event: null };
+				}
+
+				return { error: OK, event: null, objectView: libraryView };
 			}
 
 			let view: Awaited<ReturnType<typeof loadObjectView>>;

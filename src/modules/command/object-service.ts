@@ -1285,6 +1285,45 @@ export async function personalWidgetsView(
 	};
 }
 
+// Settings → Types / Relations mount the object library pages
+// (component/page/main/set.tsx, relation.tsx) with the settings menu id as their
+// route object — "set" / "relation" — which has no Obj row. Each page opens that
+// route object with C.ObjectOpen on mount, and a NOT_FOUND makes the client raise
+// its object-open error dialog (U.Common.checkErrorOnOpen) over an otherwise
+// working library. Answer a minimal synthetic view; the rows themselves come from
+// the page's own subscriptions, which keep their own access checks.
+const SETTINGS_LIBRARY_IDS = new Set(["set", "relation"]);
+
+export function isSettingsLibraryId(objectId: string) {
+	return SETTINGS_LIBRARY_IDS.has(objectId);
+}
+
+export async function settingsLibraryView(
+	user: AuthUser,
+	objectId: string,
+	spaceId: string,
+) {
+	if (spaceId) {
+		await ensureSpaceAccess(user.id, spaceId, "reader");
+	}
+
+	return {
+		rootId: objectId,
+		blocks: [{ id: objectId, childrenIds: [], fields: {}, smartblock: {} }],
+		details: [
+			{
+				id: objectId,
+				details: {
+					id: objectId,
+					...(spaceId ? { space: spaceId } : {}),
+				},
+			},
+		],
+		restrictions: { object: [], dataview: [] },
+		blockParticipants: [],
+	};
+}
+
 // ObjectListDelete / ObjectListSetIsArchived can target objects across several
 // spaces, so every distinct space behind the batch must grant the caller writer
 // access before any row is touched. ensureSpaceAccess throws on the first space the
