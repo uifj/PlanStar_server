@@ -18,8 +18,8 @@
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css";
 
-/* Utilities are generated for the new shell components only for now. */
-@source "../ts/component/desktop";
+/* No Tailwind surface exists right now (the window tools went away); the first component that
+ * writes utilities must add its directory back here, otherwise nothing is generated for it. */
 
 /*
  * ZCode gates platform styling with @custom-variant instead of SCSS descendant trees
@@ -51,13 +51,4 @@
 	--color-fg-subtle: var(--color-text-secondary);
 	--color-fg-faint: var(--color-text-tertiary);
 	--color-accent: var(--color-system-accent-100);
-}
-
-:root {
-	/*
-	 * Single source of truth for the desktop titlebar height (ZCode's h-12). The Tailwind
-	 * component reads it via h-[var(--desktop-titlebar-h)] and the frozen offset rules in
-	 * legacy.css (formerly scss/desktop/titlebar.scss) read the same variable, so they cannot drift.
-	 */
-	--desktop-titlebar-h: 3rem;
 }

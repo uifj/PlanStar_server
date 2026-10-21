@@ -11,7 +11,6 @@ import {
 	Toast,
 	UpdateBanner,
 } from "Component";
-import { DesktopTitlebar } from "Component/desktop/Titlebar";
 import * as I from "Interface";
 import Animation from "Lib/animation";
 import { getSession } from "Lib/api/better-auth";
@@ -1118,9 +1117,9 @@ const App: FC = () => {
 		};
 	}, []);
 
-	// Mark the real Electron shell on <html> so the macOS titlebar drag band
-	// (legacy.css, formerly scss/desktop/titlebar.scss) applies; the web build never gets the
-	// marker. Uses an attribute, not a class, because keyboard.setBodyClass() rewrites
+	// Mark the real Electron shell on <html> so the macOS shell chrome in legacy.css
+	// (window drag regions and traffic-light clearance) applies; the web build never gets
+	// the marker. Uses an attribute, not a class, because keyboard.setBodyClass() rewrites
 	// html.className wholesale.
 	useEffect(() => {
 		if (desktop.isShell()) {
@@ -1155,11 +1154,7 @@ const App: FC = () => {
 					""
 				)}
 
-				{desktop.isShell() ? (
-					<DesktopTitlebar />
-				) : (
-					<div id="dragPanel" />
-				)}
+				<div id="dragPanel" />
 				<div id="tooltipContainer" />
 
 				<PreviewIndex />

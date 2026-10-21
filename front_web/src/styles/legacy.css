@@ -40619,61 +40619,28 @@ html.platformWindows ::-webkit-scrollbar-button, html.platformLinux ::-webkit-sc
   display: none;
 }
 /*
- * macOS desktop titlebar: legacy-layout glue for the Tailwind titlebar.
+ * macOS shell chrome: follow upstream anytype instead of drawing a titlebar band.
  *
- * The visible band is the ZCode-style <DesktopTitlebar> component
- * (src/ts/component/desktop/Titlebar.tsx). It is a flex child of #appContainer
- * (display:flex; flex-direction:column in common.scss), so it occupies real layout height and
- * pushes #selection down on its own — there is no padding hack to keep in sync. This file only
- * keeps what the still-legacy layout needs while the SCSS tree is migrated module by module:
+ * anytype-ts hides the window frame and lets the native traffic lights live *inside* the sidebar's
+ * own first row: on single-tab macOS the vault head shrinks to 36px, its space name is hidden and
+ * the page header starts at y=0 (common.scss + sidebar/page/vault.scss). electron/main.ts pins the
+ * lights at {12, 19}, which lands them in that 36px row, so no content has to be pushed down and no
+ * empty strip sits above the app. The vendored rules already render that layout, and app.tsx keeps
+ * upstream's #dragPanel for the empty stretches of the strip; this block only adds what a frameless
+ * shell still needs on top:
  *
- *   - the vendored #dragPanel is hidden, because the component draws the only band;
- *   - .sidebar is position:fixed (sidebar/common.scss), so it is viewport-anchored and the flex
- *     column cannot move it; its box is dropped below the band instead.
+ *   - drag regions on the header row and the vault head, the two strips that sit at the top of the
+ *     window (their buttons/icons are no-drag in the vendored styles);
  *
- * The height comes from --desktop-titlebar-h (src/styles/desktop.css), the same token the
- * Tailwind component reads, so the band and the offsets cannot drift.
- *
- * Gated on html[data-harness-desktop] (set by app.tsx only in the real Electron shell) so the
- * web build is untouched, and skipped in fullscreen where macOS reclaims the menu/titlebar area.
- *
- * The shell serves the *web* build over loopback, so window.Electron is electronMock and
- * getInitData already returns isSingleTab:true -> html also carries .isSingleTab.platformMac, which
- * switches on upstream anytype's own macOS single-tab chrome (common.scss + sidebar/common.scss).
- * That chrome parks the traffic lights *inside* the header/sidebar-head row and reserves room with
- * 84px left indents, a shrunk vault head and a hidden space name. It assumes upstream's DOM: against
- * the harness's fixed full-height sidebar the lights overlap the first row, and now that the band
- * already drops all content below the lights those indents double-offset and hide the space name.
- * The block below re-asserts the component defaults (header .side.left 12px, sidebarPage head 16px,
- * pageVault head 52px, pageWrapper 8px) so the band is the single source of truth. Equal
- * specificity to the vendored rules; titlebar.scss is imported after common.scss, so source order wins.
+ * Gated on html[data-harness-desktop] (set by app.tsx only in the real Electron shell) so the web
+ * build keeps the vendored layout untouched, and skipped in fullscreen where macOS owns the area.
  */
-html[data-harness-desktop].platformMac:not(.isFullScreen) #dragPanel {
-  display: none;
-}
-html[data-harness-desktop].platformMac:not(.isFullScreen) .sidebar {
-  top: var(--desktop-titlebar-h, 48px);
-  height: calc(100% - var(--desktop-titlebar-h, 48px));
-}
-html[data-harness-desktop].platformMac:not(.isFullScreen) .sidebar.isMinimal .pageWrapper {
-  padding-top: 8px;
-}
+html[data-harness-desktop].platformMac:not(.isFullScreen) #header,
 html[data-harness-desktop].platformMac:not(.isFullScreen) .sidebar:not(.isMinimal) .sidebarPage.pageVault > .head {
-  height: 52px;
-  margin-bottom: 0px;
+  -webkit-app-region: drag;
 }
-html[data-harness-desktop].platformMac:not(.isFullScreen) .sidebar:not(.isMinimal) .sidebarPage.pageVault > .head .side.left .name {
-  display: block;
-}
-html[data-harness-desktop].platformMac:not(.isFullScreen) #header:not(.withSidebarTotalLeft) > .side.left {
-  padding-left: 12px;
-}
-html[data-harness-desktop].platformMac:not(.isFullScreen) .pageFlex:not(.withSidebarTotalLeft) .pageMainVoid .wrapper > .side.left {
-  left: auto;
-}
-html[data-harness-desktop].platformMac:not(.isFullScreen) #sidebar #subPageWrapper .sidebarPage > .head {
-  padding-left: 16px;
-}
-html[data-harness-desktop].platformMac:not(.isFullScreen) .sidebar .subPageWrapper:not(.withSidebarLeft) .sidebarPage > .head {
+/* The widget column keeps its own head padding; only a column that itself sits at the far left
+ * needs the vendored 84px clearance for the lights. */
+html[data-harness-desktop].platformMac:not(.isFullScreen) #sidebar #subPageWrapper.withSidebarLeft .sidebarPage > .head {
   padding-left: 16px;
 }
