@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import * as I from 'Interface';
 import text from 'json/text.json';
 import LinkApproval from './linkApproval';
-import 'scss/linkApproval.scss';
+import '../../../styles/legacy-linkApproval.css';
 
 const payload: I.LinkApprovalPayload = {
 	key: 'preview',

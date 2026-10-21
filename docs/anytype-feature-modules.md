@@ -683,35 +683,32 @@ bun run build:web     # Web 生产构建
 
 ### 27.1 主题架构
 
-- **亮色 / 暗色** 双主题 (`scss/theme/dark/`)
-- **CSS 变量** 控制主题切换
+- **亮色 / 暗色** 双主题，由 `html.theme-dark` class + CSS 变量切换
+- 主题 token（`--color-text-primary` 等）仍在 CSS 变量里，Tailwind 通过 `@theme inline` 桥接成工具类
 - `src/json/theme.ts`: 主题配置枚举
 
-### 27.2 SCSS 组织结构
+### 27.2 样式层结构
+
+Sass 已整体移除（`sass` 依赖、SCSS 预处理器配置、`src/scss/` 目录都已删除）。现在的样式只有两层：
 
 ```
-scss/
-├── _vars.scss          — 全局变量（颜色、间距、字号）
-├── _mixins.scss        — 混入（响应式断点、文本截断等）
-├── color.scss          — 颜色定义
-├── common.scss         — 入口
-├── block/              — 块编辑器样式（每种块一个文件）
-├── component/          — UI 组件样式
-├── form/               — 表单样式
-├── list/               — 列表样式
-├── media/              — 媒体样式
-├── menu/               — 菜单样式（含 dataview/search/sidebar 子目录）
-├── notification/       — 通知样式
-├── page/               — 页面样式
-├── popup/              — 弹窗样式
-├── widget/             — Widget 样式
-└── theme/dark/         — 暗色主题覆盖
+src/styles/
+├── desktop.css              — Tailwind v4（theme + utilities，不引入 preflight），新界面唯一写法
+├── legacy.css               — 冻结的历史样式（由已删除的 SCSS 树一次性编译而来）
+└── legacy-linkApproval.css  — 链接审批独立入口的冻结样式
 ```
+
+迁移约定：
+
+- **新界面只用 Tailwind 工具类**（`bg-surface` / `text-fg` / `border-line` / `mac:` / `fullscreen:` 等语义令牌与变体，见 `desktop.css`）
+- **`legacy*.css` 只减不增**：每把某个组件改成 Tailwind，就顺手删掉对应规则，直到文件清空
+- 遗留 SCSS 是不分层的，所以 `tailwindcss/utilities.css` 也以不分层方式引入，否则会被遗留规则压过
 
 ### 27.3 设计系统
 
-- BEM 命名约定
-- 组件 Stories（Storybook 8）用于开发时预览
+- 遗留部分沿用 BEM 命名约定
+- 新组件使用 Tailwind 语义 token（`surface` / `line` / `fg` / `accent`）
+- 组件 Stories（Storybook 8）用于开发时预览（样式为普通 `.css`）
 - Icon 组件化系统 (`generate-icon-components.ts` 脚本生成)
 
 ---

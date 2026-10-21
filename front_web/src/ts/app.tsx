@@ -50,8 +50,9 @@ import "react-virtualized/styles.css";
 import "swiper/css";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import "scss/common.scss";
-import "scss/desktop/titlebar.scss";
+// Frozen legacy stylesheet: the compiled output of the deleted scss/common.scss +
+// scss/desktop/titlebar.scss pair. Shrink it by porting rules to Tailwind, never by editing it.
+import "../styles/legacy.css";
 // Tailwind v4 (theme + utilities, no preflight) for the migrated ZCode-style shell surfaces.
 import "../styles/desktop.css";
 
@@ -1118,8 +1119,9 @@ const App: FC = () => {
 	}, []);
 
 	// Mark the real Electron shell on <html> so the macOS titlebar drag band
-	// (scss/desktop/titlebar.scss) applies; the web build never gets the marker. Uses an
-	// attribute, not a class, because keyboard.setBodyClass() rewrites html.className wholesale.
+	// (legacy.css, formerly scss/desktop/titlebar.scss) applies; the web build never gets the
+	// marker. Uses an attribute, not a class, because keyboard.setBodyClass() rewrites
+	// html.className wholesale.
 	useEffect(() => {
 		if (desktop.isShell()) {
 			document.documentElement.setAttribute("data-harness-desktop", "");

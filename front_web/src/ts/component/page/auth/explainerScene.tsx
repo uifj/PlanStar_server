@@ -31,7 +31,7 @@ const SPRING_CARD = { type: 'spring' as const, stiffness: 400, damping: 30 };
 const EASE_OUT = { duration: 0.4, ease: [ 0, 0, 0.2, 1 ] as [ number, number, number, number ] };
 const EASE_STANDARD = { duration: 0.45, ease: [ 0.4, 0, 0.2, 1 ] as [ number, number, number, number ] };
 
-// Card size constants matching SCSS
+// Card size constants matching the legacy stylesheet
 const CARD_SIZES: Record<string, { w: number; h: number }> = {
 	compact:  { w: 349, h: 80 },
 	bookmark: { w: 448, h: 152 },

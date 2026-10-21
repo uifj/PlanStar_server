@@ -1,0 +1,1535 @@
+/*
+ * FROZEN LEGACY STYLES — DO NOT EDIT.
+ *
+ * Compiled once from src/scss/linkApproval.scss at the point the SCSS
+ * build was removed, because the app still needs those rules and there is no other copy of them.
+ * Anything added here will be thrown away: every rule below is scheduled to be replaced by a
+ * Tailwind v4 surface in src/ts/component (see src/styles/desktop.css) and then deleted.
+ *
+ * Regenerating is not possible any more — the .scss sources only exist in git history
+ * (git show ab7e735^:front_web/src/scss/...). Write the replacement, do not re-freeze.
+ */
+/* This entry loads its own design tokens in both development and packaged builds. */
+:root {
+  /* Text */
+  --color-text-primary: #252525;
+  --color-text-primary-20: rgba(0, 0, 0, 0.2);
+  --color-text-primary-70: rgba(37, 37, 37, 0.75);
+  --color-text-secondary: #828282;
+  --color-text-secondary-transparent: rgba(37, 37, 37, 0.6);
+  --color-text-tertiary: #bfbfbf;
+  --color-text-inversion: #fff;
+  --color-text-white: #fff;
+  --color-text-white60: rgba(255,255,255,0.6);
+  --color-text-primary-inversion: #ebebeb;
+  --color-text-secondary-inversion: #9a9a9a;
+  --color-text-tertiary-inversion: #5c5c5c;
+  /* Shape */
+  --color-shape-primary: var(--color-light-grey);
+  --color-shape-secondary: #ebebeb;
+  --color-shape-secondary-inversion: #292929;
+  --color-shape-tertiary: var(--color-very-light-grey);
+  --color-shape-highlight-dark: rgba(0, 0, 0, 0.11);
+  --color-shape-highlight-medium: rgba(0, 0, 0, 0.05);
+  --color-shape-highlight-light: rgba(0, 0, 0, 0.03);
+  --color-shape-highlight-light-solid: #f7f7f7;
+  --color-shape-highlight-add: rgba(93,212,0,0.2);
+  --color-shape-highlight-change: rgba(42,167,238,0.2);
+  --color-shape-highlight-remove: rgba(245,85,34,0.2);
+  /* Control */
+  --color-control-accent: #252525;
+  --color-control-active: #b6b6b6;
+  --color-control-active-inversion: #737373;
+  --color-control-inactive: #dcdcdc;
+  --color-control-bg: #fff;
+  /* Icon */
+  --color-icon: #9b9b9b;
+  --color-icon-hover: #252525;
+  /* Background */
+  --color-bg-primary: #fff;
+  --color-bg-primary-90: rgba(255,255,255,0.9);
+  --color-bg-primary-inversion: #171717;
+  --color-bg-loader: rgba(255,255,255,0.7);
+  --color-attachment-loader: rgba(134, 134, 134, 0.7);
+  /* System */
+  --color-system-accent-125: #105aef;
+  --color-system-accent-100: #377aff;
+  --color-system-accent-50: #699bff;
+  --color-system-accent-25: #9bbcff;
+  --color-system-highlight: rgba(55, 122, 255, 0.15);
+  --color-system-selection: rgba(55, 122, 255, 0.25);
+  --color-system-drop-zone: rgba(55, 122, 255, 0.25);
+  --color-system-destructive-100: #fb592c;
+  --color-system-destructive-50: #fcd1c3;
+  --color-system-destructive-25: #fee7e0;
+  /* Color */
+  --color-very-light-yellow: #fcf8d6;
+  --color-light-yellow: #fdf0b0;
+  --color-yellow: #c49a0e;
+  --color-dark-yellow: #7a5e0a;
+  --color-very-light-orange: #fff2d7;
+  --color-light-orange: #fcddb8;
+  --color-orange: #c07830;
+  --color-dark-orange: #7a4318;
+  --color-very-light-red: #ffede9;
+  --color-light-red: #fcddd1;
+  --color-red: #d04520;
+  --color-dark-red: #9b2612;
+  --color-very-light-pink: #fce7f3;
+  --color-light-pink: #fccee8;
+  --color-pink: #d4267a;
+  --color-dark-pink: #952050;
+  --color-very-light-purple: #f3e8ff;
+  --color-light-purple: #e9d4ff;
+  --color-purple: #9b3fe0;
+  --color-dark-purple: #6b00b0;
+  --color-very-light-blue: #e4e8fc;
+  --color-light-blue: #dde2fc;
+  --color-blue: #4f6af0;
+  --color-dark-blue: #1e35c4;
+  --color-very-light-ice: #ddf1fc;
+  --color-light-ice: #c4e7fa;
+  --color-ice: #1a8ac4;
+  --color-dark-ice: #004f80;
+  --color-very-light-teal: #d9f6f4;
+  --color-light-teal: #c8f0ed;
+  --color-teal: #009688;
+  --color-dark-teal: #005950;
+  --color-very-light-lime: #ecfcca;
+  --color-light-lime: #d8f5be;
+  --color-lime: #4aad00;
+  --color-dark-lime: #2d6a00;
+  --color-very-light-grey: #f2f2f2;
+  --color-light-grey: #e3e3e3;
+  --color-grey: #888888;
+  --color-dark-grey: #595959;
+  /* Tag */
+  --color-tag-grey: #8c9ea5;
+  --color-tag-yellow: #b2a616;
+  --color-tag-orange: #d3720d;
+  --color-tag-red: #e2400c;
+  --color-tag-pink: #ca1b8e;
+  --color-tag-purple: #9e30c4;
+  --color-tag-blue: var(--color-blue);
+  --color-tag-ice: #1c8bca;
+  --color-tag-teal: #0caaa3;
+  --color-tag-lime: #64b90f;
+  /* Icons */
+  --color-icons-yellow: #dcc000;
+  --color-icons-orange: #f08a00;
+  --color-icons-red: #f04520;
+  --color-icons-pink: #f030a0;
+  --color-icons-purple: #a840f0;
+  --color-icons-blue: #4a60f0;
+  --color-icons-ice: #2aa7ee;
+  --color-icons-teal: #00bba7;
+  --color-icons-lime: #5ec400;
+  --color-icons-grey: #9b9b9b;
+  /* Font */
+  --font-size-9: 9px;
+  --line-height-9: 12px;
+  --letter-spacing-9: 0.14px;
+  --font-size-very-small: 11px;
+  --line-height-very-small: 18px;
+  --letter-spacing-very-small: 0.2px;
+  --font-size-small: 12px;
+  --line-height-small: 18px;
+  --letter-spacing-small: 0px;
+  --font-size-common: 14px;
+  --line-height-common: 22px;
+  --letter-spacing-common: -0.12px;
+  --font-size-paragraph: 16px;
+  --line-height-paragraph: 24px;
+  --letter-spacing-paragraph: -0.2px;
+  --font-size-title: 36px;
+  --line-height-title: 40px;
+  --letter-spacing-title: -0.64px;
+  --font-weight-title: 700;
+  --font-size-header1: 28px;
+  --line-height-header1: 32px;
+  --letter-spacing-header1: -0.56px;
+  --font-weight-header1: 700;
+  --font-size-header2: 22px;
+  --line-height-header2: 28px;
+  --letter-spacing-header2: -0.48px;
+  --font-weight-header2: 700;
+  --font-size-header3: 18px;
+  --line-height-header3: 26px;
+  --letter-spacing-header3: -0.28px;
+  --font-weight-header3: 700;
+  --font-size-description: 18px;
+  --line-height-description: 26px;
+  --letter-spacing-description: -0.28px;
+  /* Menu */
+  --menu-width-common: 224px;
+  --menu-width-icon: 256px;
+  --menu-width-value: 288px;
+  --menu-width-set: 360px;
+  --menu-width-large: 408px;
+  --menu-width-add: 480px;
+  --editor-width: 704px;
+}
+
+/* Start-up loader: the bubble sits where the sign-in screen's does, this far above the viewport
+   centre (mirrored in src/html/index.html for the pre-React bubble); title and status keep the
+   gap below from its edge */
+@font-face {
+  font-family: "Plex";
+  font-style: normal;
+  font-weight: 400;
+  src: url("~font/plex/regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Plex";
+  font-style: bold;
+  font-weight: 600;
+  src: url("~font/plex/bold.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Plex";
+  font-style: italic;
+  font-weight: 400;
+  src: url("~font/plex/italic.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Plex";
+  font-style: italic;
+  font-weight: 600;
+  src: url("~font/plex/bolditalic.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  src: url("~font/inter/regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 400;
+  src: url("~font/inter/italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  src: url("~font/inter/medium.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 500;
+  src: url("~font/inter/mediumitalic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  src: url("~font/inter/semibold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 600;
+  src: url("~font/inter/semibolditalic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  src: url("~font/inter/bold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 700;
+  src: url("~font/inter/bolditalic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "RiccioneExtraLight";
+  font-style: normal;
+  font-weight: 400;
+  src: url("~font/riccione/extralight.otf") format("opentype");
+}
+/* Start-up loader: the bubble sits where the sign-in screen's does, this far above the viewport
+   centre (mirrored in src/html/index.html for the pre-React bubble); title and status keep the
+   gap below from its edge */
+.button {
+  display: inline-flex;
+  border: 0px;
+  font-weight: 500;
+  text-decoration: none;
+  text-align: center;
+  height: 40px;
+  padding: 0px 16px;
+  border-radius: 20px;
+  transition: all 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+  vertical-align: middle;
+  position: relative;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-common);
+  line-height: var(--line-height-common);
+  letter-spacing: var(--letter-spacing-common);
+  cursor: default;
+  -webkit-app-region: no-drag;
+}
+
+.button > .loaderWrapper {
+  position: absolute !important;
+  z-index: 1;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: none !important;
+}
+
+.button.isLoading .txt, .button.isLoading .icon {
+  display: none;
+}
+
+.button.accent {
+  background: var(--color-system-accent-100);
+  color: #fff;
+}
+
+.button.accent.disabled {
+  background-color: var(--color-shape-secondary);
+  color: var(--color-text-tertiary);
+  opacity: 1;
+}
+.button.accent:not(.disabled):hover, .button.accent:not(.disabled).hover {
+  background: var(--color-system-accent-125);
+}
+.button.accent .loaderWrapper .dots .dot {
+  border-color: #fff;
+  animation-name: dots-accent;
+}
+
+.button.pink {
+  background: #ff6a7b;
+  color: var(--color-text-inversion);
+}
+
+.button.pink:not(.disabled):hover {
+  background: #e5374b;
+}
+
+.button.black {
+  background: var(--color-control-accent);
+  color: var(--color-bg-primary);
+}
+
+.button.black.disabled {
+  opacity: 1;
+  background-color: var(--color-shape-secondary);
+}
+
+.button.black:not(.disabled):hover, .button.black:not(.disabled).hover {
+  background: #41403d;
+}
+
+.button.black .loaderWrapper .dot {
+  border-color: #fff;
+  animation-name: dots-dark;
+}
+
+.button.red {
+  color: var(--color-system-destructive-100);
+  background: var(--color-system-destructive-25);
+}
+
+.button.red:not(.disabled):hover,
+.button.red:not(.disabled).hover {
+  background: var(--color-system-destructive-50);
+}
+
+.button.dark {
+  background: var(--color-shape-highlight-medium);
+  color: var(--color-text-primary);
+}
+
+.button.dark:not(.disabled):hover,
+.button.dark:not(.disabled).hover {
+  background: var(--color-shape-highlight-dark);
+}
+
+.button.blank {
+  background: none;
+  border: solid 1px var(--color-shape-primary);
+  font-weight: 400;
+}
+
+.button.blank:not(.disabled):hover, .button.blank:not(.disabled).hover, .button.blank:not(.disabled).active {
+  background: var(--color-shape-highlight-medium);
+}
+
+.button.size48 {
+  font-size: var(--font-size-paragraph);
+  line-height: var(--line-height-paragraph);
+  letter-spacing: var(--letter-spacing-paragraph);
+  height: 48px;
+  border-radius: 24px;
+  padding: 0px 16px;
+}
+
+.button.size36 {
+  font-size: var(--font-size-common);
+  line-height: var(--line-height-common);
+  letter-spacing: var(--letter-spacing-common);
+  height: 36px;
+  border-radius: 18px;
+  padding: 0px 12px;
+}
+
+.button.size32 {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--letter-spacing-small);
+  height: 32px;
+  border-radius: 16px;
+  padding: 0px 10px;
+}
+
+.button.size28 {
+  font-size: var(--font-size-common);
+  line-height: var(--line-height-common);
+  letter-spacing: var(--letter-spacing-common);
+  height: 28px;
+  border-radius: 14px;
+  padding: 0px 10px;
+}
+
+.button.size16 {
+  font-size: var(--font-size-9);
+  line-height: var(--line-height-9);
+  letter-spacing: var(--letter-spacing-9);
+  height: 16px;
+  border-radius: 8px;
+  padding: 0px 4px;
+}
+
+input.button {
+  line-height: 1;
+}
+
+.button .icon {
+  margin-right: 6px;
+}
+.button .icon.downloading {
+  width: 16px;
+  height: 16px;
+  background-image: url("~img/icon/loader.svg");
+  background-size: 16px;
+  animation: rotate 1.2s infinite linear;
+}
+.button .arrow {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0px 0px 0px 4px;
+}
+.button .txt:empty {
+  display: none;
+}
+
+.button.simple {
+  height: auto;
+  padding: 0px;
+  color: var(--color-control-active);
+  font-weight: bold;
+  line-height: 1.43;
+  letter-spacing: 0.1px;
+  border: unset;
+  border-radius: unset;
+}
+
+.button.simple:hover, .button.simple.hover {
+  color: var(--color-text-primary) !important;
+  background: none !important;
+}
+
+.button.payment {
+  height: 22px;
+  border-radius: 11px;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--letter-spacing-small);
+}
+
+/* Start-up loader: the bubble sits where the sign-in screen's does, this far above the viewport
+   centre (mirrored in src/html/index.html for the pre-React bubble); title and status keep the
+   gap below from its edge */
+.appGrantFields {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: min-content;
+  text-align: left;
+}
+
+.appGrantFields {
+  /* Reuses the focus accent already used in this form rather than introducing an alert colour. */
+  /* Reserve two rows without letting the full catalog determine the picker's intrinsic height. */
+}
+.appGrantFields *, .appGrantFields *::before, .appGrantFields *::after {
+  box-sizing: border-box;
+}
+.appGrantFields .spacePicker {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  margin: 16px 0 0;
+  padding: 0;
+  border: 1px solid var(--color-shape-primary);
+  border-radius: 12px;
+  overflow: hidden;
+  -webkit-app-region: no-drag;
+}
+.appGrantFields .spacePicker.isHighlighted {
+  animation: spacePickerPulse 0.3s ease-in-out 2;
+}
+.appGrantFields .pickerHeading {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 4px 12px;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--letter-spacing-small);
+}
+.appGrantFields .spaceSearch {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-radius: 4px;
+  padding: 5px 0;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+}
+.appGrantFields .spaceSearch::placeholder {
+  color: var(--color-text-secondary);
+}
+.appGrantFields .selectionCount {
+  margin-left: auto;
+  white-space: nowrap;
+  color: var(--color-text-secondary);
+}
+.appGrantFields .spaceList {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  contain: size;
+  flex: 1;
+  min-height: 80px;
+  padding: 0 4px 4px;
+}
+.appGrantFields .spaceRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 38px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: var(--font-size-common);
+  line-height: var(--line-height-common);
+  letter-spacing: var(--letter-spacing-common);
+}
+.appGrantFields .spaceRow:hover {
+  background: var(--color-shape-highlight-medium);
+}
+.appGrantFields .spaceRow.disabled {
+  color: var(--color-text-secondary);
+}
+.appGrantFields .spaceAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--color-shape-highlight-medium);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--letter-spacing-small);
+}
+.appGrantFields .spaceName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.appGrantFields input[type=checkbox] {
+  appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border: 1px solid var(--color-control-active);
+  border-radius: 4px;
+  background: var(--color-bg-primary);
+}
+.appGrantFields input[type=checkbox]:checked {
+  background: var(--color-control-accent);
+  border-color: var(--color-control-accent);
+}
+.appGrantFields input[type=checkbox]:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--color-bg-primary);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+.appGrantFields input:focus-visible, .appGrantFields select:focus-visible, .appGrantFields button:focus-visible {
+  outline: 2px solid var(--color-system-accent-100);
+  outline-offset: 2px;
+}
+.appGrantFields .spaceRow:focus-within {
+  background: var(--color-shape-highlight-medium);
+}
+.appGrantFields .allSpaces {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--color-shape-secondary);
+}
+.appGrantFields .allSpaces input {
+  margin-top: 2px;
+}
+.appGrantFields .allSpacesTitle {
+  display: block;
+  font-size: var(--font-size-common);
+  line-height: var(--line-height-common);
+  letter-spacing: var(--letter-spacing-common);
+}
+.appGrantFields .allSpacesDescription {
+  display: block;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--letter-spacing-small);
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+.appGrantFields .emptySpaces {
+  padding: 20px 8px;
+  text-align: center;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--letter-spacing-small);
+  color: var(--color-text-secondary);
+}
+.appGrantFields .permissionRow {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  -webkit-app-region: no-drag;
+}
+.appGrantFields .permissionSelect {
+  position: relative;
+  max-width: 65%;
+}
+.appGrantFields .permissionSelect select {
+  appearance: none;
+  width: 100%;
+  height: 32px;
+  border: 1px solid var(--color-shape-primary);
+  border-radius: 8px;
+  padding: 0 32px 0 12px;
+  font: inherit;
+  color: inherit;
+  background: var(--color-bg-primary);
+}
+.appGrantFields .permissionChevron {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+@keyframes spacePickerPulse {
+  0%, 100% {
+    border-color: var(--color-shape-primary);
+  }
+  50% {
+    border-color: var(--color-system-accent-100);
+  }
+}
+/* A pulse is the whole signal here, so hold the accent border instead of animating it. */
+@media (prefers-reduced-motion: reduce) {
+  .appGrantFields .spacePicker.isHighlighted {
+    animation: none;
+    border-color: var(--color-system-accent-100);
+  }
+}
+/* Start-up loader: the bubble sits where the sign-in screen's does, this far above the viewport
+   centre (mirrored in src/html/index.html for the pre-React bubble); title and status keep the
+   gap below from its edge */
+html.themeDark {
+  /* Text */
+  --color-text-primary: #e1e1e1;
+  --color-text-primary-70: rgba(225, 225, 225, 0.75);
+  --color-text-secondary: #a3a3a3;
+  --color-text-secondary-transparent: rgba(225, 225, 225, 0.6);
+  --color-text-tertiary: #5c5c5c;
+  --color-text-inversion: #171717;
+  /* Shape */
+  --color-shape-primary: #313131;
+  --color-shape-secondary: #292929;
+  --color-shape-tertiary: #232323;
+  --color-shape-highlight-dark: rgba(255, 255, 255, 0.11);
+  --color-shape-highlight-medium: rgba(255, 255, 255, 0.05);
+  --color-shape-highlight-light: rgba(255, 255, 255, 0.03);
+  --color-shape-highlight-light-solid: #1e1e1e;
+  /* Control */
+  --color-control-accent: #d4d4d4;
+  --color-control-active: #737373;
+  --color-control-inactive: #414141;
+  --color-control-bg: #fff;
+  /* Background */
+  --color-bg-primary: #171717;
+  --color-bg-primary-90: rgba(23, 23, 23, 0.9);
+  --color-bg-secondary: #191919;
+  --color-bg-loader: rgba(0,0,0,0.7);
+  --color-attachment-loader: rgba(255, 255, 255, 0.7);
+  /* Color */
+  --color-very-light-yellow: #332f07;
+  --color-light-yellow: #6c630f;
+  --color-yellow: #ecd91a;
+  --color-dark-yellow: #fbf29a;
+  --color-very-light-orange: #481e04;
+  --color-light-orange: #5c2a06;
+  --color-orange: #f0a820;
+  --color-dark-orange: #fbcf7a;
+  --color-very-light-red: #460809;
+  --color-light-red: #4a0a08;
+  --color-red: #f25040;
+  --color-dark-red: #f5a090;
+  --color-very-light-pink: #510427;
+  --color-light-pink: #4a0828;
+  --color-pink: #f040a0;
+  --color-dark-pink: #f9a0c8;
+  --color-very-light-purple: #340557;
+  --color-light-purple: #3d0e68;
+  --color-purple: #c870e8;
+  --color-dark-purple: #d090f0;
+  --color-very-light-blue: #15205c;
+  --color-light-blue: #162060;
+  --color-blue: #6878ee;
+  --color-dark-blue: #a0b0f8;
+  --color-very-light-ice: #052f4a;
+  --color-light-ice: #023a58;
+  --color-ice: #40b8f5;
+  --color-dark-ice: #90deff;
+  --color-very-light-teal: #022f2e;
+  --color-light-teal: #0b4f4a;
+  --color-teal: #20c8b8;
+  --color-dark-teal: #7eeedd;
+  --color-very-light-lime: #192e03;
+  --color-light-lime: #1a3a0a;
+  --color-lime: #4ecc4e;
+  --color-dark-lime: #80ee80;
+  --color-very-light-grey: #292929;
+  --color-light-grey: #414141;
+  --color-grey: #a8a8a8;
+  --color-dark-grey: #c8c8c8;
+  /* Tag */
+  --color-tag-grey: var(--color-text-secondary);
+  /* System */
+  --color-system-accent-125: #105aef;
+  --color-system-accent-50: #699bff;
+  --color-system-accent-25: #9bbcff;
+  --color-system-highlight: rgba(55, 122, 255, 0.15);
+  --color-system-selection: rgba(55, 122, 255, 0.25);
+  --color-system-destructive-50: #74321e;
+  --color-system-destructive-25: #3b251e;
+  /* Icon */
+  --color-icon: #a09f92;
+  --color-icon-hover: #e1e1e1;
+  /* Common */
+  /* Components */
+  /* Button */
+  /* PreviewObject */
+  /* Preview */
+  /* Progress */
+  /* Editor */
+  /* Header */
+  /* Sidebar */
+  /* Notifications */
+  /* Share Tooltip */
+  /* Comments */
+  /* Start-up loader: the bubble sits where the sign-in screen's does, this far above the viewport
+     centre (mirrored in src/html/index.html for the pre-React bubble); title and status keep the
+     gap below from its edge */
+  /* Start-up loader: the bubble sits where the sign-in screen's does, this far above the viewport
+     centre (mirrored in src/html/index.html for the pre-React bubble); title and status keep the
+     gap below from its edge */
+  /* Start-up loader: the bubble sits where the sign-in screen's does, this far above the viewport
+     centre (mirrored in src/html/index.html for the pre-React bubble); title and status keep the
+     gap below from its edge */
+  /* PageAuth */
+  /* PageMainNavigation */
+  /* PageMainSettings */
+}
+html.themeDark body {
+  color-scheme: dark;
+}
+html.themeDark .cover.type2.black {
+  background-color: #000 !important;
+}
+html.themeDark .brokenMedia img:before, html.themeDark .brokenMedia > .name {
+  background: var(--color-bg-secondary);
+}
+html.themeDark #root-loader .logo {
+  background-image: url("~img/logo/white.svg");
+}
+html.themeDark .recoveryLogo {
+  background-image: url("~img/theme/dark/logo/header.svg");
+}
+html.themeDark .linkApproval .logo {
+  background-image: url("~img/theme/dark/logo/header.svg");
+}
+html.themeDark .toast {
+  background: var(--color-shape-tertiary);
+  color: var(--color-text-primary);
+}
+html.themeDark .toast .inner .buttons .button {
+  color: var(--color-text-primary);
+}
+html.themeDark .toast .inner .buttons .button:not(.disabled):hover,
+html.themeDark .toast .inner .buttons .button:not(.disabled).hover {
+  background: transparent;
+}
+html.themeDark markuphighlight {
+  background: #044062 !important;
+}
+html.themeDark .onboardingDimmer {
+  background-color: rgba(0, 0, 0, 0.3);
+  opacity: 0.6;
+}
+html.themeDark .loaderWrapper .dot {
+  animation-name: dots-dark;
+}
+html.themeDark .switch {
+  background: var(--color-shape-secondary);
+}
+html.themeDark .switch .inner {
+  background-color: #fff;
+}
+html.themeDark .button.black {
+  background: var(--color-control-accent);
+  color: var(--color-text-inversion);
+}
+html.themeDark .button.black:not(.disabled):hover,
+html.themeDark .button.black:not(.disabled).hover {
+  background: var(--color-control-active);
+}
+html.themeDark .button.black.disabled {
+  color: var(--color-text-primary);
+  background: var(--color-shape-tertiary);
+}
+html.themeDark .button.blank {
+  color: var(--color-text-primary);
+  border-color: var(--color-shape-primary);
+}
+html.themeDark .button.blank:not(.disabled):hover,
+html.themeDark .button.blank:not(.disabled).hover {
+  border-color: var(--color-shape-primary);
+  background: var(--color-shape-highlight-medium);
+}
+html.themeDark .textarea {
+  background: none;
+}
+html.themeDark .textareaWrap {
+  background-color: var(--color-bg-secondary);
+}
+html.themeDark .inputWithFile {
+  border-color: transparent;
+  background-color: var(--color-shape-highlight-medium);
+}
+html.themeDark .input-drag-vertical {
+  background-color: var(--color-bg-secondary);
+}
+html.themeDark .input-drag-horizontal .fill {
+  background: var(--color-text-primary);
+}
+html.themeDark .input-drag-horizontal .icon {
+  border-color: var(--color-text-secondary);
+}
+html.themeDark .dragWrap .number {
+  color: var(--color-text-primary);
+}
+html.themeDark .previewObject .heading .iconObject.isTask, html.themeDark .previewObject .heading .iconObject.isBookmark {
+  background-color: unset;
+}
+html.themeDark .previewWrapper .content {
+  background: var(--color-bg-secondary);
+}
+html.themeDark .previewGraph {
+  background: var(--color-bg-secondary);
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.2), 0px 0px 0px 1px #393933 inset;
+}
+html.themeDark .sidebarProgress {
+  background: var(--color-bg-secondary);
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.3);
+}
+html.themeDark .tooltip {
+  color: var(--color-text-primary);
+}
+html.themeDark .tooltip.big {
+  background: var(--color-bg-secondary);
+  border: 1px solid rgba(229, 229, 229, 0.1);
+}
+html.themeDark .editorWrapper .dragWrap .number {
+  color: var(--color-text-primary);
+}
+html.themeDark .editorWrapper .dragWrap .input-drag-horizontal .back {
+  background: rgba(255, 255, 255, 0.5);
+}
+html.themeDark .editorWrapper .dragWrap .input-drag-horizontal .fill {
+  background: var(--color-text-primary);
+}
+html.themeDark .editorWrapper .dragWrap .input-drag-horizontal .icon {
+  border-color: var(--color-text-primary);
+}
+html.themeDark .header.authIndex .logo {
+  background: url("~img/theme/dark/logo/header.svg");
+}
+html.themeDark .header.isCommon .path {
+  border: 0px;
+  line-height: 28px;
+}
+html.themeDark .sidebar .sidebarPage > .subHead .cnt {
+  color: var(--color-text-primary);
+}
+html.themeDark .sidebar .sidebarPage.pageVault .item .cnt {
+  color: var(--color-text-primary);
+}
+html.themeDark .notifications .head .icon {
+  border-color: var(--color-bg-secondary);
+}
+html.themeDark .notifications .notification {
+  background: var(--color-bg-secondary);
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.2), 0px 0px 0px 1px #393933 inset;
+  border: 0px;
+}
+html.themeDark .notifications .notification .icon.delete {
+  background-color: var(--color-bg-secondary);
+}
+html.themeDark .banner {
+  border: 1px solid var(--color-shape-highlight-dark);
+}
+html.themeDark .shareTooltip {
+  background: var(--color-bg-secondary);
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.2), 0px 0px 0px 1px #393933 inset;
+}
+html.themeDark .shareTooltip .icon.close {
+  background-color: var(--color-bg-secondary);
+}
+html.themeDark .socialBlock {
+  background: linear-gradient(to bottom, rgba(23, 23, 23, 0) 0%, rgba(23, 23, 23, 0.04) 20%, rgba(23, 23, 23, 0.18) 40%, rgba(23, 23, 23, 0.5) 60%, rgba(23, 23, 23, 0.82) 80%, rgba(23, 23, 23, 0.96) 100%);
+}
+html.themeDark .socialBlock .commentCounter {
+  background: rgba(23, 23, 23, 0.6);
+}
+html.themeDark .socialBlock .commentCounter:hover {
+  background: var(--color-shape-primary);
+}
+html.themeDark .menus {
+  /* Common */
+  /* Vertical */
+  /* BlockRelationEdit */
+  /* DataviewRelationEdit */
+  /* DataviewFileValues */
+  /* Calendar */
+  /* Onboarding */
+  /* DataviewCreateBookmark */
+  /* DataviewViewLayout */
+  /* DataviewTemplateList */
+  /* SyncStatus */
+  /* GraphSettings */
+  /* Publish */
+}
+html.themeDark .menus .menu {
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.2), 0px 0px 0px 1px var(--color-shape-secondary) inset;
+}
+html.themeDark .menus .menu .icon.color .inner.bgColor-default {
+  background: transparent;
+}
+html.themeDark .menus .menu .icon.color .inner.bgColor-grey {
+  background: #414141 !important;
+}
+html.themeDark .menus .menu .icon.color .inner.bgColor-yellow {
+  background: #6c630f !important;
+}
+html.themeDark .menus .menu .icon.color .inner.bgColor-orange {
+  background: #7b3306 !important;
+}
+html.themeDark .menus .menu .icon.color .inner.bgColor-red {
+  background: #82181a !important;
+}
+html.themeDark .menus .menu .icon.color .inner.bgColor-pink {
+  background: #861043 !important;
+}
+html.themeDark .menus .menu .icon.color .inner.bgColor-purple {
+  background: #59168b !important;
+}
+html.themeDark .menus .menu .icon.color .inner.bgColor-blue {
+  background: #22307e !important;
+}
+html.themeDark .menus .menu .icon.color .inner.bgColor-ice {
+  background: #024a70 !important;
+}
+html.themeDark .menus .menu .icon.color .inner.bgColor-teal {
+  background: #0b4f4a !important;
+}
+html.themeDark .menus .menu .icon.color .inner.bgColor-lime {
+  background: #35530e !important;
+}
+html.themeDark .menus .menu .colorMark.bgColor-default {
+  background: transparent;
+}
+html.themeDark .menus .menu .colorMark.bgColor-grey {
+  background: #414141 !important;
+}
+html.themeDark .menus .menu .colorMark.bgColor-yellow {
+  background: #6c630f !important;
+}
+html.themeDark .menus .menu .colorMark.bgColor-orange {
+  background: #7b3306 !important;
+}
+html.themeDark .menus .menu .colorMark.bgColor-red {
+  background: #82181a !important;
+}
+html.themeDark .menus .menu .colorMark.bgColor-pink {
+  background: #861043 !important;
+}
+html.themeDark .menus .menu .colorMark.bgColor-purple {
+  background: #59168b !important;
+}
+html.themeDark .menus .menu .colorMark.bgColor-blue {
+  background: #22307e !important;
+}
+html.themeDark .menus .menu .colorMark.bgColor-ice {
+  background: #024a70 !important;
+}
+html.themeDark .menus .menu .colorMark.bgColor-teal {
+  background: #0b4f4a !important;
+}
+html.themeDark .menus .menu .colorMark.bgColor-lime {
+  background: #35530e !important;
+}
+html.themeDark .menus .menu.vertical .item {
+  background: none;
+}
+html.themeDark .menus .menu.vertical .item::before {
+  background: rgba(238, 238, 238, 0);
+}
+html.themeDark .menus .menu.vertical .loaderWrapper {
+  background: var(--color-bg-secondary);
+}
+html.themeDark .menus .menu.menuBlockRelationEdit .item:hover {
+  background: var(--color-shape-highlight-medium);
+}
+html.themeDark .menus .menu.menuDataviewRelationEdit .item:hover {
+  background: var(--color-shape-highlight-medium);
+}
+html.themeDark .menus .menu.menuDataviewFileValues .item:hover::before {
+  background: var(--color-shape-highlight-medium);
+}
+html.themeDark .menus .menu.menuCalendar .select:hover {
+  background-color: var(--color-shape-highlight-medium);
+}
+html.themeDark .menus .menu.menuOnboarding a {
+  color: var(--color-bg-primary);
+}
+html.themeDark .menus .menu.menuOnboarding .highlight {
+  color: var(--color-system-accent-100);
+}
+html.themeDark .menus .menu.menuDataviewCreateBookmark .loaderWrapper {
+  background: rgba(39, 39, 35, 0.9);
+}
+html.themeDark .menus .menu.menuDataviewViewLayout .layouts .layout:not(.isReadonly):hover {
+  background-color: rgba(238, 238, 238, 0.06);
+}
+html.themeDark .menus .menu.menuDataviewTemplateList .items .item .icon.more:hover {
+  background-color: unset;
+}
+html.themeDark .menus .menu.menuDataviewTemplateList.objectCreate .items .item .previewObject {
+  box-shadow: 0px 2px 16px 0px rgba(0, 0, 0, 0.07);
+}
+html.themeDark .menus .menu.menuSyncStatus .icons .iconWrapper.c-red .iconBg, html.themeDark .menus .menu.menuSyncStatus .icons .iconWrapper.c-darkRed .iconBg {
+  background: #581f0c;
+}
+html.themeDark .menus .menu.menuGraphSettings .input-drag-horizontal .icon {
+  background-color: var(--color-bg-secondary);
+}
+html.themeDark .menus .menu.menuPublish .input.isReadonly {
+  background: rgba(255, 255, 255, 0.03);
+}
+html.themeDark .menus .menu.menuPublish .incentiveBanner {
+  background-color: rgba(55, 122, 255, 0.15);
+}
+html.themeDark .menus .menu.menuPublish .incentiveBanner .button {
+  color: var(--color-text-primary);
+}
+html.themeDark .popups {
+  /* Common */
+  /* PopupHelp */
+  /* PopupSpaceHome */
+  /* PopupUsecase */
+  /* PopupShortcut */
+  /* PopupShare */
+  /* PopupOnboarding */
+  /* PopupIntroduceChats */
+  /* PopupConfirm */
+}
+html.themeDark .popups .popup .innerWrap {
+  box-shadow: 0px 0px 0px 1px var(--color-shape-primary);
+}
+html.themeDark .popups .popup #loader {
+  background: rgba(23, 23, 23, 0.5);
+}
+html.themeDark .popups .popup.popupHelp .highlight {
+  color: var(--color-system-accent-100);
+  background: var(--color-shape-highlight-medium);
+}
+html.themeDark .popups .popup.popupHelp a:hover {
+  color: var(--color-system-accent-100);
+}
+html.themeDark .popups .popup.popupSpaceHome .homeOptions .option .icon.preview {
+  background-color: #fff;
+}
+html.themeDark .popups .popup.popupUsecase .page.pageList .categories {
+  background: var(--color-shape-tertiary);
+}
+html.themeDark .popups .popup.popupUsecase .page.pageList .categories .item {
+  border-color: var(--color-shape-primary);
+}
+html.themeDark .popups .popup.popupUsecase .page.pageList .categories .item.hl {
+  color: var(--color-text-inversion);
+}
+html.themeDark .popups .popup.popupUsecase .page.pageList .categories .item:hover, html.themeDark .popups .popup.popupUsecase .page.pageList .categories .item.active {
+  background: var(--color-control-accent);
+  color: var(--color-text-inversion);
+}
+html.themeDark .popups .popup.popupUsecase .page.pageList .categories .icon.arrow:hover {
+  background-color: var(--color-control-accent);
+}
+html.themeDark .popups .popup.popupUsecase .page.pageList .categories .swiper-button-prev::after,
+html.themeDark .popups .popup.popupUsecase .page.pageList .categories .swiper-button-next::after {
+  background-image: url("~img/theme/dark/icon/arrow/swiper.svg");
+}
+html.themeDark .popups .popup.popupUsecase .page.pageItem .screenWrap .icon.arrow {
+  background-color: var(--color-bg-secondary);
+}
+html.themeDark .popups .popup.popupShortcut .item.hasError .name {
+  color: var(--color-text-inversion);
+}
+html.themeDark .popups .popup.popupShare .content::before {
+  display: none;
+}
+html.themeDark .popups .popup.popupShare .content::after {
+  background-image: url("~img/theme/dark/icon/popup/share/header.svg");
+}
+html.themeDark .popups .popup.popupOnboarding .innerWrap {
+  background: #20295c;
+}
+html.themeDark .popups .popup.popupOnboarding .steps .step0 .types .type .label {
+  color: rgba(32, 41, 92, 0.5);
+}
+html.themeDark .popups .popup.popupOnboarding .steps .step1 .swiper-button-prev,
+html.themeDark .popups .popup.popupOnboarding .steps .step1 .swiper-button-next,
+html.themeDark .popups .popup.popupOnboarding .steps .step1 .slideBack {
+  background-image: url("~img/theme/dark/icon/onboarding/primitives/arrow.svg");
+}
+html.themeDark .popups .popup.popupIntroduceChats .steps .step0 .chat {
+  background-image: url("~img/theme/dark/icon/onboarding/chats/feed.png");
+}
+html.themeDark .popups .popup.popupIntroduceChats .steps .step0 .grad {
+  background: linear-gradient(180deg, rgba(49, 49, 49, 0) 0%, var(--color-shape-tertiary) 39.9%);
+}
+html.themeDark .popups .popup.popupIntroduceChats .steps .step1 .intro .img {
+  background-image: url("~img/theme/dark/icon/onboarding/chats/intro.png");
+}
+html.themeDark .popups .popup.popupIntroduceChats .steps .step1 .intro .img.slide2 .sidebar,
+html.themeDark .popups .popup.popupIntroduceChats .steps .step1 .intro .img.slide3 .sidebar,
+html.themeDark .popups .popup.popupIntroduceChats .steps .step1 .intro .img.slide4 .sidebar {
+  background-image: url("~img/theme/dark/icon/onboarding/chats/sidebar.png");
+}
+html.themeDark .popups .popup.popupIntroduceChats .steps .step1 .intro .img.slide2 .oneToOne,
+html.themeDark .popups .popup.popupIntroduceChats .steps .step1 .intro .img.slide3 .oneToOne,
+html.themeDark .popups .popup.popupIntroduceChats .steps .step1 .intro .img.slide4 .oneToOne {
+  background-image: url("~img/theme/dark/icon/onboarding/chats/oneToOne.png");
+}
+html.themeDark .popups .popup.popupIntroduceChats .steps .step1 .swiper-button-prev,
+html.themeDark .popups .popup.popupIntroduceChats .steps .step1 .swiper-button-next,
+html.themeDark .popups .popup.popupIntroduceChats .steps .step1 .slideBack {
+  background-image: url("~img/theme/dark/icon/onboarding/primitives/arrow.svg");
+}
+html.themeDark .popups .popup.popupConfirm.removeFavorite .icon {
+  background-image: url("~img/theme/dark/help/pinned.png");
+}
+html.themeDark .pageAuth .buttons .button.accent, html.themeDark .pageIndex .buttons .button.accent {
+  color: var(--color-text-primary);
+}
+html.themeDark .pageAuth .bubbleWrapper .bubble .img, html.themeDark .pageIndex .bubbleWrapper .bubble .img {
+  background-image: url("~img/theme/dark/icon/bubble.svg");
+}
+html.themeDark .pageMainNavigation .items .item .iconObject.isTask {
+  background: none;
+}
+html.themeDark .settingsPageContainer .pageSettingsSpaceIndex .sectionIntegrations .item:hover,
+html.themeDark .settingsPageContainer .pageSettingsPinIndex .actionItems > .item.cp:hover {
+  background-color: rgba(166, 166, 166, 0.04) !important;
+}
+html.themeDark .settingsPageContainer .pageSettingsPersonal .colorScheme .btn.light .bg {
+  background-color: #fff;
+}
+html.themeDark .settingsPageContainer .pageSettingsPersonal .colorScheme .btn.dark .bg {
+  background: var(--color-bg-primary);
+  box-shadow: 0px 0px 0px 1px var(--color-shape-primary);
+}
+html.themeDark .settingsPageContainer .pageSettingsPersonal .colorScheme .btn.system .bg::before, html.themeDark .settingsPageContainer .pageSettingsPersonal .colorScheme .btn.system .bg::after {
+  content: "";
+  position: absolute;
+  top: 0px;
+  width: 50%;
+  height: 100%;
+}
+html.themeDark .settingsPageContainer .pageSettingsPersonal .colorScheme .btn.system .bg::before {
+  background: var(--color-control-bg);
+}
+html.themeDark .settingsPageContainer .pageSettingsPersonal .colorScheme .btn.system .bg::after {
+  background: var(--color-bg-primary);
+}
+html.themeDark .settingsPageContainer .pageSettingsPersonal .colorScheme .btn.active .bg {
+  box-shadow: 0px 0px 0px 2px var(--color-system-accent-25);
+}
+html.themeDark .settingsPageContainer .pageSettingsPersonal .colorScheme .btn.system.active .bg::before {
+  box-shadow: 0px 0px;
+}
+html.themeDark .settingsPageContainer .pageSettingsImportIndex .item:hover,
+html.themeDark .settingsPageContainer .pageSettingsExportIndex .item:hover {
+  border-color: var(--color-shape-primary);
+}
+html.themeDark .settingsPageContainer .pageSettingsImportIndex .actionItems .item:hover {
+  border-color: var(--color-shape-secondary);
+}
+html.themeDark .settingsPageContainer .pageSettingsMembership .membershipPurchased .section .item {
+  background: var(--color-bg-secondary);
+}
+html.themeDark .settingsPageContainer .pageSettingsMembership .membershipPurchased .section .item.current.blue {
+  box-shadow: 0px 0px 32px 0px rgba(54, 56, 78, 0.5);
+}
+html.themeDark .settingsPageContainer .pageSettingsMembership .membershipPurchased .section .item.current.red {
+  box-shadow: 0px 0px 32px 0px rgba(68, 42, 42, 0.5);
+}
+html.themeDark .settingsPageContainer .pageSettingsMembership .membershipPurchased .section .item.current.purple, html.themeDark .settingsPageContainer .pageSettingsMembership .membershipPurchased .section .item.current.default {
+  box-shadow: 0px 0px 32px 0px rgba(158, 105, 156, 0.2);
+}
+html.themeDark .settingsPageContainer .pageSettingsSpaceNotifications .section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px 0px;
+}
+html.themeDark .block.blockCover .loaderWrapper {
+  background: var(--color-shape-highlight-light);
+}
+html.themeDark .block.blockCover .author, html.themeDark .block.blockCover .author a {
+  color: var(--color-text-primary);
+}
+html.themeDark .block.blockCover .elements .btn.white {
+  background: var(--color-shape-secondary);
+  color: var(--color-text-primary);
+}
+html.themeDark .block.blockCover .elements .btn.white:hover {
+  background: var(--color-shape-primary);
+  color: var(--color-text-primary);
+}
+html.themeDark .block.blockCover .elements .btn.black {
+  color: var(--color-text-primary);
+}
+html.themeDark .blocks {
+  /* BlockFile */
+  /* BlockMedia */
+  /* BlockDataview */
+  /* BlockEmbed */
+  /* BlockText */
+  /* BlockBookmark */
+  /* BlockTable */
+  /* BlockChat */
+}
+html.themeDark .blocks .block.blockFile .loaderWrapper {
+  border: 0px;
+}
+html.themeDark .blocks .block.blockMedia .loaderWrapper {
+  border: 0px;
+}
+html.themeDark .blocks .block.blockDataview .dataviewHead .icon.source {
+  opacity: 0;
+}
+html.themeDark .blocks .block.blockDataview .viewContent.viewGrid .row:hover {
+  background-color: rgba(223, 221, 208, 0.04);
+}
+html.themeDark .blocks .block.blockDataview .viewContent.viewGrid .cellHead.cellKeyHover::after,
+html.themeDark .blocks .block.blockDataview .viewContent.viewGrid .cellHead.active::after,
+html.themeDark .blocks .block.blockDataview .viewContent.viewGrid .cellHead.isDragging::after {
+  background-color: rgba(223, 221, 208, 0.04);
+}
+html.themeDark .blocks .block.blockDataview .viewContent.viewGrid .cellHead.last::after, html.themeDark .blocks .block.blockDataview .viewContent.viewGrid .cellHead.active::after {
+  background: none;
+}
+html.themeDark .blocks .block.blockDataview .viewContent.viewGrid .cell.cellKeyHover {
+  background-color: rgba(223, 221, 208, 0.04);
+}
+html.themeDark .blocks .block.blockDataview .viewContent.viewBoard .cardContent {
+  background: var(--color-bg-secondary);
+}
+html.themeDark .blocks .block.blockDataview .viewContent.viewBoard .card.add {
+  background: var(--color-bg-secondary);
+}
+html.themeDark .blocks .block.blockEmbed .empty {
+  color: var(--color-text-secondary);
+}
+html.themeDark .blocks .block.blockEmbed .wrap.isEditing {
+  background: var(--color-shape-highlight-medium);
+}
+html.themeDark .blocks .block.blockEmbed .preview .label {
+  color: var(--color-text-secondary);
+}
+html.themeDark .blocks .block.blockEmbed:not(.isLatex) #value svg {
+  background: none;
+}
+html.themeDark .blocks .block.blockText markupbgcolor.bgColor-grey {
+  background: #3c3c3c !important;
+}
+html.themeDark .blocks .block.blockText markupbgcolor.bgColor-yellow {
+  background: #55500d !important;
+}
+html.themeDark .blocks .block.blockText markupbgcolor.bgColor-orange {
+  background: #5f430a !important;
+}
+html.themeDark .blocks .block.blockText markupbgcolor.bgColor-red {
+  background: #74321e !important;
+}
+html.themeDark .blocks .block.blockText markupbgcolor.bgColor-pink {
+  background: #712055 !important;
+}
+html.themeDark .blocks .block.blockText markupbgcolor.bgColor-purple {
+  background: #542663 !important;
+}
+html.themeDark .blocks .block.blockText markupbgcolor.bgColor-blue {
+  background: #2b3368 !important;
+}
+html.themeDark .blocks .block.blockText markupbgcolor.bgColor-ice {
+  background: #19465f !important;
+}
+html.themeDark .blocks .block.blockText markupbgcolor.bgColor-teal {
+  background: #16534e !important;
+}
+html.themeDark .blocks .block.blockText markupbgcolor.bgColor-lime {
+  background: #36551d !important;
+}
+html.themeDark .blocks .block.blockText.textCallout > .wrapContent,
+html.themeDark .blocks .block.blockText.textCallout > .wrapContent {
+  background: var(--color-shape-highlight-medium);
+}
+html.themeDark .blocks .block.blockBookmark .loaderWrapper {
+  border: 0px;
+}
+html.themeDark .blocks .block.blockBookmark .inner::after {
+  background: rgba(255, 255, 255, 0.03);
+}
+html.themeDark .blocks .block.blockTable .cell .icon.menu:hover .inner {
+  box-shadow: 0px 0px;
+}
+html.themeDark .blocks .block.blockChat .message .bubble {
+  background: var(--color-shape-tertiary);
+}
+html.themeDark .blocks .block.blockChat .form .attachments .swiper-button-prev {
+  background: linear-gradient(-90deg, rgba(0, 0, 0, 0) 0%, var(--color-bg-primary) 100%);
+}
+html.themeDark .blocks .block.blockChat .form .attachments .swiper-button-next {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, var(--color-bg-primary) 100%);
+}
+html.themeDark .blocks .block.blockChat .form .attachments .swiper-button-prev::before,
+html.themeDark .blocks .block.blockChat .form .attachments .swiper-button-next::before {
+  box-shadow: none;
+}
+html.themeDark .blocks .block.blockChat .form .attachments .swiper-button-prev::after,
+html.themeDark .blocks .block.blockChat .form .attachments .swiper-button-next::after {
+  background-image: url("~img/theme/dark/icon/arrow/swiper.svg");
+}
+
+body.linkApprovalWindow {
+  margin: 0;
+  font-family: "Inter";
+  font-size: var(--font-size-common);
+  line-height: var(--line-height-common);
+  letter-spacing: var(--letter-spacing-common);
+  height: 100vh;
+  -webkit-app-region: drag;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  overflow: hidden;
+}
+
+body.linkApprovalWindow #root {
+  height: 100%;
+}
+
+.linkApproval {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  padding: 24px 20px 16px;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  -webkit-app-region: no-drag;
+}
+
+.linkApproval {
+  /* Same wordmark and metrics as the void screen, so the window reads as Anytype at a glance. */
+  /* An aria-disabled Allow still takes the press, so only a truly disabled control ignores it. */
+}
+.linkApproval *, .linkApproval *::before, .linkApproval *::after {
+  box-sizing: border-box;
+}
+.linkApproval .logo, .linkApproval .heading, .linkApproval .footer, .linkApproval .permissionRow, .linkApproval .compatibility, .linkApproval .approvalError {
+  flex-shrink: 0;
+}
+.linkApproval .logo {
+  position: relative;
+  top: -15px;
+  height: 16.2px;
+  margin-bottom: 16px;
+  background: url("~img/logo/header.svg") no-repeat 50% 50%;
+  background-size: 63px 16.2px;
+  -webkit-app-region: drag;
+}
+.linkApproval .heading, .linkApproval .title {
+  -webkit-app-region: drag;
+}
+.linkApproval .title {
+  font-size: var(--font-size-paragraph);
+  line-height: var(--line-height-paragraph);
+  letter-spacing: var(--letter-spacing-paragraph);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.linkApproval .source {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--letter-spacing-small);
+  color: var(--color-text-secondary);
+  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.linkApproval .scope {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--letter-spacing-small);
+  color: var(--color-text-secondary);
+  margin-top: 12px;
+}
+.linkApproval input:focus-visible, .linkApproval button:focus-visible {
+  outline: 2px solid var(--color-system-accent-100);
+  outline-offset: 2px;
+}
+.linkApproval .compatibility {
+  min-height: 36px;
+  margin-top: 8px;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--letter-spacing-small);
+  color: var(--color-text-secondary);
+}
+.linkApproval .approvalError {
+  margin-top: 8px;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--letter-spacing-small);
+  color: var(--color-system-destructive-100);
+  -webkit-app-region: no-drag;
+}
+.linkApproval .buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  -webkit-app-region: no-drag;
+}
+.linkApproval .buttons .button {
+  flex: 1;
+  height: 36px;
+  font-family: inherit;
+}
+.linkApproval .buttons .button.blank {
+  color: var(--color-text-primary);
+}
+.linkApproval .buttons .button:disabled, .linkApproval .buttons .button[aria-disabled=true] {
+  color: var(--color-text-secondary);
+}
+.linkApproval .buttons .button:disabled {
+  pointer-events: none;
+}
+.linkApproval .note {
+  font-size: var(--font-size-very-small);
+  line-height: var(--line-height-very-small);
+  letter-spacing: var(--letter-spacing-very-small);
+  color: var(--color-text-secondary);
+  margin-top: 8px;
+  text-align: center;
+}
+.linkApproval .description {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--letter-spacing-small);
+  color: var(--color-text-secondary);
+  margin: 4px 0 16px;
+}
+.linkApproval .challenge {
+  display: flex;
+  gap: 8px;
+  -webkit-app-region: no-drag;
+}
+.linkApproval .challenge .number {
+  background-color: var(--color-shape-highlight-medium);
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 40px;
+  padding: 12px;
+}
+.linkApproval.code, .linkApproval.request:not(.withSpaces) {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.linkApproval.request:not(.withSpaces) .heading {
+  width: 100%;
+}
+.linkApproval.request:not(.withSpaces) .buttons {
+  min-width: 240px;
+}

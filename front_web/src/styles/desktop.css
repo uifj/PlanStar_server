@@ -1,17 +1,17 @@
 /*
- * Tailwind v4 entry for the incremental ZCode-style migration.
+ * Tailwind v4 entry — the only stylesheet new surfaces should need.
  *
  * Only the theme + utilities layers are imported — NOT the full `tailwindcss` bundle — because
- * preflight is a global reset and would flatten the legacy SCSS layout (247 files / ~21k lines)
- * that the rest of the app still depends on. Enable preflight only once the SCSS tree is gone.
+ * preflight is a global reset and legacy.css (the frozen former SCSS tree, ~40k lines) was written
+ * against browser defaults plus its own resets. Adding preflight would shift that layout wholesale.
  *
- * Utilities are deliberately imported WITHOUT `layer(utilities)`. The legacy SCSS is unlayered,
- * and unlayered CSS always beats layered CSS regardless of order — so a layered utility could
- * never override anything (a plain `.flex` in common.scss was already winning over `hidden`). Left
- * unlayered, a utility competes on the normal rules: same specificity is decided by source order,
- * and app.tsx imports this file after the SCSS tree, so migrated surfaces win the tie. Legacy
- * selectors with higher specificity still win, which is correct while their components are
- * migrated one by one — the fix there is a stronger utility, not a layer.
+ * Utilities are deliberately imported WITHOUT `layer(utilities)`. legacy.css is unlayered, and
+ * unlayered CSS always beats layered CSS regardless of order — so a layered utility could never
+ * override anything (a plain `.flex` in the old common.scss was already winning over `hidden`).
+ * Left unlayered, a utility competes on the normal rules: same specificity is decided by source
+ * order, and app.tsx imports this file after legacy.css, so migrated surfaces win the tie. Legacy
+ * selectors with higher specificity still win, which is correct while their components are ported
+ * one by one — the fix there is a stronger utility, not a layer.
  */
 @layer theme;
 
@@ -36,10 +36,11 @@
 @custom-variant fullscreen (&:where(html.isFullScreen, html.isFullScreen *));
 
 /*
- * Utility vocabulary over the anytype palette (src/scss/_vars.scss plus its dark override), so
- * migrated components write `bg-surface` / `text-fg-subtle` instead of `bg-[var(--color-…)]`.
- * `inline` emits a live var() reference rather than copying the value, so the dark theme keeps
- * redefining the underlying tokens without this file knowing about it.
+ * Utility vocabulary over the anytype palette (the `--color-*` tokens defined in legacy.css for the
+ * light theme and redefined under `html.theme-dark`), so migrated components write `bg-surface` /
+ * `text-fg-subtle` instead of `bg-[var(--color-…)]`. `inline` emits a live var() reference rather
+ * than copying the value, so the dark theme keeps redefining the underlying tokens without this
+ * file knowing about it.
  */
 @theme inline {
 	--color-surface: var(--color-bg-primary);
@@ -55,8 +56,8 @@
 :root {
 	/*
 	 * Single source of truth for the desktop titlebar height (ZCode's h-12). The Tailwind
-	 * component reads it via h-[var(--desktop-titlebar-h)] and the legacy SCSS offset in
-	 * src/scss/desktop/titlebar.scss reads the same variable, so they can never drift.
+	 * component reads it via h-[var(--desktop-titlebar-h)] and the frozen offset rules in
+	 * legacy.css (formerly scss/desktop/titlebar.scss) read the same variable, so they cannot drift.
 	 */
 	--desktop-titlebar-h: 3rem;
 }

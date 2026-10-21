@@ -166,7 +166,6 @@ export default defineConfig(({ mode }) => {
 				{ find: 'Model', replacement: path.resolve(__dirname, 'src/ts/model') },
 				{ find: 'Docs', replacement: path.resolve(__dirname, 'src/ts/docs') },
 				{ find: 'Hook', replacement: path.resolve(__dirname, 'src/ts/hook') },
-				{ find: 'scss', replacement: path.resolve(__dirname, 'src/scss') },
 				{ find: 'img', replacement: path.resolve(__dirname, 'src/img') },
 				{ find: 'css', replacement: path.resolve(__dirname, 'dist/css') },
 				{ find: 'Proto', replacement: path.resolve(__dirname, 'middleware') },
@@ -205,27 +204,8 @@ export default defineConfig(({ mode }) => {
 			'__IS_WEB__': 'true',
 		},
 
-		css: {
-			preprocessorOptions: {
-				scss: {
-					api: 'legacy',
-					includePaths: [path.resolve(__dirname, 'src/scss')],
-					importer: [
-						function(url: string) {
-							if (url.startsWith('~')) {
-								const stripped = url.slice(1);
-								if (stripped.startsWith('./') || stripped.startsWith('../')) {
-									return { file: stripped };
-								}
-								return { file: path.resolve(__dirname, 'src', stripped) };
-							}
-							return null;
-						},
-					],
-				},
-			},
-			postcss: {},
-		},
+		// No Sass: the SCSS tree was compiled once into src/styles/legacy*.css and the sources were
+		// deleted, so there is no preprocessor to configure. New surfaces are Tailwind (desktop.css).
 
 		build: {
 			outDir: 'dist-web',
@@ -285,7 +265,7 @@ export default defineConfig(({ mode }) => {
 			spaFallbackPlugin(),
 			react(),
 			// Tailwind v4 for the incremental ZCode-style migration. src/styles/desktop.css imports
-			// only theme + utilities (no preflight), so the legacy SCSS layout is not reset.
+			// only theme + utilities (no preflight), so the frozen legacy layout is not reset.
 			tailwindcss(),
 			autoObserverPlugin(),
 			webUploadPlugin(),

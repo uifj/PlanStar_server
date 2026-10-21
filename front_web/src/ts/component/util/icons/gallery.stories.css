@@ -22,7 +22,5 @@
 	font-size: 11px; color: #888; text-align: center;
 }
 
-.iconGalleryPreview {
-	.bg { fill: #f2f2f2; }
-	.cross { fill: #b6b6b6; }
-}
+.iconGalleryPreview .bg { fill: #f2f2f2; }
+.iconGalleryPreview .cross { fill: #b6b6b6; }

@@ -22,12 +22,12 @@ import React from "react";
  *
  * Colours come from the Tailwind token bridge in src/styles/desktop.css (bg-surface, text-fg-subtle,
  * …) which resolves to the live anytype palette, so the light/dark theme keeps working. Height comes
- * from --desktop-titlebar-h, the same token the remaining SCSS offset reads. Responsive: the tools
- * collapse on narrow windows (ZCode's sm: breakpoint), leaving a clean drag strip; the whole band
- * disappears in native fullscreen (fullscreen: variant), where macOS reclaims the titlebar area
- * and src/scss/desktop/titlebar.scss also drops its sidebar offset.
+ * from --desktop-titlebar-h, the same token the frozen offset rules in legacy.css read. Responsive:
+ * the tools collapse on narrow windows (ZCode's sm: breakpoint), leaving a clean drag strip; the whole
+ * band disappears in native fullscreen (fullscreen: variant), where macOS reclaims the titlebar area
+ * and legacy.css (formerly scss/desktop/titlebar.scss) also drops its sidebar offset.
  *
- * This is the first migrated surface: styled only with Tailwind utilities (no SCSS).
+ * This is the first migrated surface: styled only with Tailwind utilities (no legacy stylesheet).
  */
 const appRegion = (value: "drag" | "no-drag") =>
 	({ WebkitAppRegion: value }) as React.CSSProperties;

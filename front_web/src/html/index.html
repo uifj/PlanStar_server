@@ -10,7 +10,8 @@
 				50% { transform: scale3d(1.1, 1.1, 1); }
 			}
 
-			/* Raised above the centre so the status block under it reads centred (scss/_mixins.scss $recoveryBubbleRaise) */
+			/* Raised above the centre so the status block under it reads centred; keep the offset in sync
+			   with the start-up loader rule (formerly scss/_mixins.scss recoveryBubble(), now in src/styles/legacy.css) */
 			#bubble-loader {
 				position: fixed; width: 154px; height: 154px; left: 50%; top: calc(50% - 70px); transform: translate3d(-50%, -50%, 0); z-index: 10001;
 				display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all cubic-bezier(0.5, 0, 0.75, 0) 1s;

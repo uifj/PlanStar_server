@@ -1152,7 +1152,7 @@ const BlockChat = forwardRef<RefProps, I.BlockComponent>((props, ref) => {
 		S.Menu.open('select', menuParam);
 	};
 
-	// Date headers float via CSS `position: sticky` (see chat.scss .sectionDate). This only
+	// Date headers float via CSS `position: sticky` (see .sectionDate in legacy.css, formerly chat.scss). This only
 	// updates the sticky offset CSS variable when the header / pinned-banner height changes —
 	// no per-frame layout reads/writes (the previous JS reposition forced a full relayout of the
 	// whole message DOM on every scroll frame). Called from resize() and the pinned-banner effect,

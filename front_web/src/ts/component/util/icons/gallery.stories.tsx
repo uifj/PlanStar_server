@@ -47,7 +47,7 @@ import './menu/widget';
 import './menu/syncStatus';
 import './sync';
 
-import './gallery.stories.scss';
+import './gallery.stories.css';
 
 const FOLDER_SIZES: Record<string, number> = {
 	state: 56,

@@ -63,7 +63,7 @@ const ArchiveListTree = ({ subId, canWrite, isShared, isPopup, isDetailed = fals
 		};
 	}, []);
 
-	// cellCheck is not a grid column — it overlaps the row via absolute positioning (archive.scss)
+	// cellCheck is not a grid column — it overlaps the row via absolute positioning (legacy.css, formerly archive.scss)
 	const widths = [ 'minmax(0, 1fr)', '20%' ];
 	if (isShared) {
 		widths.push('20%');

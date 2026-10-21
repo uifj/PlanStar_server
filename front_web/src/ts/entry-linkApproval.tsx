@@ -5,7 +5,8 @@ import { approvalThemeClass } from 'Lib/linkApproval';
 import type * as I from 'Interface';
 import defaultLang from 'json/text.json';
 
-import 'scss/linkApproval.scss';
+// Frozen legacy stylesheet: the compiled output of the deleted scss/linkApproval.scss.
+import "../styles/legacy-linkApproval.css";
 
 /** Standalone window: the session renderer owns the account catalog and approval RPC. */
 const electron = (window as any).Electron || {};

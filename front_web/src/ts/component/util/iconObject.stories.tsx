@@ -9,7 +9,7 @@ import './icons/type';
 import './icons/default';
 import './icons/relation';
 
-import './iconObject.stories.scss';
+import './iconObject.stories.css';
 
 const SIZES = [ 128, 96, 80, 64, 48, 40, 32, 30, 26, 22, 20, 18, 16 ];
 
