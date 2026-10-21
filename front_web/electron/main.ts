@@ -103,8 +103,14 @@ const createWindow = (): BrowserWindow => {
 		show: false,
 		title: "Anytype Harness",
 		backgroundColor: "#ffffff",
-		titleBarStyle: "hiddenInset",
-		trafficLightPosition: { x: 16, y: 16 },
+		// macOS hides the native titlebar and parks the traffic lights inside the renderer's
+		// 48px drag band (scss/desktop/titlebar.scss), ZCode-style; other platforms keep inset.
+		...(process.platform === "darwin"
+			? {
+					titleBarStyle: "hidden" as const,
+					trafficLightPosition: { x: 20, y: 17 },
+				}
+			: { titleBarStyle: "hiddenInset" as const }),
 		webPreferences: {
 			preload: PRELOAD,
 			contextIsolation: true,

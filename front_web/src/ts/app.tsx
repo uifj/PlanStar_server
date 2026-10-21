@@ -50,6 +50,7 @@ import "swiper/css";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import "scss/common.scss";
+import "scss/desktop/titlebar.scss";
 
 const memoryHistory = hs.createMemoryHistory;
 const history = (window as any).__anytypeHistory || memoryHistory();
@@ -1111,6 +1112,15 @@ const App: FC = () => {
 			disposeApprovalSpaces();
 			unregisterIpcEvents();
 		};
+	}, []);
+
+	// Mark the real Electron shell on <html> so the macOS titlebar drag band
+	// (scss/desktop/titlebar.scss) applies; the web build never gets the marker. Uses an
+	// attribute, not a class, because keyboard.setBodyClass() rewrites html.className wholesale.
+	useEffect(() => {
+		if (desktop.isShell()) {
+			document.documentElement.setAttribute("data-harness-desktop", "");
+		}
 	}, []);
 
 	const sidebarLeftRef = useCallback(

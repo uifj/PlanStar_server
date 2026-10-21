@@ -1,0 +1,57 @@
+/*
+ * macOS desktop titlebar band (mirrors ZCode's top titlebar strip).
+ *
+ * The shell hides the native titlebar (titleBarStyle: "hidden") and parks the traffic
+ * lights inside a 48px band at the top of the window (trafficLightPosition in main.ts).
+ * For that band to both (a) clear the renderer's first row and (b) actually drag the
+ * window, it must be a real on-top drag region and the content must start below it:
+ *
+ *   - #dragPanel is raised above the app background / fixed sidebars so pointer events in
+ *     the band hit the drag region instead of being swallowed by content painted over it
+ *     (the vendored rule keeps it at z-index:-1, behind everything, which never drags).
+ *   - #appContainer is a flex column; padding-top pushes the in-flow main column down.
+ *   - .sidebar is position:fixed, so container padding does not move it; its box is dropped
+ *     below the band instead.
+ *
+ * Gated on html[data-harness-desktop] (set by app.tsx only in the real Electron shell) so the
+ * web build is untouched, and skipped in fullscreen where macOS reclaims the menu/titlebar area.
+ *
+ * The shell serves the *web* build over loopback, so window.Electron is electronMock and
+ * getInitData already returns isSingleTab:true -> html also carries .isSingleTab.platformMac, which
+ * switches on upstream anytype's own macOS single-tab chrome (common.scss + sidebar/common.scss).
+ * That chrome parks the traffic lights *inside* the header/sidebar-head row and reserves room with
+ * 84px left indents, a shrunk vault head and a hidden space name. It assumes upstream's DOM: against
+ * the harness's fixed full-height sidebar the lights overlap the first row, and now that this band
+ * already drops all content 48px below the lights those indents double-offset and hide the space
+ * name. The block below re-asserts the component defaults (header .side.left 12px, sidebarPage head
+ * 16px, pageVault head 52px, pageWrapper 8px) so this band is the single source of truth. Equal
+ * specificity to the vendored rules; titlebar.scss is imported after common.scss, so source order wins.
+ */
+html[data-harness-desktop].platformMac:not(.isFullScreen) {
+	#dragPanel {
+		display: block; position: fixed; top: 0px; left: 0px; width: 100%; height: 48px;
+		z-index: 30; user-select: none; pointer-events: all;
+		background: var(--color-shape-primary); -webkit-app-region: drag;
+	}
+
+	#appContainer { padding-top: 48px; }
+
+	.sidebar { top: 48px; height: calc(100% - 48px); }
+
+	// Neutralize the vendored macOS single-tab chrome (see the header comment).
+	.sidebar.isMinimal .pageWrapper { padding-top: 8px; }
+
+	.sidebar:not(.isMinimal) .sidebarPage.pageVault > .head {
+		height: 52px; margin-bottom: 0px;
+
+		.side.left .name { display: block; }
+	}
+
+	#header:not(.withSidebarTotalLeft) > .side.left { padding-left: 12px; }
+
+	.pageFlex:not(.withSidebarTotalLeft) .pageMainVoid .wrapper > .side.left { left: auto; }
+
+	#sidebar #subPageWrapper .sidebarPage > .head { padding-left: 16px; }
+
+	.sidebar .subPageWrapper:not(.withSidebarLeft) .sidebarPage > .head { padding-left: 16px; }
+}
