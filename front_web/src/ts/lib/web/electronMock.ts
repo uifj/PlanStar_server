@@ -581,7 +581,20 @@ class ElectronMock {
 		device: "Web Browser",
 	};
 
-	platform = "web";
+	// The browser build has no preload, so it stays "web". Inside the real shell the preload installs
+	// window.Desktop (isDesktop: true, platform = process.platform, e.g. "darwin") before any page
+	// script runs. Deriving it here lets getPlatform() map through Constant.platforms to Mac/Windows/
+	// Linux, which is what adds html.platformMac — hard-coding "web" kept every macOS layout rule
+	// (titlebar band, traffic-light spacing, drag region) silently off inside the shell.
+	platform: string = (() => {
+		const bridge = (
+			window as unknown as {
+				Desktop?: { isDesktop?: boolean; platform?: string };
+			}
+		).Desktop;
+
+		return bridge?.isDesktop === true ? String(bridge.platform || "web") : "web";
+	})();
 	arch = "web";
 	isPackaged = false;
 

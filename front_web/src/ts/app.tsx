@@ -11,6 +11,7 @@ import {
 	Toast,
 	UpdateBanner,
 } from "Component";
+import { DesktopTitlebar } from "Component/desktop/Titlebar";
 import * as I from "Interface";
 import Animation from "Lib/animation";
 import { getSession } from "Lib/api/better-auth";
@@ -51,6 +52,8 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import "scss/common.scss";
 import "scss/desktop/titlebar.scss";
+// Tailwind v4 (theme + utilities, no preflight) for the migrated ZCode-style shell surfaces.
+import "../styles/desktop.css";
 
 const memoryHistory = hs.createMemoryHistory;
 const history = (window as any).__anytypeHistory || memoryHistory();
@@ -1150,7 +1153,11 @@ const App: FC = () => {
 					""
 				)}
 
-				<div id="dragPanel" />
+				{desktop.isShell() ? (
+					<DesktopTitlebar />
+				) : (
+					<div id="dragPanel" />
+				)}
 				<div id="tooltipContainer" />
 
 				<PreviewIndex />

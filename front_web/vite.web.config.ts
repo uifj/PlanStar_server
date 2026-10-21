@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react-swc';
+import tailwindcss from '@tailwindcss/vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import AutoImport from 'unplugin-auto-import/vite';
 import { autoObserverPlugin } from './vite.auto-observer';
@@ -283,6 +284,9 @@ export default defineConfig(({ mode }) => {
 		plugins: [
 			spaFallbackPlugin(),
 			react(),
+			// Tailwind v4 for the incremental ZCode-style migration. src/styles/desktop.css imports
+			// only theme + utilities (no preflight), so the legacy SCSS layout is not reset.
+			tailwindcss(),
 			autoObserverPlugin(),
 			webUploadPlugin(),
 

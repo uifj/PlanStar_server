@@ -9,4 +9,17 @@ declare const IMPORT_AI_ANYTYPE_MODEL: string;
 declare const IMPORT_AI_ANYTYPE_TOKEN: string;
 declare const __IS_EXTENSION__: string;
 
-declare module 'selection-ranges';
+declare module "selection-ranges";
+
+// @tailwindcss/vite ships only dist/index.d.mts, which the renderer's `moduleResolution: "Node"`
+// cannot read. vite.web.config.ts is pulled into this program by webBuildDefines.test.ts, so the
+// import needs a shape to resolve against. Mirrors the package's declared signature.
+declare module "@tailwindcss/vite" {
+	import type { Plugin } from "vite";
+
+	export type PluginOptions = {
+		optimize?: boolean | { minify?: boolean };
+	};
+
+	export default function tailwindcss(opts?: PluginOptions): Plugin[];
+}
