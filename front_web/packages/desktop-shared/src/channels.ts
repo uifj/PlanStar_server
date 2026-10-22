@@ -22,8 +22,7 @@ export const PlatformChannels = {
 	ExecuteDesktopCommand: "desktop-invoke:execute-command",
 	SubmitFeedback: "desktop-invoke:submit-feedback",
 	GetUpdateState: "desktop-invoke:get-update-state",
-	GetAutoUpdatePreferences: "desktop-invoke:get-auto-update-preferences",
-	SetAutoDownloadAndInstallUpdates: "desktop-invoke:set-auto-download-updates",
+	GetForceUpdateState: "desktop-invoke:get-force-update-state",
 	GetDesktopZoomLevel: "desktop-invoke:get-zoom-level",
 	GetSystemLocale: "desktop-invoke:get-system-locale",
 	GetCapabilities: "desktop-invoke:get-capabilities",
@@ -33,8 +32,13 @@ export const PlatformChannels = {
 	OpenFeedbackDialog: "desktop:open-feedback-dialog",
 	UpdateStateChanged: "desktop:update-state-changed",
 	UpdateCheckResult: "desktop:update-check-result",
-	PostUpdateReleaseNotes: "desktop:post-update-release-notes",
 	ForceUpdateRequired: "desktop:force-update-required",
+	/**
+	 * The opposite of `ForceUpdateRequired`: the server retracted `is_forced` (or the version no
+	 * longer matches). Without this the renderer keeps a blocking modal after a policy change, and a
+	 * window reload cannot tell "never forced" from "forced and withdrawn".
+	 */
+	ForceUpdateCleared: "desktop:force-update-cleared",
 	ApplicationLocaleChanged: "desktop:application-locale-changed",
 	DesktopZoomLevelChanged: "desktop:zoom-level-changed",
 } as const;

@@ -1,12 +1,11 @@
-import type { DesktopCommandId } from "./commands";
+import type { DesktopCommandId, DesktopCommandResult } from "./commands";
 import type {
-	AutoUpdatePreferences,
 	DesktopCapabilities,
 	DesktopZoomState,
+	ForceUpdateClearedPayload,
 	ForceUpdateRequiredPayload,
 	Locale,
 	LogLevel,
-	PostUpdateReleaseNotesPayload,
 	SubmitFeedbackPayload,
 	SubmitFeedbackResult,
 	UpdateCheckResultPayload,
@@ -34,7 +33,10 @@ export interface DesktopBridgeApi {
 	readonly chromeVersion: string;
 
 	// Command bus.
-	executeCommand(id: DesktopCommandId, payload?: unknown): Promise<unknown>;
+	executeCommand<K extends DesktopCommandId>(
+		id: K,
+		payload?: unknown,
+	): Promise<DesktopCommandResult<K>>;
 
 	// Logging.
 	log(level: LogLevel, args: unknown[]): void;
@@ -58,22 +60,28 @@ export interface DesktopBridgeApi {
 	submitFeedback(payload: SubmitFeedbackPayload): Promise<SubmitFeedbackResult>;
 	onOpenFeedbackDialog(callback: () => void): DesktopUnsubscribe;
 
-	// Auto-update. State and preferences are queries; the download/cancel/install actions and log
-	// export converge on the command bus (B2) so main has a single dispatch point for every action.
+	// Auto-update. State is a query; the download/cancel/install actions and log export converge on
+	// the command bus (B2) so main has a single dispatch point for every action. The update policy
+	// is fixed (download automatically, install on demand), so there is nothing to configure.
 	getUpdateState(): Promise<UpdateStatePayload>;
-	getAutoUpdatePreferences(): Promise<AutoUpdatePreferences>;
-	setAutoDownloadAndInstallUpdates(enabled: boolean): Promise<void>;
 	onUpdateStateChanged(
 		callback: (state: UpdateStatePayload) => void,
 	): DesktopUnsubscribe;
 	onUpdateCheckResult(
 		callback: (result: UpdateCheckResultPayload) => void,
 	): DesktopUnsubscribe;
-	onPostUpdateReleaseNotes(
-		callback: (payload: PostUpdateReleaseNotesPayload) => void,
-	): DesktopUnsubscribe;
 	onForceUpdateRequired(
 		callback: (payload: ForceUpdateRequiredPayload) => void,
+	): DesktopUnsubscribe;
+	/**
+	 * Current forced-update state, or `null`. A push-only channel loses the signal whenever the
+	 * renderer reloads after `ForceUpdateRequired` was already broadcast, so the blocking modal
+	 * needs a query to survive a window rebuild.
+	 */
+	getForceUpdateState(): Promise<ForceUpdateRequiredPayload | null>;
+	/** The server withdrew the forced flag; close the blocking modal. */
+	onForceUpdateCleared(
+		callback: (payload: ForceUpdateClearedPayload) => void,
 	): DesktopUnsubscribe;
 
 	// Renderer boot acknowledgement.

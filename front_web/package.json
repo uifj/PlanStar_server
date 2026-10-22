@@ -16,7 +16,8 @@
 		"build:desktop": "pnpm run build && pnpm run build:electron",
 		"start:electron": "electron .",
 		"dev:electron": "pnpm run build:desktop && electron .",
-		"dist:mac": "pnpm run build:desktop && electron-builder --mac --arm64",
+		"dist:mac": "pnpm run build:desktop && electron-builder --mac --arm64 --publish never",
+		"verify:desktop-feed": "node scripts/verify-desktop-feed.mjs",
 		"typecheck": "pnpm run build:shared && tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.electron.json",
 		"generate:protos": "bash scripts/generate-protos.sh --from-dist",
 		"test": "pnpm run build:shared && vitest run",
@@ -26,7 +27,9 @@
 		"check:fix": "biome check --write .",
 		"check:staged": "biome check --staged --no-errors-on-unmatched",
 		"check:desktop-parity": "node scripts/check-desktop-mock-parity.mjs",
-		"lint:gate": "biome check electron packages scripts/check-desktop-mock-parity.mjs"
+		"check:desktop-contract": "node scripts/check-desktop-contract.mjs",
+		"check:desktop-feed-contract": "node scripts/desktop-feed-contract.mjs",
+		"lint:gate": "biome check electron packages scripts/check-desktop-mock-parity.mjs scripts/verify-desktop-feed.mjs scripts/check-desktop-contract.mjs scripts/desktop-feed-contract.mjs"
 	},
 	"lint-staged": {
 		"*.{js,ts,cjs,mjs,jsx,tsx,json,jsonc,css}": [
@@ -124,6 +127,7 @@
 		"@vitest/coverage-v8": "^4.1.0",
 		"electron": "^43.8.0",
 		"electron-builder": "^26.17.0",
+		"electron-updater": "^6.8.9",
 		"esbuild": "^0.25.0",
 		"husky": "^9.1.7",
 		"jsdom": "^30.1.2",

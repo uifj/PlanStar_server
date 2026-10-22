@@ -257,12 +257,7 @@ export interface MenuState {
 }
 
 export interface ApplicationMenuController {
-	/** Rebuild and install the menu with the current state. */
-	rebuild(): void;
 	setLocale(locale: Locale): void;
-	setCapabilities(patch: Partial<MenuCapabilities>): void;
-	/** Called when zoom changes so accelerator enable/disable can track it (currently no-op). */
-	getLocale(): Locale;
 }
 
 export function initApplicationMenu(options: {
@@ -293,27 +288,12 @@ export function initApplicationMenu(options: {
 	rebuild();
 
 	return {
-		rebuild,
 		setLocale(locale) {
 			if (state.locale === locale) {
 				return;
 			}
 			state = { ...state, locale };
 			rebuild();
-		},
-		setCapabilities(patch) {
-			const next = { ...state.capabilities, ...patch };
-			const changed = (Object.keys(patch) as (keyof MenuCapabilities)[]).some(
-				(key) => state.capabilities[key] !== next[key],
-			);
-			if (!changed) {
-				return;
-			}
-			state = { ...state, capabilities: next };
-			rebuild();
-		},
-		getLocale() {
-			return state.locale;
 		},
 	};
 }

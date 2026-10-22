@@ -36,38 +36,22 @@ export function normalizeLocale(value: unknown): Locale {
 
 /** Discriminated union so the UI can switch on `kind` without narrowing every optional field. */
 export type UpdateStatePayload =
-	| { kind: "idle"; enabled: boolean }
-	| { kind: "checking"; enabled: boolean }
-	| {
-			kind: "available";
-			enabled: boolean;
-			version: string;
-			releaseNotes?: string;
-	  }
-	| { kind: "not-available"; enabled: boolean; version: string }
-	| { kind: "downloading"; enabled: boolean; version: string; progress: number }
-	| {
-			kind: "update-downloaded";
-			enabled: boolean;
-			version: string;
-			releaseNotes?: string;
-	  }
-	| { kind: "installing"; enabled: boolean; version: string }
-	| { kind: "error"; enabled: boolean; message: string };
+	| { kind: "idle" }
+	| { kind: "checking" }
+	| { kind: "available"; version: string; releaseNotes?: string }
+	| { kind: "not-available"; version: string }
+	| { kind: "downloading"; version: string; progress: number }
+	| { kind: "update-downloaded"; version: string; releaseNotes?: string }
+	| { kind: "installing"; version: string }
+	| { kind: "error"; message: string };
 
 export interface UpdateCheckResultPayload {
 	/** Present when the manual check was answered; absent means "no result yet". */
-	status: "available" | "not-available" | "error" | "skipped";
+	status: "available" | "not-available" | "error";
 	version?: string;
 	message?: string;
 	/** Web contents that initiated the manual check, so main can echo the result back. */
 	manualWebContentsId?: number;
-}
-
-export interface PostUpdateReleaseNotesPayload {
-	version: string;
-	releaseNotes?: string;
-	acknowledged: boolean;
 }
 
 export interface CaptureWindowScreenshotResult {
@@ -82,16 +66,24 @@ export interface ExportLogsResult {
 	success: boolean;
 	path?: string;
 	error?: string;
-}
-
-export interface AutoUpdatePreferences {
-	autoDownloadAndInstall: boolean;
-	skippedVersions: string[];
+	/**
+	 * True when the archive was also handed to the backend log uplink. Optional so an older shell's
+	 * `{ success, path }` payload stays assignable.
+	 */
+	uploaded?: boolean;
 }
 
 export interface ForceUpdateRequiredPayload {
 	version: string;
 	releaseNotes?: string;
+}
+
+/**
+ * Sent when a previously announced forced update no longer applies. `version` is the release that
+ * was withdrawn so the renderer can close exactly the modal it opened.
+ */
+export interface ForceUpdateClearedPayload {
+	version: string;
 }
 
 /** Renderer → main feedback submission. `png` is the base64 screenshot from `captureScreenshot`. */
@@ -129,4 +121,6 @@ export interface DesktopCapabilities {
 	readonly autoUpdate: boolean;
 	readonly crashReporter: boolean;
 	readonly forceUpdate: boolean;
+	/** Main mirrors its file log to the backend (`POST /api/desktop/logs`). */
+	readonly logUpload: boolean;
 }

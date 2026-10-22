@@ -1,7 +1,9 @@
 import {
+	existsSync,
 	mkdirSync,
 	mkdtempSync,
 	readdirSync,
+	readFileSync,
 	rmSync,
 	utimesSync,
 	writeFileSync,
@@ -10,6 +12,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import {
+	bindFileLogger,
+	bindLogger,
+	consoleLogger,
+	flushLogsSync,
+	initLogger,
+	logger,
+} from "../logger";
 import { cleanupExpiredLogFiles, LOG_RETENTION_DAYS } from "../logRetention";
 
 function daysAgo(now: Date, days: number): Date {
@@ -108,5 +118,67 @@ describe("logRetention", () => {
 		});
 		expect(result.deletedFiles).toHaveLength(0);
 		expect(result.failedFiles).toHaveLength(0);
+	});
+});
+
+/**
+ * The file sink batches lines so the main process does not pay an `appendFileSync` (plus a
+ * directory check) per log line. These tests pin the three properties that batching must not
+ * break: nothing is lost on flush, a runaway line stays bounded, and warn/error survive a crash.
+ */
+describe("logger file sink", () => {
+	let dir: string;
+
+	const logFile = (): string => {
+		const now = new Date();
+		const pad = (n: number) => String(n).padStart(2, "0");
+		return join(
+			dir,
+			`${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}.log`,
+		);
+	};
+
+	beforeEach(() => {
+		dir = mkdtempSync(join(tmpdir(), "logger-sink-test-"));
+		initLogger({ logDir: dir });
+		bindFileLogger();
+	});
+
+	afterEach(() => {
+		flushLogsSync();
+		bindLogger(consoleLogger);
+		rmSync(dir, { recursive: true, force: true });
+	});
+
+	it("flushes buffered lines to disk synchronously", () => {
+		logger.info("first-line");
+		logger.info("second-line");
+		const beforeFlush = existsSync(logFile())
+			? readFileSync(logFile(), "utf8")
+			: "";
+		expect(beforeFlush).not.toContain("first-line");
+
+		flushLogsSync();
+
+		const afterFlush = readFileSync(logFile(), "utf8");
+		expect(afterFlush).toContain("first-line");
+		expect(afterFlush).toContain("second-line");
+	});
+
+	it("truncates an oversized line to 8 KiB plus a marker", () => {
+		logger.info("x".repeat(20_000));
+		flushLogsSync();
+
+		const contents = readFileSync(logFile(), "utf8");
+		expect(Buffer.byteLength(contents, "utf8")).toBeLessThanOrEqual(8 * 1024);
+		expect(contents).toContain("…[truncated]");
+	});
+
+	it("writes warn and error lines without waiting for the flush timer", () => {
+		logger.warn("urgent-warning");
+		expect(readFileSync(logFile(), "utf8")).toContain("urgent-warning");
+
+		logger.error("urgent-error");
+		expect(readFileSync(logFile(), "utf8")).toContain("urgent-error");
 	});
 });

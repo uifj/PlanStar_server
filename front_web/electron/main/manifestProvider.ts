@@ -1,15 +1,12 @@
-import { app } from "electron";
-
 import { logger } from "./logger";
 
 /**
- * Manifest-based update provider.
+ * Policy-manifest reader.
  *
- * The plan calls for `electron-updater`'s `Provider<UpdateInfo>`; because the dependency is not
- * yet in `package.json` we keep the surface identical but resolve the class lazily through a
- * dynamic import. When `electron-updater` is missing the provider degrades to a plain fetch +
- * YAML parse so the shell still boots and `autoUpdater.ts` can report "update-not-available"
- * without crashing.
+ * The update itself is `electron-updater`'s job: it reads the `latest-mac.yml` that
+ * electron-builder emits and verifies the artifact's sha512. What builder metadata cannot express
+ * — `is_forced` for the force-update guard, and the human release notes — lives on the harness's
+ * own `/releases/manifest` channel, and this module is the only reader of it.
  *
  * Manifest shape (aligned with electron-updater's generic provider):
  *
@@ -21,22 +18,21 @@ import { logger } from "./logger";
  *     - …
  *   is_forced: false
  *
- * The provider is deliberately small (~180 lines): we drop Linux multi-format resolution
- * (AppImage/Deb/Rpm/Pacman), preview channels, dev overrides and release-notes i18n that
- * ZCode's 260-line `manifestUpdateProvider.ts` carries — front_web only ships macOS DMG and
- * Windows NSIS.
+ * `path` / `sha512` are still part of the wire shape (the server writes them and they document
+ * which artifact a policy entry refers to), but they are not used to build a download URL: the
+ * artifact URL comes from the builder feed. The hand-rolled resolution helpers this module used
+ * to carry were removed along with the hand-rolled updater they served.
  */
 
 export interface ManifestUpdateInfo {
 	version: string;
 	releaseDate?: string;
-	path: string;
+	/** Optional: only present when the operator staged an artifact name alongside the policy. */
+	path?: string;
 	sha512?: string;
 	releaseNotes?: string;
 	/** Server-side flag consumed by `forceUpdateGuard.ts`. */
 	is_forced?: boolean;
-	/** Absolute URL resolved from `path` + the manifest base. */
-	downloadUrl?: string;
 }
 
 export interface ManifestProviderOptions {
@@ -119,10 +115,11 @@ export function parseManifestYaml(text: string): ManifestUpdateInfo {
 	}
 	flushBlock();
 
-	if (!result.version || !result.path) {
-		throw new Error(
-			"parseManifestYaml: manifest missing required `version` or `path`",
-		);
+	// `version` is the only key the shell actually needs: the artifact URL comes from the builder
+	// feed, so a policy entry without `path`/`sha512` is still actionable ("0.58.0 is out / is
+	// mandatory"). Requiring `path` made a metadata-only rollout impossible.
+	if (!result.version) {
+		throw new Error("parseManifestYaml: manifest missing required `version`");
 	}
 
 	return {
@@ -143,15 +140,6 @@ function buildManifestUrl(
 	const trimmed = baseUrl.replace(/\/+$/, "");
 	const params = new URLSearchParams({ platform, channel });
 	return `${trimmed}/manifest?${params.toString()}`;
-}
-
-function buildDownloadUrl(baseUrl: string, filename: string): string {
-	const trimmed = baseUrl.replace(/\/+$/, "");
-	// `path` may already be absolute; honour it so a CDN can sit in front of the harness.
-	if (/^https?:\/\//i.test(filename)) {
-		return filename;
-	}
-	return `${trimmed}/download/${filename.replace(/^\/+/, "")}`;
 }
 
 export class ManifestUpdateProvider {
@@ -198,29 +186,13 @@ export class ManifestUpdateProvider {
 			);
 		}
 		const text = await response.text();
-		const info = parseManifestYaml(text);
-		info.downloadUrl = buildDownloadUrl(this.options.baseUrl, info.path);
-		return info;
-	}
-
-	/**
-	 * Resolve the file list for `electron-updater`. Returns a single entry because we only ship
-	 * one artifact per (platform, channel) pair; ZCode's multi-format Linux branch is not needed.
-	 */
-	resolveFiles(
-		info: ManifestUpdateInfo,
-	): Array<{ url: string; sha512?: string; size?: number }> {
-		if (!info.downloadUrl) {
-			throw new Error("resolveFiles: manifest info is missing downloadUrl");
-		}
-		return [{ url: info.downloadUrl, sha512: info.sha512 }];
+		return parseManifestYaml(text);
 	}
 }
 
 /**
  * Convenience factory used by `autoUpdater.ts`. Reads the base URL from
- * `HARNESS_DESKTOP_UPDATE_BASE_URL` (falls back to the harness API origin) and the device id
- * from the persisted settings file when present.
+ * `HARNESS_DESKTOP_UPDATE_BASE_URL` (falls back to the harness API origin).
  */
 export function createManifestProvider(
 	overrides: Partial<ManifestProviderOptions> = {},
@@ -237,33 +209,13 @@ export function createManifestProvider(
 			process.env.HARNESS_DESKTOP_UPDATE_CHANNEL ??
 			DEFAULT_CHANNEL,
 		platform: overrides.platform,
-		deviceId: overrides.deviceId ?? readDeviceId(),
+		deviceId: overrides.deviceId,
 		fetchImpl: overrides.fetchImpl,
 	});
 }
 
-function readDeviceId(): string {
-	// The device id is persisted by the harness server on first run; when absent we send an empty
-	// header and the server treats the request as unfiltered.
-	try {
-		const settingsPath = `${app.getPath("userData")}/settings.json`;
-		// Lazy require so tests can stub `app.getPath` without touching fs.
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
-		const fs = require("node:fs") as typeof import("node:fs");
-		if (!fs.existsSync(settingsPath)) {
-			return "";
-		}
-		const parsed = JSON.parse(fs.readFileSync(settingsPath, "utf8")) as {
-			deviceId?: string;
-		};
-		return typeof parsed.deviceId === "string" ? parsed.deviceId : "";
-	} catch {
-		return "";
-	}
-}
-
 export const __test__ = {
 	buildManifestUrl,
-	buildDownloadUrl,
+	parseManifestYaml,
 	resolvePlatform,
 };

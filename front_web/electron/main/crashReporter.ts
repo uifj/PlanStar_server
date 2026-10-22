@@ -22,8 +22,6 @@ export interface CrashReporterOptions {
 	submitURL?: string;
 	/** Extra annotations attached to every dump (device id, release channel, …). */
 	extra?: Record<string, string>;
-	/** Disable the process-level guards (tests). */
-	skipProcessGuards?: boolean;
 }
 
 function defaultSubmitURL(): string {
@@ -55,10 +53,6 @@ export function initCrashReporter(options: CrashReporterOptions = {}): void {
 	} catch (error) {
 		// A misconfigured submitURL must not prevent boot; the shell keeps running without uploads.
 		logger.warn("[crash-reporter] failed to start:", error);
-		return;
-	}
-
-	if (options.skipProcessGuards) {
 		return;
 	}
 

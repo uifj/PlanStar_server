@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-// Minimal electron mock: crashReporter.ts and manifestProvider.ts both import `app` (and the former
-// imports `crashReporter`) at module load. Only the URL helpers are exercised here, so the stubs
-// never get called — they just keep the import from throwing outside an Electron runtime.
+// Minimal electron mock: crashReporter.ts imports `app` and the `crashReporter` module at load.
+// Only the URL helpers are exercised here, so the stubs never get called — they just keep the
+// import from throwing outside an Electron runtime.
 vi.mock("electron", () => ({
 	app: {
 		name: "Anytype Harness",
@@ -55,22 +55,27 @@ describe("desktop subsystem endpoint contracts (B4)", () => {
 			);
 		});
 
-		it("builds the artifact download URL under the release root", () => {
-			expect(
-				manifestTest.buildDownloadUrl(
-					"http://localhost:8000/api/desktop/releases",
-					"Harness-9.9.9-arm64.dmg",
-				),
-			).toBe(
-				"http://localhost:8000/api/desktop/releases/download/Harness-9.9.9-arm64.dmg",
-			);
-		});
-
 		it("resolves the platform header value as `${platform}-${arch}`", () => {
 			expect(manifestTest.resolvePlatform("win32-x64")).toBe("win32-x64");
 			expect(manifestTest.resolvePlatform()).toBe(
 				`${process.platform}-${process.arch}`,
 			);
+		});
+
+		it("accepts a policy manifest without `path` (version is the only required key)", () => {
+			const info = manifestTest.parseManifestYaml(
+				"version: 0.58.0\nis_forced: true\n",
+			);
+
+			expect(info.version).toBe("0.58.0");
+			expect(info.path).toBeUndefined();
+			expect(info.is_forced).toBe(true);
+		});
+
+		it("rejects a manifest with no `version`", () => {
+			expect(() =>
+				manifestTest.parseManifestYaml("path: Harness-0.58.0.dmg\n"),
+			).toThrow(/missing required `version`/);
 		});
 	});
 });

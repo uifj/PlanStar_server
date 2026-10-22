@@ -241,6 +241,33 @@ export function extractDeepLinkUrlFromSingleInstanceData(
 	return extractDeepLinkUrlFromArgs([value]);
 }
 
+/**
+ * A one-slot mailbox for a deep-link route that arrived before the renderer could accept it.
+ *
+ * It is deliberately a single slot, not an unbounded queue: these are navigation intents, so the
+ * most recent one wins. An unbounded array also let a stream of links grow memory while the
+ * window sat on the "backend is down" waiting page (a `data:` document, where `pushState` throws).
+ */
+export interface PendingRoute {
+	set(route: string): void;
+	take(): string | null;
+}
+
+export function createPendingRoute(): PendingRoute {
+	let route: string | null = null;
+
+	return {
+		set(next) {
+			route = next;
+		},
+		take() {
+			const next = route;
+			route = null;
+			return next;
+		},
+	};
+}
+
 export const __test__ = {
 	buildArgCandidates,
 	expandDecodedCandidates,

@@ -1,12 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import {
+	DEFAULT_LOCALE,
 	type DesktopCapabilities,
 	type Locale,
 	type LogPayload,
 	normalizeLocale,
 	PlatformChannels,
 } from "@harness/desktop-shared";
+import type { IpcMainEvent, IpcMainInvokeEvent } from "electron";
 import { app, BrowserWindow, ipcMain, shell } from "electron";
 import {
 	type AutoUpdaterController,
@@ -19,13 +21,13 @@ import {
 import { initCrashReporter } from "./main/crashReporter";
 import {
 	createDeepLinkSingleInstanceData,
+	createPendingRoute,
 	extractDeepLinkUrlFromArgs,
 	extractDeepLinkUrlFromSingleInstanceData,
 	routeFromArgv,
 	routeFromUrl,
 } from "./main/deepLink";
 import {
-	apiUrl,
 	DESKTOP_ORIGIN,
 	DESKTOP_PORT,
 	healthUrl,
@@ -41,41 +43,73 @@ import {
 	type ForceUpdateGuardController,
 	initForceUpdateGuard,
 } from "./main/forceUpdateGuard";
-import { bindFileLogger, getLogDir, initLogger, logger } from "./main/logger";
-import { cleanupExpiredLogFiles } from "./main/logRetention";
+import {
+	bindFileLogger,
+	flushLogsSync,
+	getLogDir,
+	initLogger,
+	logger,
+} from "./main/logger";
+import { initLogUploader, type LogUploader } from "./main/logUploader";
 import {
 	type ApplicationMenuController,
 	initApplicationMenu,
 	resolveSystemApplicationLocale,
 } from "./main/menu";
 import { runSmoke } from "./main/smoke";
+import { isTrustedNavigation, isTrustedSenderUrl } from "./main/trustedUrl";
 import { waitingHtml } from "./main/waitingPage";
-import { createWindowStateTracker, readWindowState } from "./main/windowState";
+import {
+	createWindowStateTracker,
+	readWindowState,
+	type WindowStateTracker,
+} from "./main/windowState";
 import { createRendererServer, listen } from "./server";
 
 const PRELOAD = path.join(__dirname, "preload.cjs");
 
-// A route handed to the shell before the document is ready would be dropped by the history API,
-// so it is parked until the first load settles.
-const pendingRoutes: string[] = [];
+// Auto-update needs a packaged build: electron-updater refuses to start unpackaged because there is
+// no `app-update.yml` next to the binary. The flag alone is not the whole answer, so boot, the
+// command bus and the capability snapshot all read this one constant instead of re-deriving it.
+const autoUpdateActive = featureFlags.autoUpdate && app.isPackaged;
+
+// A route handed to the shell before the renderer can accept it would be dropped by the history
+// API, so it is parked in a single slot until the renderer reports ready (or the app page loads).
+const pendingRoute = createPendingRoute();
 let mainWindow: BrowserWindow | null = null;
 let menuController: ApplicationMenuController | null = null;
+/** The locale the shell reports to the renderer. Owned here, not by the menu: the menu can be
+ *  switched off by a feature flag and the locale query must still answer. */
+let applicationLocale: Locale = DEFAULT_LOCALE;
 let feedbackController: FeedbackController | null = null;
 let autoUpdaterController: AutoUpdaterController | null = null;
 let forceUpdateGuard: ForceUpdateGuardController | null = null;
+let logUploader: LogUploader | null = null;
 let executeDesktopCommand: ExecuteDesktopCommand | null = null;
+let windowStateTracker: WindowStateTracker | null = null;
 
 const sendRoute = (win: BrowserWindow, route: string): void => {
-	const deliver = (): void => {
-		if (!win.isDestroyed()) {
-			win.webContents.send(PlatformChannels.DesktopRoute, route);
-		}
-	};
-	if (win.webContents.isLoading()) {
-		win.webContents.once("did-finish-load", deliver);
+	if (win.isDestroyed()) {
 		return;
 	}
-	deliver();
+	// Loading the waiting page (`data:`) also settles `did-finish-load`; delivering there would
+	// make the preload call `history.pushState` on a document that has no such origin.
+	if (
+		win.webContents.isLoading() ||
+		!isTrustedNavigation(win.webContents.getURL())
+	) {
+		pendingRoute.set(route);
+		return;
+	}
+	win.webContents.send(PlatformChannels.DesktopRoute, route);
+};
+
+/** Hand over the parked route once the app document (not the waiting page) is in place. */
+const deliverPendingRoute = (win: BrowserWindow): void => {
+	const route = pendingRoute.take();
+	if (route) {
+		sendRoute(win, route);
+	}
 };
 
 const healthy = async (): Promise<boolean> => {
@@ -92,6 +126,7 @@ const healthy = async (): Promise<boolean> => {
 const createWindow = (): BrowserWindow => {
 	const state = readWindowState();
 	const tracker = createWindowStateTracker(state);
+	windowStateTracker = tracker;
 
 	const win = new BrowserWindow({
 		x: state.x,
@@ -131,24 +166,23 @@ const createWindow = (): BrowserWindow => {
 	});
 
 	win.webContents.setWindowOpenHandler(({ url }) => {
-		if (/^https?:\/\//.test(url) && !url.startsWith(DESKTOP_ORIGIN)) {
+		if (/^https?:\/\//.test(url) && !isTrustedNavigation(url)) {
 			shell.openExternal(url).catch(() => undefined);
 		}
 		return { action: "deny" };
 	});
 	win.webContents.on("will-navigate", (event, url) => {
-		if (!url.startsWith(DESKTOP_ORIGIN) && !url.startsWith("data:")) {
+		if (!isTrustedNavigation(url)) {
 			event.preventDefault();
 		}
 	});
 
 	win.webContents.on("did-finish-load", () => {
-		while (pendingRoutes.length) {
-			const route = pendingRoutes.shift();
-			if (route) {
-				sendRoute(win, route);
-			}
+		// The waiting page also settles this event; only the app document may receive a route.
+		if (!isTrustedSenderUrl(win.webContents.getURL())) {
+			return;
 		}
+		deliverPendingRoute(win);
 	});
 
 	return win;
@@ -184,7 +218,7 @@ const openRoute = (route: string | null): void => {
 		sendRoute(mainWindow, route);
 		return;
 	}
-	pendingRoutes.push(route);
+	pendingRoute.set(route);
 };
 
 const dialogError = async (message: string): Promise<void> => {
@@ -206,25 +240,53 @@ function wireCommandBus(): ExecuteDesktopCommand {
 						unsupported: true,
 					}
 			: undefined,
-		exportLogs: featureFlags.exportLogs ? () => exportLogs() : undefined,
-		checkForUpdates: featureFlags.autoUpdate
+		exportLogs: featureFlags.exportLogs
+			? () => {
+					// Captured locally: the module-level binding is cleared on quit, and the closure runs later.
+					const uplink = logUploader;
+					return exportLogs({
+						// The archive is the deliverable; pushing the same records to the backend is what makes
+						// `uploaded` in the result truthful.
+						uploadUplink: uplink ? () => uplink.flush() : undefined,
+					});
+				}
+			: undefined,
+		checkForUpdates: autoUpdateActive
 			? (id) => autoUpdaterController?.checkForUpdates(id)
 			: undefined,
-		downloadUpdate: featureFlags.autoUpdate
+		downloadUpdate: autoUpdateActive
 			? () => autoUpdaterController?.downloadUpdate()
 			: undefined,
-		cancelUpdateDownload: featureFlags.autoUpdate
+		cancelUpdateDownload: autoUpdateActive
 			? () => autoUpdaterController?.cancelDownload()
 			: undefined,
-		quitAndInstallUpdate: featureFlags.autoUpdate
+		quitAndInstallUpdate: autoUpdateActive
 			? () => autoUpdaterController?.quitAndInstall()
 			: undefined,
 		setApplicationLocale: (locale) => menuController?.setLocale(locale),
 	});
 }
 
+/**
+ * IPC trust boundary: every handler must answer only the shell's own renderer frame. For `on`
+ * channels a silent drop is correct; for `handle` the rejection reaches the renderer facade, which
+ * already degrades to `null`.
+ */
+function isTrustedEvent(event: IpcMainEvent | IpcMainInvokeEvent): boolean {
+	return isTrustedSenderUrl(event.senderFrame?.url);
+}
+
+function assertTrustedSender(event: IpcMainInvokeEvent): void {
+	if (!isTrustedEvent(event)) {
+		throw new Error("untrusted sender");
+	}
+}
+
 function wireIpc(): void {
-	ipcMain.on(PlatformChannels.Log, (_event, payload: LogPayload) => {
+	ipcMain.on(PlatformChannels.Log, (event, payload: LogPayload) => {
+		if (!isTrustedEvent(event)) {
+			return;
+		}
 		if (!payload || typeof payload !== "object") {
 			return;
 		}
@@ -238,6 +300,7 @@ function wireIpc(): void {
 	ipcMain.handle(
 		PlatformChannels.ExecuteDesktopCommand,
 		(event, command: unknown, payload: unknown) => {
+			assertTrustedSender(event);
 			const win = BrowserWindow.fromWebContents(event.sender);
 			if (!executeDesktopCommand) {
 				return { ok: false, reason: "command-bus-not-ready" };
@@ -246,37 +309,51 @@ function wireIpc(): void {
 		},
 	);
 
-	ipcMain.handle(
-		PlatformChannels.GetSystemLocale,
-		() => menuController?.getLocale() ?? "en-US",
-	);
+	ipcMain.handle(PlatformChannels.GetSystemLocale, (event) => {
+		assertTrustedSender(event);
+		return applicationLocale;
+	});
 
 	ipcMain.handle(PlatformChannels.GetDesktopZoomLevel, (event) => {
+		assertTrustedSender(event);
 		const win = BrowserWindow.fromWebContents(event.sender);
 		return { zoomLevel: win?.webContents.getZoomLevel() ?? 0 };
 	});
 
 	// Capability snapshot (B1): the renderer queries this once at boot so UI can hide entries for
 	// subsystems that are flagged off, instead of calling a method and inferring "disabled" from a
-	// failure. Mirrors the resolved feature flags; `isDesktop` is always true here (this is the shell).
+	// failure. Every field must describe what the running shell can actually do — `tray` and
+	// `notifications` are contract placeholders that report false until they are implemented.
 	ipcMain.handle(
 		PlatformChannels.GetCapabilities,
-		(): DesktopCapabilities => ({
-			isDesktop: true,
-			feedback: featureFlags.feedback,
-			exportLogs: featureFlags.exportLogs,
-			notifications: featureFlags.notifications,
-			tray: featureFlags.tray,
-			autoUpdate: featureFlags.autoUpdate,
-			crashReporter: featureFlags.crashReporter,
-			forceUpdate: featureFlags.forceUpdate,
-		}),
+		(event): DesktopCapabilities => {
+			assertTrustedSender(event);
+			return {
+				isDesktop: true,
+				feedback: featureFlags.feedback,
+				exportLogs: featureFlags.exportLogs,
+				notifications: false,
+				tray: false,
+				autoUpdate: autoUpdateActive,
+				crashReporter: featureFlags.crashReporter,
+				// Forced updates are detected by the updater's manifest check, so the guard is only
+				// meaningful when auto-update is actually live (packaged build + flag).
+				forceUpdate: featureFlags.forceUpdate && autoUpdateActive,
+				// Mirrors the gate in `boot`: an unpackaged run has no userData contract and no release
+				// feed, so the uplink is not running either.
+				logUpload: featureFlags.logUpload && app.isPackaged,
+			};
+		},
 	);
 
 	ipcMain.on(
 		PlatformChannels.SetApplicationLocale,
-		(_event, locale: unknown) => {
+		(event, locale: unknown) => {
+			if (!isTrustedEvent(event)) {
+				return;
+			}
 			const next = normalizeLocale(locale);
+			applicationLocale = next;
 			menuController?.setLocale(next);
 			for (const win of BrowserWindow.getAllWindows()) {
 				if (!win.isDestroyed()) {
@@ -286,8 +363,14 @@ function wireIpc(): void {
 		},
 	);
 
-	ipcMain.on(PlatformChannels.RendererReady, () => {
-		// Reserved for future telemetry; currently a no-op acknowledgement.
+	ipcMain.on(PlatformChannels.RendererReady, (event) => {
+		if (!isTrustedEvent(event)) {
+			return;
+		}
+		const win = BrowserWindow.fromWebContents(event.sender);
+		if (win) {
+			deliverPendingRoute(win);
+		}
 	});
 }
 
@@ -307,8 +390,15 @@ const boot = async (): Promise<void> => {
 			path.join(app.getPath("userData"), "logs");
 		initLogger({ logDir });
 		bindFileLogger();
-		cleanupExpiredLogFiles(logDir);
+		// `initLogger` already prunes expired files; deleting again here was a duplicate scan.
 		logger.info("[boot] logger initialised at", getLogDir());
+	}
+
+	// Stage 7: log uplink. Started right after the logger so the boot sequence itself is mirrored,
+	// and only in a packaged build: a dev run would spam the production API with HMR noise.
+	if (featureFlags.logUpload && app.isPackaged) {
+		logUploader = initLogUploader();
+		logger.info("[boot] log uplink enabled");
 	}
 
 	// Stage 6: crash reporter (flag-gated, default off).
@@ -341,36 +431,45 @@ const boot = async (): Promise<void> => {
 		return;
 	}
 
-	// Stage 2: command bus + menu.
+	// Stage 2: command bus + menu. The menu is the only owner of accelerators, so switching it off
+	// also removes every keyboard shortcut — that is the flag's documented meaning.
 	executeDesktopCommand = wireCommandBus();
 	wireIpc();
 
-	const initialLocale: Locale = resolveSystemApplicationLocale();
-	menuController = initApplicationMenu({
-		executeDesktopCommand,
-		initialLocale,
-		capabilities: {
-			autoUpdate: featureFlags.autoUpdate,
-			feedback: featureFlags.feedback,
-			exportLogs: featureFlags.exportLogs,
-			devTools: !app.isPackaged,
-		},
-	});
+	applicationLocale = resolveSystemApplicationLocale();
+	if (featureFlags.menu) {
+		menuController = initApplicationMenu({
+			executeDesktopCommand,
+			initialLocale: applicationLocale,
+			capabilities: {
+				autoUpdate: autoUpdateActive,
+				feedback: featureFlags.feedback,
+				exportLogs: featureFlags.exportLogs,
+				devTools: !app.isPackaged,
+			},
+		});
+	}
 
 	// Stage 3: feedback (flag-gated, default on).
 	if (featureFlags.feedback) {
 		feedbackController = initFeedback();
 	}
 
-	// Stage 5: auto-update (flag-gated, default off).
-	if (featureFlags.autoUpdate && app.isPackaged) {
-		autoUpdaterController = initAutoUpdater();
-		autoUpdaterController.startPolling();
+	// Stage 5: force-update guard. Must be installed before the updater: the updater reports "this
+	// release is mandatory" through it. Gated on `autoUpdateActive` as well, because a shell that
+	// cannot check for updates can never learn a release is forced.
+	if (featureFlags.forceUpdate && autoUpdateActive) {
+		forceUpdateGuard = initForceUpdateGuard();
 	}
 
-	// Stage 6: force-update guard (flag-gated, default off).
-	if (featureFlags.forceUpdate) {
-		forceUpdateGuard = initForceUpdateGuard();
+	// Stage 6: auto-update (flag-gated, default off; packaged builds only — in a dev run there is
+	// no app-update.yml and electron-updater refuses to start).
+	if (autoUpdateActive) {
+		autoUpdaterController = initAutoUpdater({
+			onForcedRelease: (payload) => forceUpdateGuard?.announce(payload),
+			onUpdateNotAvailable: () => forceUpdateGuard?.clear(),
+		});
+		autoUpdaterController.startPolling();
 	}
 
 	mainWindow = createWindow();
@@ -414,7 +513,7 @@ if (!app.requestSingleInstanceLock(singleInstanceData)) {
 
 	app.on("web-contents-created", (_event, contents) => {
 		contents.on("will-navigate", (e, url) => {
-			if (!url.startsWith(DESKTOP_ORIGIN) && !url.startsWith("data:")) {
+			if (!isTrustedNavigation(url)) {
 				e.preventDefault();
 			}
 		});
@@ -444,7 +543,16 @@ if (!app.requestSingleInstanceLock(singleInstanceData)) {
 	app.on("before-quit", () => {
 		autoUpdaterController?.stopPolling();
 		autoUpdaterController?.dispose();
-		feedbackController?.dispose();
 		forceUpdateGuard?.dispose();
+		feedbackController?.dispose();
+		// Anything still queued is spooled synchronously, so a quit does not drop the tail of the log.
+		void logUploader?.dispose();
+		logUploader = null;
+		// The frame is only readable while the window exists, and the log tail only survives if it
+		// reaches disk before the process exits.
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			windowStateTracker?.flush(mainWindow);
+		}
+		flushLogsSync();
 	});
 }

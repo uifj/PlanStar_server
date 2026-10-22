@@ -9,6 +9,8 @@
  * Values are stable strings; renaming one is a breaking change for any shortcut override that
  * references it.
  */
+
+import type { CaptureWindowScreenshotResult, ExportLogsResult } from "./types";
 export const DesktopCommandIds = {
 	Reload: "reload",
 	ForceReload: "force-reload",
@@ -51,3 +53,30 @@ export function isDesktopCommandId(value: unknown): value is DesktopCommandId {
 	}
 	return (Object.values(DesktopCommandIds) as string[]).includes(value);
 }
+
+/**
+ * Commands whose reply is a typed payload rather than the generic acknowledgement. Everything not
+ * listed here answers `DesktopCommandAck`, so adding a command keeps working without touching
+ * this map; only the ones that return a real result need an entry.
+ */
+export interface DesktopCommandResults {
+	[DesktopCommandIds.ExportLogs]: ExportLogsResult;
+	[DesktopCommandIds.CaptureScreenshot]: CaptureWindowScreenshotResult;
+}
+
+/** The `{ ok, reason?, zoomLevel? }` envelope every action command answers with. */
+export interface DesktopCommandAck {
+	ok: boolean;
+	reason?: string;
+	zoomLevel?: number;
+}
+
+/**
+ * Reply type per command id. This is what removes the `as Promise<ExportLogsResult>` casts from
+ * the renderer facade: the wire is cast once, at the preload boundary, and every caller afterwards
+ * is typed from the command id alone.
+ */
+export type DesktopCommandResult<K extends DesktopCommandId> =
+	K extends keyof DesktopCommandResults
+		? DesktopCommandResults[K]
+		: DesktopCommandAck;

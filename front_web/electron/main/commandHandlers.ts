@@ -2,9 +2,11 @@ import {
 	type CaptureWindowScreenshotResult,
 	type DesktopCommandId,
 	DesktopCommandIds,
+	type DesktopZoomState,
 	type ExportLogsResult,
 	isDesktopCommandId,
 	type Locale,
+	PlatformChannels,
 } from "@harness/desktop-shared";
 import { app, BrowserWindow, dialog, shell } from "electron";
 import { logger } from "./logger";
@@ -37,9 +39,6 @@ export interface CommandHandlerDeps {
 	quitAndInstallUpdate?: () => Promise<void> | void;
 	/** Called for locale changes so the menu can rebuild itself. */
 	setApplicationLocale?: (locale: Locale) => void;
-	/** Current zoom reader, so ZoomIn/ZoomOut/ResetZoom share state with the menu. */
-	getZoomLevel?: (win: BrowserWindow) => number;
-	setZoomLevel?: (win: BrowserWindow, level: number) => void;
 }
 
 const ZOOM_MIN = -3;
@@ -50,6 +49,20 @@ function clampZoom(level: number): number {
 		return 0;
 	}
 	return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, level));
+}
+
+/**
+ * Apply a zoom level and tell the renderer, so it can recompute layout. Main is the only place
+ * that changes zoom (menu accelerators and renderer commands both land here), which makes this the
+ * single producer for `DesktopZoomLevelChanged` — the renderer's `sidebar.resizePage` subscriber
+ * was previously listening for a push that nothing ever sent.
+ */
+function applyZoom(win: BrowserWindow, next: number): number {
+	const level = clampZoom(next);
+	win.webContents.setZoomLevel(level);
+	const payload: DesktopZoomState = { zoomLevel: level };
+	win.webContents.send(PlatformChannels.DesktopZoomLevelChanged, payload);
+	return level;
 }
 
 export type ExecuteDesktopCommand = (
@@ -95,11 +108,7 @@ export function createExecuteDesktopCommand(
 					if (!win) {
 						return { ok: false, reason: "no-window" };
 					}
-					const current =
-						deps.getZoomLevel?.(win) ?? win.webContents.getZoomLevel();
-					const next = clampZoom(current + 1);
-					deps.setZoomLevel?.(win, next);
-					win.webContents.setZoomLevel(next);
+					const next = applyZoom(win, win.webContents.getZoomLevel() + 1);
 					return { ok: true, zoomLevel: next };
 				}
 
@@ -107,11 +116,7 @@ export function createExecuteDesktopCommand(
 					if (!win) {
 						return { ok: false, reason: "no-window" };
 					}
-					const current =
-						deps.getZoomLevel?.(win) ?? win.webContents.getZoomLevel();
-					const next = clampZoom(current - 1);
-					deps.setZoomLevel?.(win, next);
-					win.webContents.setZoomLevel(next);
+					const next = applyZoom(win, win.webContents.getZoomLevel() - 1);
 					return { ok: true, zoomLevel: next };
 				}
 
@@ -119,9 +124,7 @@ export function createExecuteDesktopCommand(
 					if (!win) {
 						return { ok: false, reason: "no-window" };
 					}
-					deps.setZoomLevel?.(win, 0);
-					win.webContents.setZoomLevel(0);
-					return { ok: true, zoomLevel: 0 };
+					return { ok: true, zoomLevel: applyZoom(win, 0) };
 				}
 
 				case DesktopCommandIds.Minimize:

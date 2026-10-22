@@ -27,7 +27,14 @@ protocols:
     schemes:
       - anytype-harness
 
-publish: null
+# `publish` exists so electron-builder emits `app-update.yml` (inside the app) and
+# `build/latest-mac.yml` (next to the artifact) — the two files electron-updater reads. Nothing is
+# uploaded (`--publish never`), and the URL below is a placeholder: the real feed is resolved at
+# runtime from HARNESS_API_URL (see electron/main/autoUpdater.ts) because the backend is
+# configurable per install.
+publish:
+  provider: generic
+  url: https://example.invalid/api/desktop/releases/feed/
 
 mac:
   category: public.app-category.productivity
@@ -36,6 +43,9 @@ mac:
   target:
     - dir
     - dmg
+    # Squirrel.Mac (what electron-updater installs on macOS) only consumes a `.zip`; without this
+    # target `latest-mac.yml` would point at the dmg and the download would never be installable.
+    - zip
   # Unsigned: electron-builder ad-hoc signs an arm64 bundle, which is what a local install needs.
   identity: null
 

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
 	__test__,
 	createDeepLinkSingleInstanceData,
+	createPendingRoute,
 	extractDeepLinkUrlFromArgs,
 	extractDeepLinkUrlFromSingleInstanceData,
 	routeFromArgv,
@@ -168,5 +169,25 @@ describe("deepLink", () => {
 			const expanded = expandDecodedCandidates(twice);
 			expect(expanded).toContain("anytype-harness://x");
 		});
+	});
+});
+
+describe("pending route", () => {
+	it("keeps only the most recent navigation intent", () => {
+		const pending = createPendingRoute();
+
+		pending.set("/main/space/a");
+		pending.set("/main/space/b");
+
+		expect(pending.take()).toBe("/main/space/b");
+	});
+
+	it("hands the route over exactly once", () => {
+		const pending = createPendingRoute();
+
+		pending.set("/main/space/a");
+
+		expect(pending.take()).toBe("/main/space/a");
+		expect(pending.take()).toBeNull();
 	});
 });

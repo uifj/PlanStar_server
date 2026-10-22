@@ -1,15 +1,16 @@
 import {
-	type AutoUpdatePreferences,
 	type DesktopBridgeApi,
 	type DesktopCapabilities,
+	type DesktopCommandId,
+	type DesktopCommandResult,
 	type DesktopZoomState,
+	type ForceUpdateClearedPayload,
 	type ForceUpdateRequiredPayload,
 	isDesktopCommandId,
 	type Locale,
 	type LogPayload,
 	normalizeLocale,
 	PlatformChannels,
-	type PostUpdateReleaseNotesPayload,
 	type SubmitFeedbackResult,
 	type UpdateCheckResultPayload,
 	type UpdateStatePayload,
@@ -90,17 +91,14 @@ const subscribeUpdateState = createSubscriber<UpdateStatePayload>(
 const subscribeUpdateCheckResult = createSubscriber<UpdateCheckResultPayload>(
 	PlatformChannels.UpdateCheckResult,
 );
-const subscribePostUpdateReleaseNotes =
-	createSubscriber<PostUpdateReleaseNotesPayload>(
-		PlatformChannels.PostUpdateReleaseNotes,
-		{ replayLatest: true },
-	);
 const subscribeOpenFeedback = createSubscriber<void>(
 	PlatformChannels.OpenFeedbackDialog,
 );
+// No replay: the renderer applies the locale at boot from `getSystemLocale()`, and a replayed
+// value would re-trigger a redundant locale switch on every late subscription.
 const subscribeApplicationLocaleChanged = createSubscriber<Locale>(
 	PlatformChannels.ApplicationLocaleChanged,
-	{ replayLatest: true },
+	{ replayLatest: false },
 );
 const subscribeZoomLevelChanged = createSubscriber<DesktopZoomState>(
 	PlatformChannels.DesktopZoomLevelChanged,
@@ -111,6 +109,12 @@ const subscribeForceUpdateRequired =
 		PlatformChannels.ForceUpdateRequired,
 		{ replayLatest: true },
 	);
+// No replay: a cleared event is a one-shot transition. Replaying it on a late mount would close a
+// modal that a *new* forced release had already opened.
+const subscribeForceUpdateCleared = createSubscriber<ForceUpdateClearedPayload>(
+	PlatformChannels.ForceUpdateCleared,
+	{ replayLatest: false },
+);
 
 /**
  * Deep links were already delivered as `desktop:route` before this refactor and the existing
@@ -141,17 +145,22 @@ export const desktopBridge: DesktopBridge = {
 	electronVersion: process.versions.electron,
 	chromeVersion: process.versions.chrome,
 
-	executeCommand(id, payload) {
+	executeCommand<K extends DesktopCommandId>(
+		id: K,
+		payload?: unknown,
+	): Promise<DesktopCommandResult<K>> {
 		if (!isDesktopCommandId(id)) {
 			return Promise.reject(
 				new Error(`Unknown desktop command: ${String(id)}`),
 			);
 		}
+		// The wire answer is `unknown`: main dispatches every command through one handler, so the
+		// per-command shape is only guaranteed by `DesktopCommandResults` on both sides.
 		return ipcRenderer.invoke(
 			PlatformChannels.ExecuteDesktopCommand,
 			id,
 			payload,
-		);
+		) as Promise<DesktopCommandResult<K>>;
 	},
 
 	log(level, args) {
@@ -203,21 +212,15 @@ export const desktopBridge: DesktopBridge = {
 			PlatformChannels.GetUpdateState,
 		) as Promise<UpdateStatePayload>;
 	},
-	getAutoUpdatePreferences() {
-		return ipcRenderer.invoke(
-			PlatformChannels.GetAutoUpdatePreferences,
-		) as Promise<AutoUpdatePreferences>;
-	},
-	setAutoDownloadAndInstallUpdates(enabled) {
-		return ipcRenderer.invoke(
-			PlatformChannels.SetAutoDownloadAndInstallUpdates,
-			Boolean(enabled),
-		) as Promise<void>;
-	},
 	onUpdateStateChanged: subscribeUpdateState,
 	onUpdateCheckResult: subscribeUpdateCheckResult,
-	onPostUpdateReleaseNotes: subscribePostUpdateReleaseNotes,
 	onForceUpdateRequired: subscribeForceUpdateRequired,
+	getForceUpdateState() {
+		return ipcRenderer.invoke(
+			PlatformChannels.GetForceUpdateState,
+		) as Promise<ForceUpdateRequiredPayload | null>;
+	},
+	onForceUpdateCleared: subscribeForceUpdateCleared,
 
 	notifyRendererReady() {
 		ipcRenderer.send(PlatformChannels.RendererReady);

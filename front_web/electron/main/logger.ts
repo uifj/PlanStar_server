@@ -19,7 +19,23 @@ interface LoggerPaths {
 }
 
 let paths: LoggerPaths | null = null;
-let initialized = false;
+
+/**
+ * Batch sink. Every line is queued and flushed on a 250 ms timer (or immediately for warn/error)
+ * so a burst of renderer logs costs one `appendFileSync` instead of one per line — the main
+ * process used to block on a directory check plus a write for every single line.
+ *
+ * Each entry carries the day it belongs to, taken from the record's own timestamp: a batch flushed
+ * just after midnight must not rewrite yesterday's history into today's file.
+ */
+let buffer: { date: string; line: string }[] = [];
+let flushTimer: NodeJS.Timeout | null = null;
+let droppedLines = 0;
+
+const FLUSH_DELAY_MS = 250;
+const MAX_BUFFER_LINES = 500;
+const MAX_LINE_BYTES = 8 * 1024;
+const TRUNCATION_SUFFIX = "…[truncated]";
 
 /**
  * The log directory is decided by the caller (main.ts) because `app.getPath('userData')` is only
@@ -36,7 +52,6 @@ export function initLogger(options: { logDir: string }): void {
 	}
 
 	installBrokenPipeGuards();
-	initialized = true;
 
 	const cleanup = paths
 		? cleanupExpiredLogFiles(paths.dir)
@@ -53,10 +68,6 @@ export function initLogger(options: { logDir: string }): void {
 
 export function getLogDir(): string | null {
 	return paths?.dir ?? null;
-}
-
-export function isLoggerInitialized(): boolean {
-	return initialized;
 }
 
 function installBrokenPipeGuards(): void {
@@ -123,6 +134,129 @@ function stringify(arg: unknown): string {
 	}
 }
 
+/**
+ * A log record as the uploader consumes it. Deliberately the smallest shape that still answers
+ * "what happened, when, and where": the console line's prefix is derived here rather than parsed
+ * back out of the formatted text.
+ */
+export interface LogRecordEvent {
+	time: string;
+	level: LogLevel;
+	source: string;
+	message: string;
+}
+
+type LogRecordListener = (record: LogRecordEvent) => void;
+
+const recordListeners = new Set<LogRecordListener>();
+
+/**
+ * Subscribe to every record the logger writes (or drops, once `initLogger` succeeded). Used by
+ * `logUploader` to mirror the local file to the server without giving the logger a network
+ * dependency. Returns an unsubscribe function.
+ */
+export function onLogRecord(listener: LogRecordListener): () => void {
+	recordListeners.add(listener);
+	return () => {
+		recordListeners.delete(listener);
+	};
+}
+
+/**
+ * Byte-budget truncation that never emits a broken character.
+ *
+ * The old version cut the Buffer at a byte offset and decoded the fragment, which turns a multi-byte
+ * sequence straddling the cut into U+FFFD — a replacement glyph in the middle of a sentence. Decode
+ * first, then drop the trailing replacement character(s) the cut produced.
+ */
+function truncateUtf8(text: string, maxBytes: number): string {
+	if (Buffer.byteLength(text, "utf8") <= maxBytes) {
+		return text;
+	}
+	const sliced = Buffer.from(text, "utf8")
+		.subarray(0, Math.max(0, maxBytes))
+		.toString("utf8");
+	return sliced.replace(/\uFFFD+$/u, "");
+}
+
+function truncateLine(line: string): string {
+	if (Buffer.byteLength(line, "utf8") <= MAX_LINE_BYTES) {
+		return line;
+	}
+	const suffix = `${TRUNCATION_SUFFIX}\n`;
+	const budget = MAX_LINE_BYTES - Buffer.byteLength(suffix, "utf8");
+	return `${truncateUtf8(line, budget)}${suffix}`;
+}
+
+function scheduleFlush(): void {
+	if (flushTimer) {
+		return;
+	}
+	flushTimer = setTimeout(flushLogsSync, FLUSH_DELAY_MS);
+	// Never hold the process open just to write a log line.
+	flushTimer.unref();
+}
+
+/**
+ * Drain the queue to disk synchronously. Called by the flush timer, right after every warn/error
+ * line, and from `before-quit` — a crash or a hard quit must not lose the tail of the log.
+ *
+ * Entries are grouped by the day they were written on, so a flush that lands just after midnight
+ * keeps yesterday's lines in yesterday's file.
+ */
+export function flushLogsSync(): void {
+	if (flushTimer) {
+		clearTimeout(flushTimer);
+		flushTimer = null;
+	}
+	if (buffer.length === 0 && droppedLines === 0) {
+		return;
+	}
+	const pending = buffer;
+	buffer = [];
+	if (!paths) {
+		droppedLines = 0;
+		return;
+	}
+	if (droppedLines > 0) {
+		const now = new Date();
+		pending.unshift({
+			date: formatDate(now),
+			line: `[${formatTimestamp(now)}] [warn] [pid:${process.pid}] [logger] dropped ${droppedLines} lines\n`,
+		});
+		droppedLines = 0;
+	}
+
+	const byDate = new Map<string, string[]>();
+	for (const entry of pending) {
+		const lines = byDate.get(entry.date);
+		if (lines) {
+			lines.push(entry.line);
+		} else {
+			byDate.set(entry.date, [entry.line]);
+		}
+	}
+
+	try {
+		for (const [date, lines] of byDate) {
+			appendFileSync(join(paths.dir, `${date}.log`), lines.join(""));
+		}
+	} catch {
+		// Never throw from a log call. A full disk or a revoked permission degrades to console-only.
+	}
+}
+
+/** Fan a record out to the uploader (and any other subscriber) without letting one throw the write. */
+function emitRecord(record: LogRecordEvent): void {
+	for (const listener of recordListeners) {
+		try {
+			listener(record);
+		} catch {
+			// A subscriber's failure must never affect logging.
+		}
+	}
+}
+
 function write(level: LogLevel, source: string, args: unknown[]): void {
 	const now = new Date();
 	const ts = formatTimestamp(now);
@@ -134,17 +268,34 @@ function write(level: LogLevel, source: string, args: unknown[]): void {
 	// output for postmortems. The console mirror is cheap enough to keep unconditionally.
 	safeConsoleWrite(level, `[${ts}] [pid:${pid}] [${source}]`, ...args);
 
+	if (recordListeners.size > 0) {
+		// The data file is truncated to MAX_LINE_BYTES; the uplink gets the same ceiling so a stray
+		// multi-megabyte stack trace cannot blow the request budget.
+		emitRecord({
+			time: now.toISOString(),
+			level,
+			source,
+			message: truncateUtf8(message, MAX_LINE_BYTES),
+		});
+	}
+
 	if (!paths) {
 		return;
 	}
 
-	const filePath = join(paths.dir, `${formatDate(now)}.log`);
-	try {
-		mkdirSync(paths.dir, { recursive: true });
-		appendFileSync(filePath, line);
-	} catch {
-		// Never throw from a log call. A full disk or a revoked permission degrades to console-only.
+	buffer.push({ date: formatDate(now), line: truncateLine(line) });
+	if (buffer.length > MAX_BUFFER_LINES) {
+		const overflow = buffer.length - MAX_BUFFER_LINES;
+		buffer.splice(0, overflow);
+		droppedLines += overflow;
 	}
+
+	// A crash right after an error must not lose that error: warn/error flush on the spot.
+	if (level === "warn" || level === "error") {
+		flushLogsSync();
+		return;
+	}
+	scheduleFlush();
 }
 
 export interface Logger {

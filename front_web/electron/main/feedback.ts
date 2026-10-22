@@ -8,6 +8,7 @@ import {
 } from "@harness/desktop-shared";
 import { app, BrowserWindow, ipcMain } from "electron";
 import { logger } from "./logger";
+import { isTrustedSenderUrl } from "./trustedUrl";
 
 /**
  * Feedback plumbing: window screenshot + "open the feedback dialog" push + submission sink.
@@ -171,9 +172,15 @@ export function initFeedback(): FeedbackController {
 	};
 
 	const submitHandler = (
-		_event: Electron.IpcMainInvokeEvent,
+		event: Electron.IpcMainInvokeEvent,
 		payload: unknown,
-	) => submitFeedback(payload);
+	) => {
+		// Feedback carries screenshots and device context: answer the shell's renderer only.
+		if (!isTrustedSenderUrl(event.senderFrame?.url)) {
+			throw new Error("untrusted sender");
+		}
+		return submitFeedback(payload);
+	};
 
 	ipcMain.handle(PlatformChannels.SubmitFeedback, submitHandler);
 

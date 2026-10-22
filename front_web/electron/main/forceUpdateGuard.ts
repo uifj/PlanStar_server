@@ -1,9 +1,11 @@
 import {
+	type ForceUpdateClearedPayload,
 	type ForceUpdateRequiredPayload,
 	PlatformChannels,
 } from "@harness/desktop-shared";
 import { BrowserWindow, ipcMain } from "electron";
 import { logger } from "./logger";
+import { isTrustedSenderUrl } from "./trustedUrl";
 
 /**
  * Force-update guard.
@@ -15,62 +17,85 @@ import { logger } from "./logger";
  * `ForceUpdateRequired` and let the renderer show a modal with a single "Restart to Update"
  * button.
  *
- * The guard is deliberately dumb: it does **not** create its own dialog, does not poll, and does
- * not own state beyond "has a forced update been announced". The renderer owns the UI; the shell
- * only owns the signal.
+ * The guard owns the Signal, not the UI. It exposes three things the renderer needs and a
+ * push-only channel cannot provide on its own:
+ *   - `GetForceUpdateState` answers "is a blocking update in effect right now?", so a window that
+ *     was recreated after the broadcast still opens the modal;
+ *   - `ForceUpdateCleared` tells an already-open modal that the server retracted the flag, which
+ *     otherwise leaves the UI blocked forever;
+ *   - `announce` is idempotent per version, so the 15-minute poll cannot stack modals.
+ *
+ * Both handlers are registered here (not in `main.ts`) and removed in `dispose()`, so the guard's
+ * lifetime matches its IPC surface.
  */
 
 export interface ForceUpdateGuardController {
 	/** Called by the auto-updater when a manifest with `is_forced: true` is resolved. */
 	announce(payload: ForceUpdateRequiredPayload): void;
-	/** Clear the forced state (e.g. after the user installs, or the server retracts the flag). */
+	/** Clear the forced state (the server retracted the flag on a later check). */
 	clear(): void;
-	/** Whether a forced update is currently announced. */
-	isForced(): boolean;
+	/** Current state, or `null` when nothing is forced. */
+	getCurrent(): ForceUpdateRequiredPayload | null;
+	/** Remove the IPC handler. Idempotent. */
 	dispose(): void;
 }
 
 export function initForceUpdateGuard(): ForceUpdateGuardController {
 	let current: ForceUpdateRequiredPayload | null = null;
+	let disposed = false;
 
-	const broadcast = (payload: ForceUpdateRequiredPayload | null): void => {
+	const eachWindow = (send: (contents: Electron.WebContents) => void): void => {
 		for (const win of BrowserWindow.getAllWindows()) {
 			if (win.isDestroyed()) {
 				continue;
 			}
-			if (payload) {
-				win.webContents.send(PlatformChannels.ForceUpdateRequired, payload);
-			}
+			send(win.webContents);
 		}
 	};
 
 	const announce = (payload: ForceUpdateRequiredPayload): void => {
 		if (current && current.version === payload.version) {
+			// Same version already announced: the poll re-read the manifest. Re-broadcasting would be
+			// harmless (the popup dedupes by id) but would also re-open a modal the user just read.
 			return;
 		}
 		current = payload;
 		logger.warn("[force-update] required:", payload.version);
-		broadcast(payload);
+		eachWindow((contents) =>
+			contents.send(PlatformChannels.ForceUpdateRequired, payload),
+		);
 	};
 
 	const clear = (): void => {
-		if (!current) {
+		const previous = current;
+		if (!previous) {
 			return;
 		}
-		logger.info("[force-update] cleared for", current.version);
 		current = null;
+		logger.info("[force-update] cleared for", previous.version);
+		const payload: ForceUpdateClearedPayload = { version: previous.version };
+		eachWindow((contents) =>
+			contents.send(PlatformChannels.ForceUpdateCleared, payload),
+		);
 	};
 
-	// The renderer can ask "am I blocked right now?" on mount so a late-loading window does not
-	// miss the announcement.
-	ipcMain.handle(PlatformChannels.ForceUpdateRequired, () => current);
+	ipcMain.handle(PlatformChannels.GetForceUpdateState, (event) => {
+		if (!isTrustedSenderUrl(event.senderFrame?.url)) {
+			throw new Error("untrusted sender");
+		}
+		return current;
+	});
 
 	return {
 		announce,
 		clear,
-		isForced: () => current !== null,
+		getCurrent: () => current,
 		dispose: () => {
-			ipcMain.removeHandler(PlatformChannels.ForceUpdateRequired);
+			if (disposed) {
+				return;
+			}
+			disposed = true;
+			ipcMain.removeHandler(PlatformChannels.GetForceUpdateState);
 		},
 	};
 }

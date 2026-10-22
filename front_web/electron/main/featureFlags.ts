@@ -1,52 +1,51 @@
 /**
  * Feature flags for every optional desktop subsystem.
  *
- * The refactor lands in six stages; each stage's subsystem is guarded by an env var so a single
- * misbehaving module can be turned off in the field without a new build. Defaults match the plan:
- * the low-risk items (logger, menu, deep-link hardening, feedback, export-logs) are on, and the
- * high-risk items (auto-update, crash reporter, force update) are off until they are explicitly
- * enabled per deployment.
+ * Every subsystem defaults to **on**: a released build without updates, crash reporting, forced
+ * updates or log uplink is a build that cannot be operated, and the previous "off until someone
+ * flips an env var" default meant the packaged app shipped without those capabilities at all. The
+ * env vars remain as a field escape hatch — `HARNESS_DESKTOP_ENABLE_AUTO_UPDATE=0` disables one
+ * subsystem without a new build.
+ *
+ * A flag only exists here when something reads it. `tray` / `notifications` are deliberately absent:
+ * the capability contract still advertises both fields, but the shell implements neither, so a flag
+ * would toggle nothing — the capabilities handler reports them as `false` unconditionally.
  *
  * Accepted truthy values: `1`, `true`, `yes`, `on` (case-insensitive). Anything else is falsy —
- * including an empty string — so `HARNESS_DESKTOP_ENABLE_LOGGER=` disables the logger.
+ * including an empty string — so `HARNESS_DESKTOP_ENABLE_LOGGER=` disables the logger. Capabilities
+ * that only make sense in a packaged app are gated separately by `app.isPackaged` at the call site.
  */
 
 type FlagName =
 	| "logger"
 	| "menu"
-	| "deepLinkHardening"
 	| "feedback"
 	| "exportLogs"
-	| "tray"
-	| "notifications"
 	| "autoUpdate"
 	| "crashReporter"
-	| "forceUpdate";
+	| "forceUpdate"
+	| "logUpload";
 
 const ENV_KEYS: Record<FlagName, string> = {
 	logger: "HARNESS_DESKTOP_ENABLE_LOGGER",
 	menu: "HARNESS_DESKTOP_ENABLE_MENU",
-	deepLinkHardening: "HARNESS_DESKTOP_ENABLE_DEEPLINK_HARDENING",
 	feedback: "HARNESS_DESKTOP_ENABLE_FEEDBACK",
 	exportLogs: "HARNESS_DESKTOP_ENABLE_EXPORT_LOGS",
-	tray: "HARNESS_DESKTOP_ENABLE_TRAY",
-	notifications: "HARNESS_DESKTOP_ENABLE_NOTIFICATIONS",
 	autoUpdate: "HARNESS_DESKTOP_ENABLE_AUTO_UPDATE",
 	crashReporter: "HARNESS_DESKTOP_ENABLE_CRASH_REPORTER",
 	forceUpdate: "HARNESS_DESKTOP_ENABLE_FORCE_UPDATE",
+	logUpload: "HARNESS_DESKTOP_ENABLE_LOG_UPLOAD",
 };
 
 const DEFAULTS: Record<FlagName, boolean> = {
 	logger: true,
 	menu: true,
-	deepLinkHardening: true,
 	feedback: true,
 	exportLogs: true,
-	tray: false,
-	notifications: true,
-	autoUpdate: false,
-	crashReporter: false,
-	forceUpdate: false,
+	autoUpdate: true,
+	crashReporter: true,
+	forceUpdate: true,
+	logUpload: true,
 };
 
 const TRUTHY = new Set(["1", "true", "yes", "on"]);
@@ -65,14 +64,12 @@ function readFlag(
 export interface DesktopFeatureFlags {
 	readonly logger: boolean;
 	readonly menu: boolean;
-	readonly deepLinkHardening: boolean;
 	readonly feedback: boolean;
 	readonly exportLogs: boolean;
-	readonly tray: boolean;
-	readonly notifications: boolean;
 	readonly autoUpdate: boolean;
 	readonly crashReporter: boolean;
 	readonly forceUpdate: boolean;
+	readonly logUpload: boolean;
 }
 
 export function resolveFeatureFlags(
@@ -81,14 +78,12 @@ export function resolveFeatureFlags(
 	return Object.freeze({
 		logger: readFlag("logger", env),
 		menu: readFlag("menu", env),
-		deepLinkHardening: readFlag("deepLinkHardening", env),
 		feedback: readFlag("feedback", env),
 		exportLogs: readFlag("exportLogs", env),
-		tray: readFlag("tray", env),
-		notifications: readFlag("notifications", env),
 		autoUpdate: readFlag("autoUpdate", env),
 		crashReporter: readFlag("crashReporter", env),
 		forceUpdate: readFlag("forceUpdate", env),
+		logUpload: readFlag("logUpload", env),
 	});
 }
 

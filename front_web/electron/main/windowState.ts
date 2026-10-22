@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { app, type BrowserWindow } from "electron";
+import { app, type BrowserWindow, screen } from "electron";
 
 import { logger } from "./logger";
 
@@ -31,15 +31,82 @@ export const DEFAULT_WINDOW_STATE: WindowState = {
 
 const STATE_FILE_NAME = "window.json";
 
+const MIN_WIDTH = 800;
+const MIN_HEIGHT = 600;
+/** How much of the saved frame must land on a display before the position is worth restoring. */
+const MIN_VISIBLE_PX = 100;
+
 function stateFile(): string {
 	return join(app.getPath("userData"), STATE_FILE_NAME);
 }
 
+function finiteNumber(value: unknown): number | null {
+	return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function overlapsEnough(
+	rect: { x: number; y: number; width: number; height: number },
+	area: { x: number; y: number; width: number; height: number },
+): boolean {
+	const width =
+		Math.min(rect.x + rect.width, area.x + area.width) -
+		Math.max(rect.x, area.x);
+	const height =
+		Math.min(rect.y + rect.height, area.y + area.height) -
+		Math.max(rect.y, area.y);
+	return width >= MIN_VISIBLE_PX && height >= MIN_VISIBLE_PX;
+}
+
+/**
+ * Coerce whatever is on disk into a frame the window can actually open at.
+ *
+ * `window.json` is user-writable and survives crashes, so nothing in it may be trusted: a `NaN`
+ * size or coordinates from a monitor that is no longer plugged in would otherwise open a window
+ * off-screen with no way back. Only called from `createWindow`, i.e. after `app.whenReady()`, which
+ * is the earliest point `screen` may be used.
+ */
+export function sanitizeWindowState(raw: unknown): WindowState {
+	const input = (
+		typeof raw === "object" && raw !== null ? raw : {}
+	) as Partial<WindowState>;
+	const workArea = screen.getPrimaryDisplay().workArea;
+
+	const rawWidth = finiteNumber(input.width);
+	const rawHeight = finiteNumber(input.height);
+	const width =
+		rawWidth === null || rawWidth < MIN_WIDTH
+			? DEFAULT_WINDOW_STATE.width
+			: Math.min(Math.round(rawWidth), workArea.width);
+	const height =
+		rawHeight === null || rawHeight < MIN_HEIGHT
+			? DEFAULT_WINDOW_STATE.height
+			: Math.min(Math.round(rawHeight), workArea.height);
+
+	const x = finiteNumber(input.x);
+	const y = finiteNumber(input.y);
+	// Dropping x/y lets Electron centre the window instead of restoring it off-screen.
+	const position =
+		x !== null &&
+		y !== null &&
+		screen
+			.getAllDisplays()
+			.some((display) =>
+				overlapsEnough({ x, y, width, height }, display.workArea),
+			)
+			? { x: Math.round(x), y: Math.round(y) }
+			: {};
+
+	return {
+		...position,
+		width,
+		height,
+		maximized: input.maximized === true,
+	};
+}
+
 export function readWindowState(): WindowState {
 	try {
-		const raw = readFileSync(stateFile(), "utf8");
-		const parsed = JSON.parse(raw) as Partial<WindowState>;
-		return { ...DEFAULT_WINDOW_STATE, ...parsed };
+		return sanitizeWindowState(JSON.parse(readFileSync(stateFile(), "utf8")));
 	} catch {
 		return { ...DEFAULT_WINDOW_STATE };
 	}

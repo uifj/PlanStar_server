@@ -6,7 +6,7 @@ import {
 	statSync,
 	writeFileSync,
 } from "node:fs";
-import { join, relative, sep } from "node:path";
+import { join, sep } from "node:path";
 import type { ExportLogsResult } from "@harness/desktop-shared";
 import { app, shell } from "electron";
 import { logger } from "./logger";
@@ -226,6 +226,12 @@ export interface ExportLogsOptions {
 	/** Skip the reveal-in-Finder step (used by tests and CLI callers). */
 	reveal?: boolean;
 	maxLogFiles?: number;
+	/**
+	 * Push the same records to the backend uplink before archiving. Resolves `true` when everything
+	 * reached the server; `false`/rejection leaves `uploaded` unset or false so the UI can say the
+	 * archive is local-only. Absent in web mode and when the uplink flag is off.
+	 */
+	uploadUplink?: () => Promise<boolean>;
 }
 
 export async function exportLogs(
@@ -262,6 +268,18 @@ export async function exportLogs(
 
 		logger.info("[export-logs] wrote", zipPath, `(${zip.byteLength} bytes)`);
 
+		// The archive is complete on disk; the uplink is a bonus, so a failure here must not fail the
+		// export. When no hook is supplied `uploaded` stays absent (older renderers see the old shape).
+		let uploaded: boolean | undefined;
+		if (options.uploadUplink) {
+			try {
+				uploaded = await options.uploadUplink();
+			} catch (error) {
+				logger.warn("[export-logs] log uplink flush failed:", error);
+				uploaded = false;
+			}
+		}
+
 		if (reveal) {
 			try {
 				shell.showItemInFolder(zipPath);
@@ -271,7 +289,11 @@ export async function exportLogs(
 			}
 		}
 
-		return { success: true, path: zipPath };
+		return {
+			success: true,
+			path: zipPath,
+			...(uploaded === undefined ? {} : { uploaded }),
+		};
 	} catch (error) {
 		logger.error("[export-logs] failed:", error);
 		return {
@@ -290,9 +312,3 @@ export const __test__ = {
 	SENSITIVE_KEY_SUBSTRINGS,
 	SENSITIVE_KEY_WHITELIST,
 };
-
-export function describeArchiveLayout(
-	files: readonly CollectedFile[],
-): string[] {
-	return files.map((f) => relative("", f.archivePath));
-}

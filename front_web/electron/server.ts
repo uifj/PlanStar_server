@@ -42,9 +42,17 @@ export function createRendererServer(root: string): http.Server {
 			return;
 		}
 
-		const requestPath = decodeURIComponent(
-			(req.url || "/").split("?")[0].split("#")[0],
-		);
+		// `decodeURIComponent` throws on malformed escapes (e.g. `/%E0%A4%A`). An uncaught throw
+		// here escapes the request handler and takes the main process down with it.
+		let requestPath: string;
+		try {
+			requestPath = decodeURIComponent(
+				(req.url || "/").split("?")[0].split("#")[0],
+			);
+		} catch {
+			res.writeHead(400).end("Bad request");
+			return;
+		}
 		const relative =
 			requestPath === "/" ? "index.html" : requestPath.replace(/^\/+/, "");
 		const candidate = path.resolve(root, relative);
@@ -67,6 +75,20 @@ export function createRendererServer(root: string): http.Server {
 					// The renderer is same-site with the API but cross-origin, so it needs its own
 					// isolation header; the app never frames itself.
 					"X-Content-Type-Options": "nosniff",
+					"X-Frame-Options": "DENY",
+					// Enforcing, minimal: these three directives cannot break a Vite bundle (no plugin
+					// injection, no frames, no base rewriting), so a violation here is always a bug
+					// worth blocking. Browsers intersect every `Content-Security-Policy` header with the
+					// Report-Only one below, so the rest of the policy is advisory until it is proven.
+					"Content-Security-Policy":
+						"object-src 'none'; base-uri 'none'; frame-ancestors 'none';",
+					// Report-Only on purpose: the renderer can be pointed at another API with
+					// `?server=`, so `connect-src` must stay open. Do not promote the whole policy to
+					// enforcing without solving that first.
+					"Content-Security-Policy-Report-Only":
+						"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; " +
+						"img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; " +
+						"worker-src 'self' blob:; connect-src *;",
 				});
 				res.end(req.method === "HEAD" ? undefined : body);
 			});
