@@ -120,6 +120,12 @@ jobs:
       - name: Desktop mock parity
         run: pnpm check:desktop-parity
 
+      # The other half of the bridge contract: every declared channel has an owner on the
+      # main-process side (invoke → ipcMain.handle, send → ipcMain.on, push → producer or
+      # subscriber). A missing one rejects at runtime with nothing failing the build.
+      - name: Desktop IPC contract
+        run: pnpm check:desktop-contract
+
       - name: Typecheck
         run: pnpm typecheck
 
@@ -131,3 +137,144 @@ jobs:
 
       - name: Build (electron main + preload)
         run: pnpm build:electron
+
+  # ── front_web (macOS package + updater metadata) ─────────────────────────────
+  # Guards the three easy-to-revert points behind auto-update: the `publish` block that
+  # makes electron-builder write `latest-mac.yml`, the `zip` target Squirrel.Mac needs,
+  # and the metadata file itself. Losing any of them degrades updates to "check works,
+  # download does not" — invisible to the unit tests above.
+  desktop-package:
+    name: front_web · macOS package + updater metadata
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: front_web
+    # No ELECTRON_SKIP_BINARY_DOWNLOAD here: packaging needs the Electron binary itself.
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: front_web/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build renderer + shell
+        run: pnpm build:desktop
+
+      - name: Package (arm64, unsigned, no upload)
+        run: npx electron-builder --mac zip --arm64 --publish never
+
+      - name: Assert updater metadata matches the archive
+        run: pnpm verify:desktop-feed
+
+  # ── desktop bridge contract ──────────────────────────────────────────────────
+  # Deliberately a separate job rather than steps inside `frontend`: a broken channel
+  # map must fail a check named after the contract, not be one line inside a six-minute
+  # job that is already red for unrelated reasons. Cheap on its own because the pnpm
+  # store is restored from the lockfile hash.
+  desktop-contract:
+    name: front_web · desktop bridge contract
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front_web
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: front_web/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared contract package
+        run: pnpm build:shared
+
+      # Bridge methods: renderer facade ↔ web mock (check-desktop-parity).
+      - name: Renderer ↔ web mock parity
+        run: pnpm check:desktop-parity
+
+      # Channels: declared ↔ owned by main (check-desktop-contract).
+      - name: Channel ownership
+        run: pnpm check:desktop-contract
+
+  # ── feed metadata contract ──────────────────────────────────────────────────
+  # Separate from `desktop-contract` on purpose: this job needs no dependencies at all
+  # (the verifier only imports node builtins), so it finishes in seconds and a red run
+  # points straight at the release metadata instead of at the bridge.
+  desktop-feed-contract:
+    name: front_web · desktop feed metadata contract
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front_web
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      # The feed verifier itself: proves it rejects a bad sha512, a missing
+      # artifact, a version mismatch and an empty directory, not just that it prints OK.
+      - name: Feed metadata verifier self-test
+        run: node scripts/desktop-feed-contract.mjs
+
+  # ── container build ──────────────────────────────────────────────────────────
+  # The images are the deployment. A Dockerfile that only builds on the author's
+  # machine is discovered at 3am on the release host, so both are built here and the
+  # compose file is validated with its real env file shape.
+  container-build:
+    name: deploy · container images + compose config
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Build API image (runtime)
+        run: docker build -f Dockerfile --target runner -t harness-api:ci .
+
+      - name: Build API image (migration target)
+        run: docker build -f Dockerfile --target builder -t harness-api:ci-migrate .
+
+      - name: Build web image
+        run: docker build -f front_web/Dockerfile -t harness-web:ci front_web
+
+      - name: Compose config is valid with the production env shape
+        run: |
+          cd deploy/podman
+          cp .env.production.example .env.production
+          docker compose -f compose.yaml config >/dev/null
+          docker compose -f compose.yaml -f compose.local.yaml config >/dev/null
+          echo "compose config OK"
+
+      - name: Entrypoint and scripts parse as POSIX sh
+        run: |
+          for f in deploy/docker/entrypoint.sh deploy/podman/scripts/*.sh; do
+            sh -n "$f" || exit 1
+          done
+          echo "shell syntax OK"
