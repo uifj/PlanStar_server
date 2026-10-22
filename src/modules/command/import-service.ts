@@ -128,7 +128,7 @@ const ENTITIES: Record<string, string> = {
 function decodeEntities(text: string) {
 	return text.replace(
 		/&([a-z0-9#]+);/gi,
-		(entity, key: string) => ENTITIES[key.toLowerCase()] ?? " ",
+		(_entity, key: string) => ENTITIES[key.toLowerCase()] ?? " ",
 	);
 }
 

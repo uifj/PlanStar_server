@@ -51,7 +51,7 @@ describe("CORS middleware", () => {
 
 	it("trusts exactly the origin the desktop shell binds to", () => {
 		const shell = readFileSync(
-			new URL("../../../front_web/electron/desktop.ts", import.meta.url),
+			new URL("../../../front_web/electron/main/desktop.ts", import.meta.url),
 			"utf8",
 		);
 		const port = /HARNESS_DESKTOP_PORT \|\| (\d+)/.exec(shell)?.[1];

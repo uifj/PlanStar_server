@@ -122,7 +122,7 @@ export async function changeOwnership(
 	const target = await prisma.spaceMember.findUnique({
 		where: { spaceId_userId: { spaceId, userId: newOwnerUserId } },
 	});
-	if (!target || target.status !== "active") {
+	if (target?.status !== "active") {
 		return false;
 	}
 
@@ -162,7 +162,7 @@ export async function approveRequest(
 		where: { spaceId_userId: { spaceId, userId } },
 		select: { status: true },
 	});
-	if (!member || member.status !== "joining") {
+	if (member?.status !== "joining") {
 		return false;
 	}
 
@@ -194,7 +194,7 @@ export async function declineRequest(
 		where: { spaceId_userId: { spaceId, userId } },
 		select: { status: true },
 	});
-	if (!member || member.status !== "joining") {
+	if (member?.status !== "joining") {
 		return false;
 	}
 

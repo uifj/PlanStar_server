@@ -329,7 +329,9 @@ imageUrl(id) { return [this.gateway, 'image', id].join('/') + '?width=100'; } }
 		expect(await runClientInventory([], io)).toBe(0);
 		expect(committed).toBe(generated);
 		expect(await runClientInventory(["--check"], io)).toBe(0);
-		committed = committed!.replace('"pending"', '"complete"');
+		if (committed === undefined)
+			throw new Error("expected a committed manifest");
+		committed = committed.replace('"pending"', '"complete"');
 		expect(await runClientInventory(["--check"], io)).toBe(1);
 		committed = generated;
 		// Even a change outside the recognized capability syntax invalidates the snapshot.

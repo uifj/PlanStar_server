@@ -158,8 +158,9 @@ describe.skipIf(!databaseAvailable)("ObjectImport of staged files", () => {
 
 		// y-prosemirror binds block nodes as XmlElement children of the "default" fragment,
 		// so a body of bare XmlText nodes is what the collab editor cannot render.
+		if (!state) throw new Error("import did not create a document state");
 		const doc = new Y.Doc();
-		Y.applyUpdate(doc, new Uint8Array(state!.state));
+		Y.applyUpdate(doc, new Uint8Array(state.state));
 		const blocks = doc
 			.getXmlFragment("default")
 			.toArray()

@@ -46,7 +46,6 @@ describe.skipIf(!databaseAvailable)("POST /api/command/Pubsub*", () => {
 		});
 	});
 
-	let spaceId = "";
 	const closes: Array<() => void> = [];
 
 	afterEach(async () => {
@@ -67,7 +66,6 @@ describe.skipIf(!databaseAvailable)("POST /api/command/Pubsub*", () => {
 		await prisma.spaceMember.create({
 			data: { spaceId: id as string, userId: readerId, permission: "reader" },
 		});
-		spaceId = id as string;
 		return id as string;
 	};
 

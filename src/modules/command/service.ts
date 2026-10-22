@@ -1465,8 +1465,8 @@ export async function run(
 
 			const changes = Array.isArray(body.changes)
 				? body.changes
-						.filter((it: any): it is Record<string, any> => !!it)
-						.map((it: any) => ({
+						.filter((it): it is Record<string, unknown> => !!it)
+						.map((it) => ({
 							identity: typeof it.identity === "string" ? it.identity : "",
 							perms: typeof it.perms === "number" ? it.perms : 0,
 						}))

@@ -81,7 +81,7 @@ describe.skipIf(!databaseAvailable)(
 			const byKey = Object.fromEntries(
 				body.records.map((record: any) => [record.relationKey, record]),
 			);
-			const roof = byKey["roofMaterial"];
+			const roof = byKey.roofMaterial;
 			expect(roof).toBeDefined();
 			expect(roof.name).toBe("Roof");
 			expect(roof.spaceId).toBe(spaceId);
@@ -90,7 +90,7 @@ describe.skipIf(!databaseAvailable)(
 			expect(roof.resolvedLayout).toBe(5);
 			// RelationType.ShortText === 1, Checkbox === 6.
 			expect(roof.relationFormat).toBe(1);
-			expect(byKey["tripDone"].relationFormat).toBe(6);
+			expect(byKey.tripDone.relationFormat).toBe(6);
 			expect(roof.isReadonly).toBe(false);
 			expect(roof.isArchived).toBe(false);
 			expect(roof.isDeleted).toBe(false);
@@ -156,7 +156,7 @@ describe.skipIf(!databaseAvailable)(
 			const byName = Object.fromEntries(
 				body.records.map((record: any) => [record.name, record]),
 			);
-			const available = byName["Available"];
+			const available = byName.Available;
 			expect(available).toBeDefined();
 			expect(available.spaceId).toBe(spaceId);
 			expect(available.relationKey).toBe("status");
@@ -167,7 +167,7 @@ describe.skipIf(!databaseAvailable)(
 			expect(available.layout).toBe(13);
 			expect(available.isArchived).toBe(false);
 			expect(available.isDeleted).toBe(false);
-			expect(byName["Sold"].relationOptionColor).toBe("grey");
+			expect(byName.Sold.relationOptionColor).toBe("grey");
 		});
 	},
 );

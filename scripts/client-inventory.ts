@@ -432,7 +432,7 @@ export function extractClientInventory(sources: readonly InventorySource[]) {
 					owner === "S.Common" &&
 					["fileUrl", "imageUrl"].includes(method ?? "")
 				)
-					record("media-use", method!, ref(node), "http/media-gateway");
+					record("media-use", method ?? "", ref(node), "http/media-gateway");
 				if (source.file === NATIVE && owner === "handlers" && method === "set")
 					namedCall("native-handler", node, 0, "web-native-shim");
 				if (owner === "Renderer") {
@@ -608,7 +608,7 @@ export function extractClientInventory(sources: readonly InventorySource[]) {
 				.flatMap((c) =>
 					c.references
 						.filter((r) => r.wrapper && r.wrapper !== c.name)
-						.map((r) => ({ wrapper: r.wrapper!, request: c.name })),
+						.map((r) => ({ wrapper: r.wrapper ?? "", request: c.name })),
 				),
 			nameComparisons: comparisons.map(([dispatch, declaration]) => ({
 				dispatch,
