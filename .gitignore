@@ -52,5 +52,7 @@ test.db
 
 .dev.vars
 
-/front_web/_archive_src/
+# front_web is now an independent repository (git@github.com:uifj/PlanStar_frontend.git);
+# it is no longer tracked from this repo.
+/front_web/
 .qoder/

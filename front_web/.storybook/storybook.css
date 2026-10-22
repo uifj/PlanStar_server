@@ -1,5 +1,0 @@
-/* The app shell owns the viewport; inside Storybook the document has to scroll instead. */
-html body {
-	overflow: auto;
-	height: auto;
-}
