@@ -1,5 +1,5 @@
 import React, { forwardRef, useRef, useEffect, useState, useCallback, useMemo } from 'react';
-import NumberFlow, { NumberFlowGroup } from '@number-flow/react';
+import NumberFlow, { NumberFlowGroup, type Format } from '@number-flow/react';
 import { DragHorizontal, Icon } from 'Component';
 
 interface Props {
@@ -10,8 +10,8 @@ interface Props {
 
 const SPEEDS = [ 1, 2, 4 ];
 const DATE_THROTTLE = 300;
-const PAD2: Intl.NumberFormatOptions = { minimumIntegerDigits: 2 };
-const YEAR_FORMAT: Intl.NumberFormatOptions = { useGrouping: false };
+const PAD2: Format = { minimumIntegerDigits: 2 };
+const YEAR_FORMAT: Format = { useGrouping: false };
 
 const GraphTimeline = forwardRef<{}, Props>(({
 	id = '',

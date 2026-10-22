@@ -27,7 +27,6 @@ const args = {
 	onKeyDown: () => {},
 	storageGet: () => ({}),
 	storageSet: () => {},
-	getItems: () => [],
 } as any;
 
 const Seeded = (props: any) => {

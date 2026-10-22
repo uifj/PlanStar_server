@@ -4,8 +4,6 @@ import BodyCell from './cell';
 import * as I from 'Interface';
 import * as M from 'Model';
 
-const noop = () => {};
-
 const meta: Meta<typeof BodyCell> = {
 	title: 'Block/Dataview/View/Grid/Body/Cell',
 	component: BodyCell,
@@ -19,8 +17,9 @@ export const Default: Story = {
 	args: {
 		rootId: 'root',
 		block: new M.Block({ id: 'cell-block', type: I.BlockType.Dataview, childrenIds: [], content: {} }),
+		relationKey: 'name',
 		readonly: false,
+		width: 240,
 		getView: () => new M.View({ id: 'view-1', type: I.ViewType.Grid } as I.View),
-		loadData: noop,
 	},
 };

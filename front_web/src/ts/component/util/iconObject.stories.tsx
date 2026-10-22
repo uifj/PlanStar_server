@@ -22,7 +22,10 @@ const BORDER_RADIUS: Record<number, number> = {
 };
 
 const ICON_BG_COLORS = Theme.icon.bg;
-const ICON_COLOR_LIST = Theme.icon.list;
+// `Theme.icon.list` is a plain `string[]`, so it cannot index `icon.bg` (which has no index signature).
+// Narrowing the list to the bg keys keeps the gallery in the theme's own colour order and type-safe.
+type IconColorName = keyof typeof ICON_BG_COLORS;
+const ICON_COLOR_LIST = Theme.icon.list as IconColorName[];
 
 interface ObjectVariant {
 	label: string;
@@ -237,7 +240,7 @@ const IconObjectGallery = () => {
 
 			<h2 className="iconObjectGalleryMainTitle">Icon Color Options</h2>
 			<div className="iconObjectGalleryColorSection">
-				{ICON_COLOR_LIST.map((colorName: string, index: number) => {
+				{ICON_COLOR_LIST.map((colorName, index) => {
 					const option = index + 1;
 					const bgColor = ICON_BG_COLORS[colorName];
 					return (

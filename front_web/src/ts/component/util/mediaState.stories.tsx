@@ -12,26 +12,24 @@ type Story = StoryObj<typeof meta>;
 
 export const Deleted: Story = {
 	args: {
-		isDeleted: true,
-		isArchived: false,
+		object: { id: 'media-deleted', isDeleted: true, isArchived: false, name: 'photo.jpg' },
+		rootId: 'root-1',
 		typeName: 'Image',
-		fileName: 'photo.jpg',
 	},
 };
 
 export const Archived: Story = {
 	args: {
-		isDeleted: false,
-		isArchived: true,
+		object: { id: 'media-archived', isDeleted: false, isArchived: true, name: 'document.pdf' },
+		rootId: 'root-1',
 		typeName: 'File',
-		fileName: 'document.pdf',
 	},
 };
 
 export const Neither: Story = {
 	args: {
-		isDeleted: false,
-		isArchived: false,
+		object: { id: 'media-neither', isDeleted: false, isArchived: false, name: 'Page' },
+		rootId: 'root-1',
 		typeName: 'Page',
 	},
 };

@@ -1,6 +1,8 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import InputWithFile from './inputWithFile';
+import * as I from 'Interface';
+import * as M from 'Model';
 
 const meta: Meta<typeof InputWithFile> = {
 	title: 'Form/InputWithFile',
@@ -20,7 +22,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
 	args: {
-		block: { id: 'storybook-block' },
+		block: new M.Block({ id: 'storybook-block', type: I.BlockType.File, content: {} }),
 	},
 };
 
@@ -28,13 +30,13 @@ export const WithFile: Story = {
 	args: {
 		withFile: true,
 		textFile: 'Upload a file',
-		block: { id: 'storybook-block-file' },
+		block: new M.Block({ id: 'storybook-block-file', type: I.BlockType.File, content: {} }),
 	},
 };
 
 export const Readonly: Story = {
 	args: {
 		readonly: true,
-		block: { id: 'storybook-block-readonly' },
+		block: new M.Block({ id: 'storybook-block-readonly', type: I.BlockType.File, content: {} }),
 	},
 };

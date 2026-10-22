@@ -28,6 +28,5 @@ export const Default: Story = {
 		onKeyDown: () => {},
 		storageGet: () => ({}),
 		storageSet: () => {},
-		getItems: () => [],
 	},
 };

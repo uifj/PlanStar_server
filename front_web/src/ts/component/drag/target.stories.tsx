@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import DropTarget from './target';
+import * as I from 'Interface';
 
 const meta: Meta<typeof DropTarget> = {
 	title: 'Drag/Target',
@@ -16,7 +17,7 @@ export const Default: Story = {
 		id: 'target-1',
 		rootId: 'root-1',
 		cacheKey: 'cache-1',
-		dropType: 0,
+		dropType: I.DropType.None,
 		children: <div style={{ padding: 16, background: '#f0f0f0' }}>Drop target content</div>,
 	},
 };

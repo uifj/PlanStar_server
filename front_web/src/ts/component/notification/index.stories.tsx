@@ -57,8 +57,10 @@ export const Import: Story = {
 	args: {
 		item: {
 			id: 'notif-1',
-			type: 'import',
-			status: 'completed',
+			type: I.NotificationType.Import,
+			status: I.NotificationStatus.Shown,
+			createTime: 0,
+			isLocal: true,
 			title: 'Import Complete',
 			text: 'Successfully imported 12 objects from Notion',
 			payload: { importType: 0, spaceId: '', errorCode: 0 },
@@ -72,8 +74,10 @@ export const Gallery: Story = {
 	args: {
 		item: {
 			id: 'notif-2',
-			type: 'gallery',
-			status: 'completed',
+			type: I.NotificationType.Gallery,
+			status: I.NotificationStatus.Shown,
+			createTime: 0,
+			isLocal: true,
 			title: 'Experience Installed',
 			text: 'CRM template has been added to your space',
 			payload: { spaceId: '', name: 'CRM' },

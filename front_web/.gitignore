@@ -16,6 +16,9 @@ dist-web
 /electron-dist
 /build
 
+# Storybook static build (pnpm storybook:build)
+storybook-static
+
 # Built workspace-package artifacts (tsc -b packages/desktop-shared) — generated, never tracked
 packages/*/dist/
 packages/*/*.tsbuildinfo

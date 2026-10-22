@@ -11,6 +11,10 @@ declare const __IS_EXTENSION__: string;
 
 declare module "selection-ranges";
 
+// `katex` has no `.d.ts` for this side-effect-only entry and its `exports` map does not expose the
+// subpath, so `moduleResolution: "Bundler"` needs the module declared explicitly.
+declare module "katex/dist/contrib/mhchem";
+
 // @tailwindcss/vite ships only dist/index.d.mts, which the renderer's `moduleResolution: "Node"`
 // cannot read. vite.web.config.ts is pulled into this program by webBuildDefines.test.ts, so the
 // import needs a shape to resolve against. Mirrors the package's declared signature.

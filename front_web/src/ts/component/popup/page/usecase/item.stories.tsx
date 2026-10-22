@@ -18,7 +18,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
 	args: {
 		...popupProps('usecaseItem-default'),
-		getAuthor: () => ({}),
+		getAuthor: () => '',
 		onAuthor: () => {},
 		onPage: () => {},
 	},

@@ -18,6 +18,7 @@ export const Default: Story = {
 		filter: {
 			id: 'filter-1',
 			relationKey: 'name',
+			relation: { relationKey: 'name', name: 'Name', format: I.RelationType.ShortText },
 			operator: I.FilterOperator.And,
 			condition: I.FilterCondition.Equal,
 			quickOption: I.FilterQuickOption.ExactDate,

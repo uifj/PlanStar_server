@@ -8,7 +8,7 @@
 		"target": "es2017",
 		"jsx": "react",
 		"resolveJsonModule": true,
-		"moduleResolution": "Node",
+		"moduleResolution": "Bundler",
 		"experimentalDecorators": false,
 		"allowSyntheticDefaultImports": true,
 		"preserveConstEnums": true,
@@ -41,11 +41,18 @@
 			"Hook/*": ["ts/hook/*"],
 			"Hook": ["ts/hook"],
 			"dist/*": ["../dist/*"],
-			"Proto/*": ["../middleware/*"]
+			"Proto/*": ["../middleware/*"],
+			"SbHelpers/*": ["../.storybook/helpers/*"],
+			"SbHelpers": ["../.storybook/helpers"]
 		}
 	},
-	"include": ["src/**/*", "src/ts/auto-imports.d.ts"],
-	"exclude": ["node_modules/**/*", "dist/**/*", "src/**/*.stories.tsx"],
+	"include": [
+		"src/**/*",
+		".storybook/**/*.ts",
+		".storybook/**/*.tsx",
+		"src/ts/auto-imports.d.ts"
+	],
+	"exclude": ["node_modules/**/*", "dist/**/*"],
 	// C4: fixes the dependency direction — the renderer depends on the shared contract project, and
 	// that project references nothing, so the contract can never import back into the renderer.
 	"references": [{ "path": "./packages/desktop-shared" }]
