@@ -129,3 +129,19 @@ Run these before considering a change complete:
 pnpm typecheck
 pnpm check
 ```
+
+## Production Deployment
+
+This directory builds two artifacts: the web bundle served by Caddy, and the Electron desktop shell.
+Both are deployed from the repository root, not from here:
+
+- [../docs/deploy/README.md](../docs/deploy/README.md) — the single-host runbook (secrets,
+  `.env.production`, first start, migrations, release rehearsal, backups, upgrade and rollback, and
+  a 26-line go-live checklist).
+- [../docs/deploy/troubleshooting.md](../docs/deploy/troubleshooting.md) — failure modes with a
+  discriminator for each, including the front-end ones (build OOM, Caddy cannot bind :80).
+- [../docs/desktop/release.md](../docs/desktop/release.md) — publishing a desktop release and the
+  limits of an unsigned build.
+
+The images are `../Dockerfile` (API) and `Dockerfile` (web), orchestrated by `../deploy/podman/`.
+To rehearse the whole stack on localhost without a domain or a certificate, see §16 of the runbook.

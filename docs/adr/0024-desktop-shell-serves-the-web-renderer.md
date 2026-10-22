@@ -59,10 +59,14 @@ target adds a shell and nothing else.
   frame, and a repeatable desktop self-check — with zero changes to `src/ts`, so both targets keep
   passing the same 1405 client tests.
 * Accepted: the desktop app inherits the web target's limits (file dialogs and the tab API stay mocked,
-  no tray, no auto-update), and it fails loudly if :8321 is taken rather than falling back to another
+  no tray, no notifications), and it fails loudly if :8321 is taken rather than falling back to another
   port — because a fallback port would not be a trusted origin.
 * Accepted: `TRUSTED_ORIGINS` now names a second local origin. It is a fixed loopback port, not a
   pattern, and it is the shell's own; the `?server=` override still governs which *API* the client dials.
+* Amended: the "no auto-update" limit no longer holds. [0025](0025-desktop-auto-update-via-electron-updater.md)
+  adds `electron-updater` over a generic feed that forwards electron-builder's `latest-mac.yml`, still
+  with `identity: null`, so an update can be downloaded and verified but not installed. The other
+  clauses above — loopback origin, mock contract, unsigned local packaging — stay in force.
 * Rejected alternatives, with the reason each fails: `file://` (no session cookie); a custom
   `scheme://` handler (cross-site for cookies, so the same failure); shipping the server inside the app
   (Prisma/Postgres deployment problem, not a client one); replacing the mock with the upstream IPC

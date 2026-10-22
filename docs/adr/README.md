@@ -31,7 +31,10 @@ of implementation.** New migration records state pending/staged implementation e
 | [0021](0021-keep-rest-api-mark-superseded.md) | Keep the pre-pivot REST API mounted, mark the operations the shim superseded deprecated | accepted; implemented |
 | [0022](0022-type-recommended-layout.md) | Inherit a type's recommended layout at create, reset it on demand | accepted; implemented (layout half only) |
 | [0023](0023-no-body-block-drag.md) | No block drag-and-drop in the document body; the shell owns dragging | accepted; implemented |
-| [0024](0024-desktop-shell-serves-the-web-renderer.md) | One renderer, two targets: the Electron shell serves `dist-web` over a fixed loopback origin so the session cookie stays same-site | accepted; implemented (macOS `.app` + `.dmg` built, installed, self-checked) |
+| [0024](0024-desktop-shell-serves-the-web-renderer.md) | One renderer, two targets: the Electron shell serves `dist-web` over a fixed loopback origin so the session cookie stays same-site | accepted; implemented (macOS `.app` + `.dmg` built, installed, self-checked); auto-update clause amended-by-0025 |
+| [0025](0025-desktop-auto-update-via-electron-updater.md) | Desktop auto-update reads electron-builder's `latest-mac.yml` through `electron-updater`; `/releases/manifest` keeps only `is_forced` and release notes | accepted; implemented (unsigned build verifiable to `update-downloaded`) |
+| [0026](0026-cloud-cookie-policy.md) | Session cookies are `SameSite=None; Secure` when `APP_URL` is https, so the loopback-origin desktop renderer can authenticate against a cloud API | accepted; implemented (unit + integration tests on the emitted `Set-Cookie`) |
+| [0027](0027-desktop-log-uplink.md) | Desktop logs upload anonymously into per-device day files with a 4 MiB request cap and a 50 MiB/day budget; reading them needs an operator bearer token; 14-day retention | accepted; implemented (module + uploader + retention sweep, exercised by cloud-smoke) |
 
 ## Current migration status, 2026-10-16
 

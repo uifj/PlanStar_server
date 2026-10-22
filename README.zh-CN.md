@@ -151,6 +151,31 @@ http://localhost:3000
 
 前端的质量检查是在 `front_web` 目录下执行 `pnpm typecheck` 与 `pnpm check`。
 
+## 生产部署
+
+仓库自带一套单机生产栈（Caddy + API + Postgres）与一份要求**从上到下逐条执行**的运行手册：
+
+- **[docs/deploy/README.md](docs/deploy/README.md)** — 前置条件、密钥生成、`.env.production`、首次启动、
+  迁移、创建管理员、发版演练、备份/恢复、升级/回滚、日志检索，以及 26 条上线检查清单。
+- **[docs/deploy/troubleshooting.md](docs/deploy/troubleshooting.md)** — 17 类故障的判别树，每一类都给出
+  可与“看起来一样”的故障区分开的判别步骤（401 循环、更新 400、安装被拒、collab、容器不健康、
+  磁盘满、迁移、停机超时、compose provider 缺失、TLS、`/data` 权限、镜像拉取失败、
+  `ERR_MODULE_NOT_FOUND`、构建 OOM、Prisma `enums.ts`、Caddy 端口绑定权限、部署脚本 compose
+  文件集漂移）。
+- `deploy/podman/` — 单机用的 `compose.yaml`、Linux 原生 systemd 用的 `quadlet/`，以及
+  `scripts/` 下的备份 / 恢复 / 升级 / 发布 / 冒烟脚本。
+
+常用命令：
+
+```bash
+deploy/podman/scripts/backup.sh     # 数据库 + /data（排除 desktop/logs）
+deploy/podman/scripts/upgrade.sh    # 备份 → 构建 → 迁移 → 滚动 → 健康门禁 → 回滚
+deploy/podman/scripts/smoke.sh      # 经由公网入口的 5 项检查
+```
+
+部署依赖的两个架构决策：[ADR-0026](docs/adr/0026-cloud-cookie-policy.md)（跨站会话 Cookie）与
+[ADR-0027](docs/adr/0027-desktop-log-uplink.md)（桌面日志上行）。
+
 ## API 文档
 
 服务运行时可访问：

@@ -156,6 +156,34 @@ http://localhost:3000
 
 Frontend checks are `pnpm typecheck` and `pnpm check`, run from `front_web`.
 
+## Production deployment
+
+The repository ships a single-host production stack (Caddy + API + Postgres) and a runbook that is
+meant to be executed top to bottom on a fresh machine:
+
+- **[docs/deploy/README.md](docs/deploy/README.md)** — prerequisites, secret generation,
+  `.env.production`, first start, migrations, first admin, release rehearsal, backups, upgrade and
+  rollback, log retrieval, and a 26-line go-live checklist.
+- **[docs/deploy/troubleshooting.md](docs/deploy/troubleshooting.md)** — seventeen failure modes,
+  each with a discriminator that separates it from its look-alikes (401 loops, update 400s, install
+  refused, collab, unhealthy containers, disk, migrations, slow shutdown, missing compose provider,
+  TLS, `/data` permissions, registry pull failures, `ERR_MODULE_NOT_FOUND`, build OOM, Prisma
+  `enums.ts`, Caddy bind permission, and compose-file drift in the deploy scripts).
+- `deploy/podman/` — `compose.yaml` for a single host, `quadlet/` for a systemd-native Linux
+  install, `scripts/` for backup / restore / upgrade / release staging / smoke.
+
+Quick shape of it:
+
+```bash
+deploy/podman/scripts/backup.sh     # database + /data (desktop/logs excluded)
+deploy/podman/scripts/upgrade.sh    # backup → build → migrate → roll → health gate → rollback
+deploy/podman/scripts/smoke.sh      # 5 checks through the public entrypoint
+```
+
+Architecture decisions that the deployment depends on:
+[ADR-0026](docs/adr/0026-cloud-cookie-policy.md) (cross-site session cookies) and
+[ADR-0027](docs/adr/0027-desktop-log-uplink.md) (desktop log uplink).
+
 ## API Documentation
 
 When the server is running:
