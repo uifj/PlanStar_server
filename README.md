@@ -1,78 +1,72 @@
-# Planstar API
+# PlanStar API
 
 > 中文文档：[README.zh-CN.md](./README.zh-CN.md)
 
-Planstar API is the backend for the Planstar (企划星) application. It provides
-authentication, role-based access, data object management, space management,
-pagination, and OpenAPI documentation for the React frontend.
+PlanStar API is the backend for **PlanStar (企划星)** — a self-hosted knowledge
+workspace. It provides authentication and cookie-backed sessions, a
+workspace/content model (spaces, objects, blocks, data views, relations,
+object types), a command bus the client shell drives, publishing and realtime
+events, file handling, desktop release and log services, and a Genkit agent —
+with an OpenAPI/Scalar surface generated from the typed routes for the React
+frontend.
 
-The React frontend lives in this repository under
-[`front_web/`](./front_web).
+The React client is a **separate repository**,
+[`uifj/PlanStar_frontend`](https://github.com/uifj/PlanStar_frontend) (web +
+Electron desktop shell). This repository ignores `front_web/`, so a clone of the
+API does not carry the client; check it out alongside the API as `front_web/`
+when you want to run both.
+
+A bundled **vanlife sample domain** (vans, bookings, reviews, host dashboard,
+and the trip-planner agent) ships alongside the workspace modules as a worked
+example of the same Hono + Prisma + Better Auth stack; see
+[Vanlife sample domain](#vanlife-sample-domain).
 
 ## Tech Stack
 
 | Area | Tools |
 | --- | --- |
-| Runtime | Node.js |
-| API | Hono |
+| Runtime | Node.js ≥ 24, pnpm ≥ 11 |
+| API | Hono (`@hono/zod-openapi`) |
 | Language | TypeScript |
 | Database | PostgreSQL |
 | ORM | Prisma |
 | Auth | Better Auth |
 | Validation | Zod |
+| Realtime | Server-sent events (`/api/events`) + Yjs over WebSocket (`/collab`) |
 | Agent | Genkit (DeepSeek or Google GenAI provider) |
 | API docs | OpenAPI, Scalar |
-| Quality | Biome, TypeScript |
+| Quality | Biome, TypeScript, Vitest |
 
-## Features
+## Capabilities
 
-- Email/password authentication with Better Auth.
-- Cookie-backed sessions.
-- Renter and host roles.
-- Host-only route protection.
-- Public van listing and van detail endpoints.
-- Search, filter, sort, and pagination support for vans.
-- Booking request creation.
-- Renter booking history.
-- Host booking status management.
-- Host van CRUD.
-- Host dashboard, income, and review summaries.
-- Review creation for completed bookings.
-- Zod request validation.
-- OpenAPI documentation.
-- Trip planner agent built on Genkit, answering through van search,
-  availability, and upcoming-trip tools.
-- The agent is reachable over both a REST endpoint and Genkit's own protocol.
-- Agent conversations persisted per user in PostgreSQL.
+Grouped by the routers mounted in [`src/routes/index.ts`](src/routes/index.ts):
 
-## Seed Accounts
-
-```text
-Host:          host@vanlife.test / password123
-Second host:   host.two@vanlife.test / password123
-Renter:        renter@vanlife.test / password123
-Second renter: renter.two@vanlife.test / password123
-```
-
-Seeded data includes:
-
-- multiple hosts and renters for ownership scenarios
-- public camper van listings across `simple`, `rugged`, and `luxury` types
-- van-focused listing images from Pexels
-- pending booking requests
-- confirmed bookings
-- completed bookings
-- cancelled bookings
-- an overlapping pending booking for conflict testing
-- a completed booking with a review
-- a completed booking available for review
-- an archived van visible to host-side flows
-- host vans, income, dashboard, and review data
-
-Pexels photos are used under the Pexels license. See:
-[Pexels license information](https://help.pexels.com/hc/en-us/articles/360042295174-What-is-the-license-of-the-photos-and-videos-on-Pexels)
+- **Auth & sessions** — email/password sign-in and sign-up through Better Auth,
+  cookie-backed sessions, current-user lookup (`/api/me`), password change,
+  role-protected routes.
+- **Workspaces & content** — spaces, objects, blocks, data views, relations and
+  object types: the knowledge-base model the client renders.
+- **Command bus** — `POST /api/command/{name}` is the RPC surface the web and
+  Electron shells drive for account/space lifecycle (e.g. `AccountStop` also
+  revokes the Better Auth session at the transport boundary).
+- **Publishing & realtime** — public sharing (`/api/publish/{uri}`), a
+  server-sent subscribe channel (`/api/events`), and Yjs document
+  collaboration from the client editor over Hocuspocus on the same HTTP
+  server (`/collab`, WebSocket upgrade with the Better Auth session cookie).
+- **Files & exports** — root-level upload (`POST /api/web-upload`), download
+  (`/api/file/{id}`, `/api/image/{id}`) and object-list export archives
+  (`/api/export/{name}`).
+- **Desktop services** (`/api/desktop`) — release manifest / download / feed for
+  auto-update, feedback and crash-report intake, and an anonymous log uplink
+  (`POST /api/desktop/logs`) with per-device quota and 14-day retention
+  ([ADR-0027](docs/adr/0027-desktop-log-uplink.md)).
+- **Agent** — a Genkit `tripPlanner` agent over REST and Genkit's own protocol,
+  with conversations persisted per user.
+- **System** — `/api/health` and `/api/ready` probes.
 
 ## Getting Started
+
+Requirements: Node.js ≥ 24 and pnpm ≥ 11 (`engines` in `package.json`).
 
 Install dependencies:
 
@@ -93,16 +87,22 @@ NODE_ENV=development
 PORT=8000
 LOG_LEVEL=debug
 APP_URL=http://localhost:8000
-CLIENT_URL=http://localhost:3000
+CLIENT_URL=http://localhost:3030
 DATABASE_URL=postgresql://...
 BETTER_AUTH_SECRET=...
 
-# Optional: provider for the trip planner agent. The API starts without a key
+# Optional: provider for the agent. The API starts without a key
 # and the agent answers 503 until one is configured.
 AGENT_MODEL=deepseek/deepseek-chat
 DEEPSEEK_API_KEY=...
 GEMINI_API_KEY=...
 ```
+
+These are the keys needed to boot. The full schema — `HOST`, the file-store
+roots (`FILE_STORAGE_ROOT`, `FILE_UPLOAD_STAGING_ROOT`, `EXPORT_ROOT`), the
+desktop release/log settings (`DESKTOP_ORIGIN`, `DESKTOP_RELEASE_*`,
+`DESKTOP_LOG_*`) and the agent model — is validated in
+[`src/config/env.ts`](src/config/env.ts); every default is listed there.
 
 Prepare the database:
 
@@ -118,28 +118,29 @@ Start the API:
 pnpm dev
 ```
 
-The API runs at:
-
-```text
-http://localhost:8000
-```
+The API runs at `http://localhost:8000`.
 
 ## Frontend (`front_web`)
 
-`front_web` is a separate pnpm project and is not a member of the root pnpm
-workspace, so installing from the repository root leaves it untouched:
+The client is its own repository and its own pnpm project; it is not a member of
+the root workspace, and this repository ignores `front_web/`. Check it out next
+to the API:
 
 ```bash
+git clone git@github.com:uifj/PlanStar_frontend.git front_web
 cd front_web
 pnpm install --ignore-workspace
 ```
 
-Create `front_web/.env`. The client reads `VITE_API_BASE_URL` only and ships no
-default:
+Create `front_web/.env` and point it at the API:
 
 ```text
 VITE_API_BASE_URL=http://localhost:8000/api
 ```
+
+At boot the client resolves its base in this order: the `?server=` URL parameter,
+the address stored by a previous boot, `VITE_API_BASE_URL`, then the page's own
+origin plus `/api`. An origin-only value gains the `/api` suffix.
 
 Start the Vite server:
 
@@ -147,100 +148,80 @@ Start the Vite server:
 pnpm dev
 ```
 
-The app runs at:
-
-```text
-http://localhost:3000
-```
-
-Frontend checks are `pnpm typecheck` and `pnpm check`, run from `front_web`.
-
-## Production deployment
-
-The repository ships a single-host production stack (Caddy + API + Postgres) and a runbook that is
-meant to be executed top to bottom on a fresh machine:
-
-- **[docs/deploy/README.md](docs/deploy/README.md)** — prerequisites, secret generation,
-  `.env.production`, first start, migrations, first admin, release rehearsal, backups, upgrade and
-  rollback, log retrieval, and a 26-line go-live checklist.
-- **[docs/deploy/troubleshooting.md](docs/deploy/troubleshooting.md)** — seventeen failure modes,
-  each with a discriminator that separates it from its look-alikes (401 loops, update 400s, install
-  refused, collab, unhealthy containers, disk, migrations, slow shutdown, missing compose provider,
-  TLS, `/data` permissions, registry pull failures, `ERR_MODULE_NOT_FOUND`, build OOM, Prisma
-  `enums.ts`, Caddy bind permission, and compose-file drift in the deploy scripts).
-- `deploy/podman/` — `compose.yaml` for a single host, `quadlet/` for a systemd-native Linux
-  install, `scripts/` for backup / restore / upgrade / release staging / smoke.
-
-Quick shape of it:
-
-```bash
-deploy/podman/scripts/backup.sh     # database + /data (desktop/logs excluded)
-deploy/podman/scripts/upgrade.sh    # backup → build → migrate → roll → health gate → rollback
-deploy/podman/scripts/smoke.sh      # 5 checks through the public entrypoint
-```
-
-Architecture decisions that the deployment depends on:
-[ADR-0026](docs/adr/0026-cloud-cookie-policy.md) (cross-site session cookies) and
-[ADR-0027](docs/adr/0027-desktop-log-uplink.md) (desktop log uplink).
+The app runs at `http://localhost:3030`. Frontend checks are `pnpm typecheck`
+and `pnpm check`, run from `front_web`. See
+[`front_web/README.md`](https://github.com/uifj/PlanStar_frontend) for the
+client's own docs.
 
 ## API Documentation
 
-When the server is running:
+With the server running in development (`NODE_ENV=development`):
 
 | Resource | URL |
 | --- | --- |
 | Scalar UI | `http://localhost:8000/api/docs` |
 | OpenAPI JSON | `http://localhost:8000/api/openapi.json` |
+| Health / readiness | `http://localhost:8000/api/health`, `/api/ready` |
 | Current user | `http://localhost:8000/api/me` |
 
-## Main Endpoints
+Scalar and the OpenAPI document are mounted only when `NODE_ENV` is
+`development`; production deployments do not expose them.
 
-Public:
+## API Surface
 
-- `GET /api/vans`
-- `GET /api/vans/:id`
+Every route below is mounted under the `/api` prefix. The authoritative list of
+operations and schemas is the generated OpenAPI document at `/api/openapi.json`.
 
-Auth:
+| Mount | Module | Responsibility |
+| --- | --- | --- |
+| `/`, `/health`, `/ready` | system | info and probes |
+| `/auth/*`, `/register/host`, `/me` | auth, me | Better Auth sessions, host sign-up, current user |
+| `/spaces` | spaces | space list/create |
+| `/spaces/{spaceId}/participants[/{participantId}]` | spaces | membership |
+| `/spaces/{spaceId}/objects` | objects | space-scoped object list/create |
+| `/objects/{objectId}` | objects | object read/update/delete |
+| `/objects/{objectId}/backlinks` | objects | backlinks |
+| `/spaces/{spaceId}/relations`, `/object-types` | relations, object-types | schema registry |
+| `/spaces/{spaceId}/dataviews[/{dataviewId}][/records]` | dataviews | views and records |
+| `/objects/{objectId}/blocks` | blocks | block list/create |
+| `/blocks/{blockId}` | blocks | block update/delete |
+| `/command/{name}` | command | RPC bus for the client shells |
+| `/publish/{uri}` | publish | public sharing |
+| `/events` | pubsub | server-sent subscribe channel |
+| `/web-upload`, `/file/{id}`, `/image/{id}`, `/export/{name}` | files | uploads, downloads, exports |
+| `/desktop/{feedback,crash-report,releases/*,logs*}` | desktop, desktop-logs | releases, intake, log uplink |
+| `/agent/trip-planner/messages`, `/ai/tripPlanner` | agent | agent over REST + Genkit protocol |
+| `/vans`, `/bookings`, `/reviews`, `/host/*` | vanlife sample | see below |
 
-- `POST /api/auth/sign-in/email`
-- `POST /api/auth/sign-up/email`
-- `POST /api/auth/sign-out`
-- `POST /api/auth/change-password`
-- `POST /api/register/host`
-- `GET /api/me`
+Outside the `/api` prefix, the same HTTP server answers a WebSocket upgrade on
+`/collab` (Hocuspocus + Yjs) for live document collaboration.
 
-Renter:
+## Vanlife sample domain
 
-- `POST /api/bookings`
-- `GET /api/bookings`
-- `POST /api/bookings/:id/cancel`
-- `POST /api/reviews`
+A self-contained example built on the same stack, seeded with demo data:
 
-Host:
+- Public van listing and detail with search, filter, sort, pagination.
+- Renter booking requests, history, cancellation; one review per completed booking.
+- Host dashboard, income, reviews, bookings, and van CRUD/archive.
+- Host/renter roles and host-only route protection.
+- The `tripPlanner` Genkit agent (see below).
 
-- `GET /api/host/dashboard`
-- `GET /api/host/income`
-- `GET /api/host/reviews`
-- `GET /api/host/bookings`
-- `PATCH /api/host/bookings/:id/status`
-- `GET /api/host/vans`
-- `GET /api/host/vans/:id`
-- `POST /api/host/vans`
-- `PATCH /api/host/vans/:id`
-- `DELETE /api/host/vans/:id`
+### Seed accounts
 
-Agent (any signed-in user):
+```text
+Host:          host@vanlife.test / password123
+Second host:   host.two@vanlife.test / password123
+Renter:        renter@vanlife.test / password123
+Second renter: renter.two@vanlife.test / password123
+```
 
-- `POST /api/agent/trip-planner/messages`
-- `/api/ai/tripPlanner` (all methods, Genkit protocol)
+Seeded data includes multiple hosts and renters, camper van listings across
+`simple`, `rugged`, and `luxury` types (images from Pexels under the
+[Pexels license](https://help.pexels.com/hc/en-us/articles/360042295174-What-is-the-license-of-the-photos-and-videos-on-Pexels)),
+and bookings in every lifecycle state (pending / confirmed / completed /
+cancelled, an overlap for conflict testing, and a reviewable completed booking).
 
-## Booking Lifecycle
-
-New renter bookings start as `pending`.
-
-Renters may cancel their own `pending` or `confirmed` bookings.
-
-Host-controlled status flow:
+Booking status flow (host-controlled):
 
 ```text
 pending -> confirmed -> completed
@@ -248,12 +229,10 @@ pending -> cancelled
 confirmed -> cancelled
 ```
 
-Only completed bookings can be reviewed. Each booking can have one review.
-
 ## Trip Planner Agent
 
 `src/modules/agent` defines a Genkit agent named `tripPlanner` that plans van
-trips for the signed-in traveller. It answers from tool output rather than
+trips for the signed-in traveller, answering from tool output rather than
 invention:
 
 | Tool | Purpose |
@@ -271,40 +250,68 @@ Two transports are mounted for the same agent:
   `remoteAgent` client and the Genkit Dev UI use.
 
 Conversations persist as `AgentChat` and `AgentSnapshot` rows, and a `chatId`
-can only be continued by the user who started it.
-
-The provider plugin is chosen from the `AGENT_MODEL` prefix
-(`deepseek/deepseek-chat`, `deepseek/deepseek-reasoner`, or `googleai/<model>`)
-and only the matching plugin is loaded — registering a second provider makes
-agents resolve to that provider's default model instead. Without a key the API
-still starts and a turn returns `503`.
-
-To open the Genkit Dev UI against this server:
+can only be continued by the user who started it. The provider plugin is chosen
+from the `AGENT_MODEL` prefix (`deepseek/...` or `googleai/<model>`) and only the
+matching plugin is loaded; without a key the API still starts and a turn returns
+`503`. To open the Genkit Dev UI against this server:
 
 ```bash
 pnpm exec genkit start -- pnpm dev
 ```
 
+## Production deployment
+
+The repository ships a single-host production stack (Caddy + API + Postgres) and
+a runbook meant to be executed top to bottom on a fresh machine:
+
+- **[docs/deploy/README.md](docs/deploy/README.md)** — prerequisites, secret
+  generation, `.env.production`, first start, migrations, first admin, release
+  rehearsal, backups, upgrade and rollback, log retrieval, and a go-live checklist.
+- **[docs/deploy/troubleshooting.md](docs/deploy/troubleshooting.md)** — failure
+  modes, each with a discriminator that separates it from its look-alikes.
+- `deploy/podman/` — `compose.yaml` for a single host, `quadlet/` for a
+  systemd-native Linux install, `scripts/` for backup / restore / upgrade /
+  release staging / smoke.
+
+```bash
+deploy/podman/scripts/backup.sh     # database + /data (desktop/logs excluded)
+deploy/podman/scripts/upgrade.sh    # backup → build → migrate → roll → health gate → rollback
+deploy/podman/scripts/smoke.sh      # 5 checks through the public entrypoint
+```
+
+Deployment depends on
+[ADR-0026](docs/adr/0026-cloud-cookie-policy.md) (cross-site session cookies) and
+[ADR-0027](docs/adr/0027-desktop-log-uplink.md) (desktop log uplink).
+
 ## Project Structure
 
 ```text
 src/
-  auth/          Roles and auth helpers
-  config/        Environment config and constants
+  auth/          Roles, current-user and protected-router helpers
+  config/        Environment config (Zod) and constants
   errors/        App and HTTP error classes
-  generated/     Generated Prisma client
   lib/           Auth, Genkit, logger, Prisma, and Prisma error helpers
   middleware/    CORS, session, auth, logger, request id, error handling
   modules/
-    agent/       Trip planner agent, tools, chat store, and both transports
+    agent/       Trip-planner Genkit agent, tools, chat store, both transports
     auth/        Auth routes and schemas
-    bookings/    Booking routes, service, repository, filters
-    host/        Host dashboard, vans, bookings, income, reviews
-    me/          Current-user route
-    reviews/     Review creation
+    blocks/      Block operations
+    collab/      Hocuspocus/Yjs collaboration (WebSocket upgrade at /collab)
+    command/     Command bus (RPC surface for the client shells)
+    dataviews/   Data view operations
+    desktop/     Release manifest/download/feed, feedback, crash reports
+    desktop-logs/ Anonymous log uplink, quota, retention
+    files/       Uploads, downloads, export archives
+    objects/     Object CRUD and space-scoped queries
+    object-types/ Object type registry
+    publish/     Public sharing
+    pubsub/      Realtime subscribe channel (/api/events)
+    relations/   Relation operations
+    spaces/      Workspace/space management
     system/      Health/readiness endpoints
-    vans/        Public van browsing
-  openapi/       OpenAPI config, schemas, requests, responses
+    vanlife/     Shared vanlife domain
+    vans/ bookings/ reviews/ host/   Vanlife sample domain
+  openapi/       OpenAPI config, schemas, requests, responses, Scalar
   pagination/    Pagination and sorting helpers
   response/      Response payload helpers
   routes/        Mounts every module router, including the agent transports
