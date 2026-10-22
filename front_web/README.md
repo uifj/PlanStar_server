@@ -1,8 +1,6 @@
-# VanLife
+# Planstar
 
-VanLife is a camper van marketplace app built with React. Visitors can browse vans, renters can request trips, and hosts can manage bookings, reviews, income, and their van inventory.
-
-The app uses API-backed data, role-aware navigation, and a module-driven frontend structure while keeping the code approachable and easy to follow.
+Planstar（企划星）是基于 Anytype 渲染器构建的自托管知识工作台。应用支持 Web 浏览器运行，也支持 Electron 桌面安装，后端使用自托管的 Planstar API 服务。
 
 ## Screenshots
 

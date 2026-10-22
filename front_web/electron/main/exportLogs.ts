@@ -262,7 +262,7 @@ export async function exportLogs(
 		mkdirSync(exportDir, { recursive: true });
 		const zipPath = join(
 			exportDir,
-			`anytype-harness-logs-${formatArchiveTimestamp(now)}.zip`,
+			`planstar-logs-${formatArchiveTimestamp(now)}.zip`,
 		);
 		writeFileSync(zipPath, zip);
 

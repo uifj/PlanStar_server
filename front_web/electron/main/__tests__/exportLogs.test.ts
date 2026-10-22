@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // runtime. The mock is deliberately minimal: only the fields the function reads.
 vi.mock("electron", () => ({
 	app: {
-		name: "Anytype Harness",
+		name: "Planstar",
 		getVersion: () => "0.0.0-test",
 		isPackaged: false,
 		getLocale: () => "en-US",

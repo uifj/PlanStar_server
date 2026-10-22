@@ -1,9 +1,9 @@
-# VanLife API
+# Planstar API
 
 > 本文档另有英文版本：[README.md](./README.md)
 
-VanLife API 是 VanLife 应用的后端服务。它为 React 前端提供认证、基于角色的访问
-控制、房车浏览、预订请求、房东管理、评价、分页以及 OpenAPI 文档。
+Planstar API（企划星）是 Planstar 应用的后端服务。它为 React 前端提供认证、基于角色的访问
+控制、数据对象管理、空间管理、分页以及 OpenAPI 文档。
 
 React 前端位于本仓库的 [`front_web/`](./front_web) 目录中。
 

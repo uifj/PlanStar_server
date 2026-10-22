@@ -1,11 +1,10 @@
-# VanLife API
+# Planstar API
 
 > 中文文档：[README.zh-CN.md](./README.zh-CN.md)
 
-VanLife API is the backend for the VanLife application. It provides
-authentication, role-based access, van browsing, booking requests, host
-management, reviews, pagination, and OpenAPI documentation for the React
-frontend.
+Planstar API is the backend for the Planstar (企划星) application. It provides
+authentication, role-based access, data object management, space management,
+pagination, and OpenAPI documentation for the React frontend.
 
 The React frontend lives in this repository under
 [`front_web/`](./front_web).

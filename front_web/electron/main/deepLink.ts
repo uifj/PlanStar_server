@@ -7,14 +7,14 @@ import { logger } from "./logger";
  * Two problems ZCode's `desktopDeepLinkUrl.ts` solves that our previous 14-line inline version
  * did not:
  *   1. Linux/xdg and some browser download dialogs hand us a **double URL-encoded** string
- *      (`anytype-harness%253A%252F%252F...`). One round of `decodeURIComponent` is not enough.
+ *      (`planstar%253A%252F%252F...`). One round of `decodeURIComponent` is not enough.
  *   2. Some argv parsers split the query off into a neighbouring argument
- *      (`['anytype-harness://main/edit/abc', '?spaceId=x']`). Concatenating a bounded window of
+ *      (`['planstar://main/edit/abc', '?spaceId=x']`). Concatenating a bounded window of
  *      adjacent args recovers the whole URL.
  *
  * The route whitelist (`/main/*`, `/auth/*`, `/`) is preserved: a link that decodes to anything
  * else is dropped rather than forwarded. That whitelist is the only thing standing between a
- * stray `anytype-harness://evil` and the renderer's router.
+ * stray `planstar://evil` and the renderer's router.
  */
 
 const DEEP_LINK_RE = new RegExp(
@@ -122,7 +122,7 @@ function isCompleteDeepLinkUrl(value: string): boolean {
 
 /**
  * Scan argv for a deep link, trying every candidate + every decode round. Returns the **longest**
- * candidate that produces a routable URL, so a split argv (`['anytype-harness://main/edit/abc',
+ * candidate that produces a routable URL, so a split argv (`['planstar://main/edit/abc',
  * '?spaceId=x']`) recovers the full URL with query string rather than stopping at the first
  * routable fragment. Falls back to the first regex-matching string when nothing is routable.
  */
@@ -156,8 +156,8 @@ export function extractDeepLinkUrlFromArgs(
  * Convert a parsed deep-link URL into an in-app route.
  *
  * Layout mirrors the pre-refactor `main.ts::routeFromUrl`:
- *   `anytype-harness://main/edit/<id>/spaceId/<space>` → `/main/edit/<id>/spaceId/<space>`
- *   `anytype-harness:///main/edit/<id>`                → `/main/edit/<id>`
+ *   `planstar://main/edit/<id>/spaceId/<space>` → `/main/edit/<id>/spaceId/<space>`
+ *   `planstar:///main/edit/<id>`                → `/main/edit/<id>`
  *
  * The whitelist is enforced here: a URL that decodes to `/evil/...` returns null.
  */

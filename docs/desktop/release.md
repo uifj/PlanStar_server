@@ -21,7 +21,7 @@ electron-builder 生成两个更新元数据文件：
 | --- | --- | --- |
 | `latest-mac.yml` | `front_web/build/` | 服务端 `/releases/feed/latest-mac.yml` 原样转发给 electron-updater |
 | `*.zip`（arm64） | `front_web/build/` | electron-updater 下载并由 Squirrel.Mac 安装 |
-| `app-update.yml` | `Anytype Harness.app/Contents/Resources/` | 打包时的 feed 记录；运行时被 `setFeedURL` 覆盖，仅作诊断用 |
+| `app-update.yml` | `Planstar.app/Contents/Resources/` | 打包时的 feed 记录；运行时被 `setFeedURL` 覆盖，仅作诊断用 |
 
 `dmg` 仍然产出，但更新链路不使用它：Squirrel.Mac 只吃 `.zip`。
 
@@ -56,7 +56,7 @@ cp front_web/build/latest-mac.yml \
 $DESKTOP_DATA_ROOT/
 └── releases/
     ├── latest-mac.yml
-    └── Anytype Harness-0.59.0-arm64-mac.zip
+    └── Planstar-0.59.0-arm64-mac.zip
 ```
 
 服务端有两条互不相干的出手点：

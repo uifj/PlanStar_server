@@ -638,11 +638,11 @@ Expected — measured on a fresh volume (every line below is literal output, inc
 ==> verifying release metadata in /Users/uifj/Workspace/ActiveProjects/agent_harness_server/front_web/build
 ✓ desktop feed OK (1 metadata file(s), 1 artifact check(s), version 0.57.4)
 ==> reading release metadata
-==> staging 0.57.4 (Anytype Harness-0.57.4-arm64-mac.zip) into the appdata volume
+==> staging 0.57.4 (Planstar-0.57.4-arm64-mac.zip) into the appdata volume
 ==> updating /Users/uifj/Workspace/ActiveProjects/agent_harness_server/deploy/podman/.env.local
 ==> restarting api to pick up the new manifest
 staged release 0.57.4
-  path:      Anytype Harness-0.57.4-arm64-mac.zip
+  path:      Planstar-0.57.4-arm64-mac.zip
   forced:    false
   feed:      http://localhost:8080/api/desktop/releases/feed/latest-mac.yml
 
@@ -650,7 +650,7 @@ smoke: http://localhost:8080
 PASS  GET / → 200 (SPA shell present)
 PASS  GET /api/ready → 200
 PASS  GET /api/desktop/releases/feed/latest-mac.yml → 200
-PASS  GET feed/Anytype Harness-0.57.4-arm64-mac.zip → 200
+PASS  GET feed/Planstar-0.57.4-arm64-mac.zip → 200
 PASS  GET /collab (upgrade) → 101
 all checks passed
 

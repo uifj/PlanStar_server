@@ -1110,8 +1110,8 @@ const App: FC = () => {
 		if (desktop.isShell()) {
 			document.documentElement.setAttribute("data-harness-desktop", "");
 			// The served document is the web build (`dist/index.web.html`), whose <title> still says
-			// "Anytype Web". The shell is not the web app, so it re-titles its own window.
-			document.title = "Anytype Harness";
+			// "Planstar Web". The shell is not the web app, so it re-titles its own window.
+			document.title = "Planstar";
 		}
 	}, []);
 

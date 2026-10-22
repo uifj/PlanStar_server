@@ -1,6 +1,6 @@
 # Architecture
 
-VanLife API follows a **module-driven architecture** with a clear separation of concerns. The goal is to keep features isolated while sharing common infrastructure across the application.
+Planstar API follows a **module-driven architecture** with a clear separation of concerns. The goal is to keep features isolated while sharing common infrastructure across the application.
 
 ## Design Principles
 
@@ -208,7 +208,7 @@ Benefits include:
 
 # Shared Conventions
 
-VanLife API follows several conventions:
+Planstar API follows several conventions:
 
 * Business logic belongs in services.
 * Database access belongs in repositories.

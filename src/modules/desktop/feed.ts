@@ -10,7 +10,7 @@ import { resolveReleaseArtifactPath } from "./service.js";
  * The updater resolves downloads with `new URL(fileInfo.url, feedUrl)`, and electron-builder writes
  * a *bare file name* into `latest-mac.yml`:
  *
- *   path: Anytype Harness-0.57.4-arm64-mac.zip
+ *   path: Planstar-0.57.4-arm64-mac.zip
  *
  * so the archive request lands on this same feed route as the yml. Serving only `*.yml` here is
  * therefore guaranteed to 400 every real update. The route is split by extension: builder metadata

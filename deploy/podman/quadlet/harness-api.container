@@ -16,7 +16,7 @@ Requires=harness-network.service harness-postgres.service harness-migrate.servic
 After=harness-network.service harness-postgres.service harness-migrate.service
 
 [Container]
-Image=localhost/harness-api:latest
+Image=localhost/planstar-api:latest
 ContainerName=harness-api
 Network=harness.network
 EnvironmentFile=/etc/harness/harness.env

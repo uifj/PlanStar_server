@@ -19,9 +19,9 @@ const port = Number(process.env.HARNESS_DESKTOP_PORT || 8321);
 export const DESKTOP_ORIGIN = `http://${host}:${port}`;
 export const DESKTOP_PORT = port;
 
-// Deep links arrive as anytype-harness://<route>, e.g.
-// anytype-harness://main/edit/<rootId>/spaceId/<spaceId>
-export const PROTOCOL_SCHEME = "anytype-harness";
+// Deep links arrive as planstar://<route>, e.g.
+// planstar://main/edit/<rootId>/spaceId/<spaceId>
+export const PROTOCOL_SCHEME = "planstar";
 
 // Where the shell looks for the self-hosted server before it opens the app.
 export const apiUrl = (): string =>

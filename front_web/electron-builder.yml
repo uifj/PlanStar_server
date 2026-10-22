@@ -1,8 +1,8 @@
 # macOS packaging for the desktop shell. Deliberately unsigned: this builds a local install, so the
 # upstream desktop pipeline's Developer ID, notarization, Sentry sourcemap hook and update feed
 # (identity J3NXTX3T5S, publish to a DigitalOcean space) are all dropped rather than stubbed.
-appId: com.harness.anytype
-productName: Anytype Harness
+appId: com.planstar.desktop
+productName: Planstar
 copyright: Local self-hosted build
 asar: true
 npmRebuild: false
@@ -23,9 +23,9 @@ extraResources:
     to: renderer
 
 protocols:
-  - name: Anytype Harness
+  - name: Planstar
     schemes:
-      - anytype-harness
+      - planstar
 
 # `publish` exists so electron-builder emits `app-update.yml` (inside the app) and
 # `build/latest-mac.yml` (next to the artifact) — the two files electron-updater reads. Nothing is

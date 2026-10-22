@@ -11,7 +11,7 @@
 # directly, which is exactly what you do not want on a public host. Compose cannot express
 # "different topology for dev vs prod" in one file without conditionals everywhere.
 
-name: vanlife-api
+name: planstar-api
 
 services:
   postgres:
@@ -36,7 +36,7 @@ services:
       start_period: 5s
 
   migrate:
-    image: vanlife-api:migrate
+    image: planstar-api:migrate
 
     build:
       context: .
@@ -54,7 +54,7 @@ services:
     restart: "no"
 
   api:
-    image: vanlife-api:latest
+    image: planstar-api:latest
 
     build:
       context: .

@@ -68,7 +68,7 @@ COPY . .
 # it explicit headroom instead of shrinking the bundle — measured with a 8 GiB machine:
 #
 #   podman build --env NODE_OPTIONS=--max-old-space-size=4096 \
-#     -f front_web/Dockerfile -t localhost/harness-web:latest front_web
+#     -f front_web/Dockerfile -t localhost/planstar-web:latest front_web
 RUN pnpm build
 
 # ---------- runtime ----------

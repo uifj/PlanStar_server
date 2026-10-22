@@ -33,7 +33,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const VERIFIER = resolve(HERE, "verify-desktop-feed.mjs");
 const pkg = JSON.parse(readFileSync(resolve(HERE, "../package.json"), "utf8"));
 
-const ARTIFACT = `Anytype Harness-${pkg.version}-arm64-mac.zip`;
+const ARTIFACT = `${pkg.productName}-${pkg.version}-arm64-mac.zip`;
 
 const failures = [];
 function check(name, condition, detail) {

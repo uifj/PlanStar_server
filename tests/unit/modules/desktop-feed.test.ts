@@ -54,18 +54,18 @@ describe("readFeedIndex", () => {
 			[
 				"version: 1.2.3",
 				"files:",
-				'  - url: "Anytype Harness-1.2.3-arm64-mac.zip"',
+				'  - url: "Planstar-1.2.3-arm64-mac.zip"',
 				"    sha512: abc",
 				"  - url: https://cdn.example.test/remote-1.2.3.dmg",
 				"    sha512: def",
-				"path: 'Anytype Harness-1.2.3-arm64-mac.zip'",
+				"path: 'Planstar-1.2.3-arm64-mac.zip'",
 				"",
 			].join("\n"),
 		);
 
 		const index = await readFeedIndex();
 
-		expect(index.has("Anytype Harness-1.2.3-arm64-mac.zip")).toBe(true);
+		expect(index.has("Planstar-1.2.3-arm64-mac.zip")).toBe(true);
 		expect(index.has("remote-1.2.3.dmg")).toBe(true);
 	});
 
@@ -94,9 +94,9 @@ describe("readFeedIndex", () => {
 describe("resolveServableArtifact", () => {
 	it("resolves a referenced archive inside the releases root", async () => {
 		const path = await resolveServableArtifact(
-			"Anytype Harness-1.2.3-arm64-mac.zip",
+			"Planstar-1.2.3-arm64-mac.zip",
 		);
-		expect(path).toBe(join(releasesDir, "Anytype Harness-1.2.3-arm64-mac.zip"));
+		expect(path).toBe(join(releasesDir, "Planstar-1.2.3-arm64-mac.zip"));
 	});
 
 	it("rejects anything the feed does not reference", async () => {

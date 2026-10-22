@@ -1,4 +1,4 @@
-name: vanlife-api-dev
+name: planstar-api-dev
 
 services:
   postgres:

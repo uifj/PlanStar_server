@@ -109,8 +109,8 @@ also refuses to swap an app whose code signature does not match the update.
 **Discriminator:**
 
 ```bash
-codesign -dv "front_web/build/mac-arm64/Anytype Harness.app" 2>&1 | head -5
-spctl -a -vvv "front_web/build/mac-arm64/Anytype Harness.app" 2>&1
+codesign -dv "front_web/build/mac-arm64/Planstar.app" 2>&1 | head -5
+spctl -a -vvv "front_web/build/mac-arm64/Planstar.app" 2>&1
 ```
 
 `code object is not signed at all` / `rejected` confirms it.

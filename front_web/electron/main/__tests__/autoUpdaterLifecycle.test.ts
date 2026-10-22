@@ -216,7 +216,7 @@ describe("autoUpdater lifecycle", () => {
 				fetchPolicyManifest: () =>
 					Promise.resolve({
 						version: "9.9.9",
-						path: "Anytype-Harness-9.9.9-arm64-mac.zip",
+						path: "Planstar-9.9.9-arm64-mac.zip",
 						is_forced: true,
 						releaseNotes: "policy notes",
 					}),
@@ -240,7 +240,7 @@ describe("autoUpdater lifecycle", () => {
 				fetchPolicyManifest: () =>
 					Promise.resolve({
 						version: "9.9.9",
-						path: "Anytype-Harness-9.9.9-arm64-mac.zip",
+						path: "Planstar-9.9.9-arm64-mac.zip",
 						is_forced: false,
 					}),
 				onUpdateNotAvailable,
@@ -263,7 +263,7 @@ describe("autoUpdater lifecycle", () => {
 				fetchPolicyManifest: () =>
 					Promise.resolve({
 						version: "10.0.0",
-						path: "Anytype-Harness-10.0.0-arm64-mac.zip",
+						path: "Planstar-10.0.0-arm64-mac.zip",
 						is_forced: true,
 					}),
 				onForcedRelease,

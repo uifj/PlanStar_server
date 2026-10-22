@@ -31,9 +31,9 @@ require_podman
 
 [ -f "$COMPOSE_DIR/.env.production" ] || die "deploy/podman/.env.production is missing"
 
-API_IMAGE=localhost/harness-api:latest
-MIGRATE_IMAGE=localhost/harness-api:latest-migrate
-WEB_IMAGE=localhost/harness-web:latest
+API_IMAGE=localhost/planstar-api:latest
+MIGRATE_IMAGE=localhost/planstar-api:latest-migrate
+WEB_IMAGE=localhost/planstar-web:latest
 
 log "1/5 backup"
 "$COMPOSE_DIR/scripts/backup.sh"

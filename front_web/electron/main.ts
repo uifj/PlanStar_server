@@ -136,7 +136,7 @@ const createWindow = (): BrowserWindow => {
 		minWidth: 900,
 		minHeight: 600,
 		show: false,
-		title: "Anytype Harness",
+		title: "Planstar",
 		backgroundColor: "#ffffff",
 		// macOS hides the native titlebar and overlays the traffic lights on the sidebar's own head
 		// row, the way anytype does: {12,19} lands them inside that 36px row, so the window has no
@@ -223,7 +223,7 @@ const openRoute = (route: string | null): void => {
 
 const dialogError = async (message: string): Promise<void> => {
 	const { dialog } = await import("electron");
-	await dialog.showErrorBox("Anytype Harness", message);
+	await dialog.showErrorBox("Planstar", message);
 };
 
 function wireCommandBus(): ExecuteDesktopCommand {

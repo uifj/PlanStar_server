@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 // import from throwing outside an Electron runtime.
 vi.mock("electron", () => ({
 	app: {
-		name: "Anytype Harness",
+		name: "Planstar",
 		getVersion: () => "0.0.0-test",
 		getPath: () => "/tmp/desktop-test",
 	},

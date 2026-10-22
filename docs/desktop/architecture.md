@@ -60,7 +60,7 @@
 
 ## 3. 深链
 
-`anytype-harness://…` → `routeFromUrl()` → `pendingRoute`（**单槽**，后写覆盖先写）→ 渲染器
+`planstar://…` → `routeFromUrl()` → `pendingRoute`（**单槽**，后写覆盖先写）→ 渲染器
 `RendererReady` 或应用文档的 `did-finish-load` 时投递 → preload `pushState` + `popstate`。
 
 单槽而不是队列：启动期间连点多个链接只有最后一个目标有意义，排队会让窗口启动后挨个跳一遍。
@@ -107,7 +107,7 @@ update-downloaded → installing`，每次迁移都广播 `desktop:update-state-
   `electronMock.installDesktopFacade()`，于是 `window.Desktop` 在浏览器里也存在，
   `desktop.isShell() === false`，更新状态等查询返回 mock 数据而不是 `null`。
 - 桌面壳：真 preload 装 `window.Desktop`（`isDesktop: true`），`app.tsx` 给
-  `<html data-harness-desktop>` 打标记，同时把 `document.title` 改成 `Anytype Harness`，
+  `<html data-harness-desktop>` 打标记，同时把 `document.title` 改成 `Planstar`，
   `desktop.css` 在该标记下隐藏 `.web-mode-indicator`。`index.web.html` 本身不改——它是 web 构建
   的真实输入。
 

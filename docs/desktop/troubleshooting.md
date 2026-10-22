@@ -4,10 +4,10 @@
 登录不上 / 点了没反应"都落在这几层边界上：**服务进程是否在、原点是否被信任、等待页是否跳转、
 本地状态文件是否损坏**。
 
-日志在 `~/Library/Application Support/Anytype Harness/logs/`（按天滚动为 `YYYY-MM-DD.log`，保留 14 天），
+日志在 `~/Library/Application Support/Planstar/logs/`（按天滚动为 `YYYY-MM-DD.log`，保留 14 天），
 也可以走菜单 `Help → Export Logs` 打成一个 zip。下文路径均指**打包后**的 userData；
 `pnpm dev:electron` 未打包，目录名取自 `package.json` 的 `name`，即
-`~/Library/Application Support/anytype-web/`。
+`~/Library/Application Support/Planstar/` 。
 
 ## 1. 端口 8321 被占用
 
@@ -58,7 +58,7 @@ TRUSTED_ORIGINS="http://localhost:8321,http://localhost:8322" pnpm dev
 
 ## 4. `window.json` 损坏 / 窗口开到屏幕外
 
-位置：`~/Library/Application Support/Anytype Harness/window.json`（开发时在 `anytype-web/` 下）。
+位置：`~/Library/Application Support/Planstar/window.json`（开发时同样在 `Planstar/` 下）。
 
 读取时统一过 `sanitizeWindowState()`：
 
@@ -70,14 +70,14 @@ TRUSTED_ORIGINS="http://localhost:8321,http://localhost:8322" pnpm dev
 所以手改坏了不会把窗口丢到屏幕外，最差是"尺寸回到默认、位置回到居中"。想彻底重置：
 
 ```bash
-rm "~/Library/Application Support/Anytype Harness/window.json"
+rm "~/Library/Application Support/Planstar/window.json"
 ```
 
 窗口状态在 `before-quit` 时强制落盘一次（`WindowStateTracker.flush`），崩溃不会留下半截 JSON。
 
 ## 5. 日志与导出
 
-- 目录：`~/Library/Application Support/Anytype Harness/logs/YYYY-MM-DD.log`（本地日期，按天换文件；
+- 目录：`~/Library/Application Support/Planstar/logs/YYYY-MM-DD.log`（本地日期，按天换文件；
   `HARNESS_E2E_LOG_DIR` 可以改写目录，CI 用它把每个 worker 隔开）。保留窗口 14 天，启动时清理一次。
 - 写入是**批量异步**的：行先进缓冲区，250ms 合并成一次写；`warn`/`error` 立即落盘；进程退出前
   `flushLogsSync()` 再强制刷一次。所以崩溃现场不会丢掉最后几条关键日志。

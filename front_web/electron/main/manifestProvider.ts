@@ -12,7 +12,7 @@ import { logger } from "./logger";
  *
  *   version: 0.58.0
  *   releaseDate: '2026-10-20T10:00:00Z'
- *   path: Anytype-Harness-0.58.0-arm64.dmg
+ *   path: Planstar-0.58.0-arm64.dmg
  *   sha512: <base64>
  *   releaseNotes: |
  *     - …

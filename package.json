@@ -1,5 +1,5 @@
 {
-	"name": "vanlife-api",
+	"name": "planstar-api",
 	"version": "0.1.0",
 	"type": "module",
 	"packageManager": "pnpm@11.22.0",

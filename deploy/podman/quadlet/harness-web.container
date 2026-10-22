@@ -17,7 +17,7 @@ Requires=harness-network.service harness-api.service
 After=harness-network.service harness-api.service
 
 [Container]
-Image=localhost/harness-web:latest
+Image=localhost/planstar-web:latest
 ContainerName=harness-web
 Network=harness.network
 EnvironmentFile=/etc/harness/harness.env

@@ -71,7 +71,7 @@ else
 		if [ -z "$artifact" ]; then
 			fail "feed yml names no artifact (no path:/url: line)"
 		else
-			# electron-builder names artifacts with spaces in them (`Anytype Harness-<ver>-arm64-mac.zip`),
+			# electron-builder names artifacts using the productName (`Planstar-<ver>-arm64-mac.zip`),
 			# and electron-updater percent-encodes the `path` it reads from the yml before requesting it.
 			# Requesting the raw name instead makes curl fail on the space and report no status at all.
 			artifact_url=$(printf '%s' "$artifact" | sed -e 's/ /%20/g' -e 's/#/%23/g' -e 's/?/%3F/g')

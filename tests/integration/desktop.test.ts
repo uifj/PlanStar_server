@@ -247,7 +247,7 @@ describe("GET /api/desktop/releases/feed/{filename}", () => {
 	 */
 	it("serves the archive the metadata names, including spaces", async () => {
 		const releasesDir = join(workDir, "releases");
-		const name = "Anytype Harness-9.9.9-arm64-mac.zip";
+		const name = "Planstar-9.9.9-arm64-mac.zip";
 		const artifact = new Uint8Array([1, 2, 3, 4, 5]);
 		await writeFile(join(releasesDir, name), artifact);
 		await writeFile(

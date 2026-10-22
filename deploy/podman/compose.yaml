@@ -57,7 +57,7 @@ services:
   # One-shot schema migration. `target: builder` because the runtime image deliberately ships no
   # pnpm and no Prisma CLI — migrations are a deploy-time concern, not a runtime dependency.
   migrate:
-    image: localhost/harness-api:${HARNESS_TAG:-latest}-migrate
+    image: localhost/planstar-api:${HARNESS_TAG:-latest}-migrate
     build:
       context: ../..
       dockerfile: Dockerfile
@@ -82,7 +82,7 @@ services:
     restart: "no"
 
   api:
-    image: localhost/harness-api:${HARNESS_TAG:-latest}
+    image: localhost/planstar-api:${HARNESS_TAG:-latest}
     build:
       context: ../..
       dockerfile: Dockerfile
@@ -139,7 +139,7 @@ services:
           memory: 2g
 
   web:
-    image: localhost/harness-web:${HARNESS_TAG:-latest}
+    image: localhost/planstar-web:${HARNESS_TAG:-latest}
     build:
       context: ../../front_web
       dockerfile: Dockerfile
