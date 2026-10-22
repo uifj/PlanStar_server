@@ -1,0 +1,46 @@
+# Local validation entrypoint: same routing as Caddyfile, without TLS.
+#
+# No HSTS and no certificate: localhost cannot be issued a public certificate, and a cached
+# `Strict-Transport-Security` header for localhost would poison the browser for every other local
+# project long after this stack is gone. That difference is deliberate — it is the one place this
+# file is allowed to diverge from production.
+
+{
+	admin off
+	auto_https off
+}
+
+# `:80` matches any Host header. compose publishes it on 8080 as well, so both
+# http://localhost and http://localhost:8080 reach this block.
+:80 {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Content-Security-Policy "object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+		Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self' http: https: ws: wss:"
+		-Server
+	}
+
+	handle /api/* {
+		reverse_proxy api:8000 {
+			flush_interval -1
+		}
+	}
+
+	handle /collab* {
+		reverse_proxy api:8000
+	}
+
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

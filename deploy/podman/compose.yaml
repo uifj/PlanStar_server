@@ -1,0 +1,173 @@
+# Production-ish single-host stack.
+#
+#   podman compose -f deploy/podman/compose.yaml up -d            # production
+#   podman compose -f deploy/podman/compose.yaml \
+#                  -f deploy/podman/compose.local.yaml up -d    # local validation (http, no TLS)
+#
+# Linux production should use `quadlet/` instead (systemd-native, no compose provider needed);
+# this file exists so the same images can be validated on a laptop. See docs/deploy/README.md.
+#
+# Invariants this file encodes:
+#   * only `web` publishes ports — postgres and api stay on the internal network,
+#   * `migrate` must finish successfully before `api` starts, so a schema mismatch can never
+#     serve traffic,
+#   * `api` runs read-only with `/data` as the single writable volume and a 30 s stop grace so the
+#     in-process shutdown (collab flush + SSE close) has room to finish,
+#   * secrets arrive as *files* mounted at `/run/secrets` and are read by `entrypoint.sh` through
+#     the `*_FILE` variables. Compose `secrets:` is deliberately unused: podman-compose's support
+#     for it varies by version, while a bind mount plus an env var behaves identically on both
+#     providers and matches how quadlet's `Secret=...,type=env` delivers the same values.
+#   * nothing is read from the compose *interpolation* environment except `HARNESS_TAG`: service
+#     configuration comes from `.env.production` via `env_file`, so there is no second place to
+#     keep in sync and no need for a project-level `.env`.
+#
+# Postgres credentials are fixed at harness/harness *inside* the compose network (the network is
+# private, the password still comes from a secret file). The database is never published.
+
+name: harness
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: harness
+      POSTGRES_DB: harness
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    volumes:
+      - ./secrets:/run/secrets:ro,Z
+      - pgdata:/var/lib/postgresql/data
+    # No published port on purpose: the database is reachable only from the compose network.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U harness -d harness"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+  # One-shot schema migration. `target: builder` because the runtime image deliberately ships no
+  # pnpm and no Prisma CLI — migrations are a deploy-time concern, not a runtime dependency.
+  migrate:
+    image: localhost/harness-api:${HARNESS_TAG:-latest}-migrate
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      target: builder
+    env_file:
+      - .env.production
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: harness
+      POSTGRES_DB: harness
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      BETTER_AUTH_SECRET_FILE: /run/secrets/better_auth_secret
+    volumes:
+      - ./secrets:/run/secrets:ro,Z
+    # The builder image has no ENTRYPOINT, so the shared entrypoint is invoked explicitly: it
+    # resolves the secrets into DATABASE_URL the same way the api container does.
+    entrypoint: ["/bin/sh", "/app/deploy/docker/entrypoint.sh"]
+    command: ["pnpm", "db:deploy"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    image: localhost/harness-api:${HARNESS_TAG:-latest}
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      target: runner
+    env_file:
+      - .env.production
+    environment:
+      HOST: 0.0.0.0
+      PORT: "8000"
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: harness
+      POSTGRES_DB: harness
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      BETTER_AUTH_SECRET_FILE: /run/secrets/better_auth_secret
+      DESKTOP_LOG_READ_TOKEN_FILE: /run/secrets/desktop_log_read_token
+    volumes:
+      # files / uploads / exports / desktop intake + logs + releases all live under /data.
+      - appdata:/data
+      - ./secrets:/run/secrets:ro,Z
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    stop_grace_period: 30s
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:8000/api/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+
+  web:
+    image: localhost/harness-web:${HARNESS_TAG:-latest}
+    build:
+      context: ../../front_web
+      dockerfile: Dockerfile
+    # Caddy reads `{$HARNESS_DOMAIN}` / `{$HARNESS_TLS_EMAIL}` from this env, so the same file
+    # that configures the API also names the domain Caddy requests a certificate for.
+    env_file:
+      - .env.production
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro,Z
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    stop_grace_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  pgdata:
+  appdata:
+  caddydata:
+  caddyconfig:

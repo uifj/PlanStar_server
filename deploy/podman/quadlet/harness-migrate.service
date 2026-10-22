@@ -1,0 +1,40 @@
+# One-shot schema migration, run as a plain systemd unit (not a quadlet: it is not a long-running
+# container, and `podman run --rm` gives the exit status systemd needs to gate the api on it).
+#
+# Install: /etc/systemd/system/harness-migrate.service
+# Build:   podman build -f Dockerfile --target builder -t localhost/harness-api:latest-migrate .
+#
+# The runtime image deliberately ships neither pnpm nor the Prisma CLI, so migrations run from the
+# `builder` stage — the same code path `podman compose` uses for its `migrate` service.
+#
+# `RemainAfterExit=yes` matters: without it the unit goes inactive the moment the migration exits,
+# and a `Requires=` from harness-api would then pull this unit in again on every api restart. With
+# it, "active" means "the schema at this image tag has been applied"; `systemctl start
+# harness-migrate` after an upgrade re-runs it.
+
+[Unit]
+Description=harness schema migration (one-shot)
+Wants=network-online.target
+After=network-online.target
+Requires=harness-postgres.service
+After=harness-postgres.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/etc/harness/harness.env
+Environment=POSTGRES_HOST=postgres
+Environment=POSTGRES_USER=harness
+Environment=POSTGRES_DB=harness
+# `type=env,target=...` matches what the api container receives, so entrypoint.sh takes the same
+# branch in both places: read POSTGRES_PASSWORD, assemble DATABASE_URL, then exec the command.
+ExecStart=/usr/bin/podman run --rm \
+    --network harness \
+    --secret postgres_password,type=env,target=POSTGRES_PASSWORD \
+    --secret better_auth_secret,type=env,target=BETTER_AUTH_SECRET \
+    localhost/harness-api:latest-migrate \
+    /bin/sh /app/deploy/docker/entrypoint.sh pnpm db:deploy
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

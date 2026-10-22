@@ -1,0 +1,10 @@
+# Private network shared by postgres, api and web. Nothing on it is published except web's 80/443.
+#
+# Install: copy to /etc/containers/systemd/ and run `systemctl daemon-reload`.
+# See docs/deploy/README.md#quadlet-linux-production.
+
+[Network]
+NetworkName=harness
+# The api container is restarted in place during upgrades; keeping the network non-internal leaves
+# egress (ACME, model providers) working for every member.
+Internal=false

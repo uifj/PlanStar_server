@@ -1,0 +1,42 @@
+# Caddy: TLS termination, the SPA bundle, and the /api + /collab proxies.
+#
+# Install: /etc/containers/systemd/harness-web.container
+#          /etc/harness/Caddyfile   (copy of deploy/podman/Caddyfile)
+# Config:  /etc/harness/harness.env supplies HARNESS_DOMAIN / HARNESS_TLS_EMAIL to the Caddyfile's
+#          `{$...}` placeholders — Caddy reads them from the process environment.
+#
+# Ports 80/443 are the only published ports in the whole stack. The official Caddy image sets
+# cap_net_bind_service on the binary and the image runs as the `caddy` user, so no extra
+# capability is granted here beyond what binding those ports requires.
+
+[Unit]
+Description=harness web (caddy)
+Wants=network-online.target
+After=network-online.target
+Requires=harness-network.service harness-api.service
+After=harness-network.service harness-api.service
+
+[Container]
+Image=localhost/harness-web:latest
+ContainerName=harness-web
+Network=harness.network
+EnvironmentFile=/etc/harness/harness.env
+PublishPort=80:80
+PublishPort=443:443
+PublishPort=443:443/udp
+Volume=/etc/harness/Caddyfile:/etc/caddy/Caddyfile:ro,Z
+Volume=harness-caddydata:/data:Z
+Volume=harness-caddyconfig:/config:Z
+HealthCmd=wget --no-verbose --tries=1 --spider http://127.0.0.1/
+HealthInterval=30s
+HealthTimeout=5s
+HealthRetries=3
+HealthStartPeriod=10s
+LogDriver=journald
+
+[Service]
+Restart=always
+TimeoutStopSec=20
+
+[Install]
+WantedBy=default.target

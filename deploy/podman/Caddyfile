@@ -1,0 +1,59 @@
+# Caddy for the public entrypoint: TLS termination, the web bundle, and the two API prefixes.
+#
+# `{$HARNESS_DOMAIN}` comes from `.env.production` (see compose.yaml's `env_file`). Caddy obtains
+# and renews the certificate for it automatically — nothing else in the stack terminates TLS.
+#
+# Two proxy prefixes, on purpose:
+#   /api/*    the Hono API, including the desktop intake/log/release endpoints
+#   /collab*  the Hocuspocus WebSocket upgrade (same origin as the API so the session cookie rides
+#             along); it is not under /api, so it needs its own handler
+# Everything else is the SPA: real files are served from /srv, unknown extension-less paths fall
+# back to index.html so a reload on a client route works.
+
+{
+	email {$HARNESS_TLS_EMAIL}
+	# The admin API would listen on :2019; nothing outside the host needs it.
+	admin off
+}
+
+{$HARNESS_DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Cross-Origin-Opener-Policy "same-origin"
+		# Enforcing, minimal — same three directives the Electron shell enforces locally. They
+		# cannot break the bundle, so a violation is always a bug worth blocking.
+		Content-Security-Policy "object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+		# Everything else is Report-Only until the violations are observed in the field: the SPA
+		# loads workers from blobs, images from data:/blob:, and can be pointed at another API
+		# origin with `?server=`, so `connect-src` cannot be pinned yet.
+		Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self' https: wss:"
+		-Server
+	}
+
+	# `flush_interval -1` disables response buffering so SSE (`text/event-stream`) is delivered as
+	# it is written instead of in reverse-proxy sized chunks.
+	handle /api/* {
+		reverse_proxy api:8000 {
+			flush_interval -1
+		}
+	}
+
+	handle /collab* {
+		reverse_proxy api:8000
+	}
+
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

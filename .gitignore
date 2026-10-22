@@ -21,6 +21,15 @@ src/generated/
 .env
 .env.production
 
+# deployment: real secrets, local overrides and backup/e2e output never leave the host
+deploy/podman/secrets/*
+!deploy/podman/secrets/README.md
+!deploy/podman/secrets/.gitkeep
+deploy/podman/.env.production
+deploy/podman/.env.local
+deploy/podman/backups/
+deploy/podman/e2e-artifacts/
+
 _archvie/
 
 # logs

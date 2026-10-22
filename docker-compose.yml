@@ -1,3 +1,16 @@
+# Development stack: postgres + migrate + api, building from the working tree.
+#
+# This file is *not* the production entrypoint. Production runs the same images behind Caddy with
+# the full set of services, secrets and volumes:
+#
+#   deploy/podman/compose.yaml         single-host stack (web + api + postgres + migrate)
+#   deploy/podman/quadlet/             systemd-native units for a Linux host
+#   docs/deploy/README.md              the runbook for both
+#
+# Kept separate on purpose: this one publishes the database port and mounts the repo's `.data/`
+# directly, which is exactly what you do not want on a public host. Compose cannot express
+# "different topology for dev vs prod" in one file without conditionals everywhere.
+
 name: vanlife-api
 
 services:
@@ -50,6 +63,14 @@ services:
     env_file:
       - .env
 
+    environment:
+      # Explicit so the dev container behaves like the production one: the app writes its file
+      # store, uploads, exports and desktop intake under /data, mounted from the repo below.
+      DESKTOP_DATA_ROOT: /app/.data/desktop
+      FILE_STORAGE_ROOT: /app/.data/files
+      FILE_UPLOAD_STAGING_ROOT: /app/.data/uploads
+      EXPORT_ROOT: /app/.data/exports
+
     depends_on:
       postgres:
         condition: service_healthy
@@ -59,7 +80,26 @@ services:
     ports:
       - "8000:8000"
 
+    volumes:
+      # The same `.data/` the host-side `pnpm dev` writes, so seeding a local database and then
+      # running the container does not produce two divergent file stores.
+      - ./.data:/app/.data
+
     restart: unless-stopped
+
+    # Same probe as the production image: node is the only HTTP client guaranteed to be present.
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:8000/api/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
 volumes:
   postgres_data:

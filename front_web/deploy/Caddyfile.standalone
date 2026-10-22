@@ -1,0 +1,35 @@
+# Fallback configuration for a bare `podman run` of the web image.
+#
+# The compose stack (deploy/podman/compose.yaml) and quadlet both mount their own Caddyfile over
+# `/etc/caddy/Caddyfile`, because TLS and the `api` upstream are deployment facts this image cannot
+# know. This file therefore only claims the one thing that is always true: the bundle lives in
+# `/srv` and client-side routes need an index.html fallback.
+#
+#   podman run --rm -p 8080:80 harness-web      →  http://localhost:8080
+
+{
+	admin off
+	auto_https off
+}
+
+:80 {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Content-Security-Policy "object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+		-Server
+	}
+
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

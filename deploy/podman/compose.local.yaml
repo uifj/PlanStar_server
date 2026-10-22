@@ -1,0 +1,56 @@
+# Local validation override — lay this on top of compose.yaml:
+#
+#   cp deploy/podman/.env.local.example deploy/podman/.env.local
+#   podman compose -f deploy/podman/compose.yaml -f deploy/podman/compose.local.yaml up -d
+#
+# What changes and why:
+#   * the `*_FILE` secrets are blanked out and the values are supplied inline from `.env.local`.
+#     The local stack exists to validate *the images and the topology*, not the secret plumbing
+#     (quadlet is the production path). No YAML `!reset`/`!override` tags are used, so this file
+#     stays portable across compose providers.
+#   * `.env.local` replaces `.env.production`, so `APP_URL`/`CLIENT_URL` are plain http values.
+#   * Caddy serves plain http with no TLS and no HSTS: ACME cannot issue a certificate for
+#     localhost, and a cached HSTS header for localhost outlives the test.
+#   * an extra 8080 mapping is published (compose concatenates port lists, it cannot replace them,
+#     so 80/443 stay mapped as well). Use http://localhost:8080.
+#
+# Everything else — images, healthchecks, volumes, the migrate gate — is inherited unchanged, so
+# passing here means the production topology is sound.
+
+services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD_FILE: ""
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-harness}
+
+  migrate:
+    env_file:
+      - .env.local
+    environment:
+      POSTGRES_PASSWORD_FILE: ""
+      BETTER_AUTH_SECRET_FILE: ""
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-harness}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-local-development-secret-please-change}
+
+  api:
+    env_file:
+      - .env.local
+    environment:
+      APP_URL: http://localhost:8080
+      CLIENT_URL: http://localhost:8080
+      POSTGRES_PASSWORD_FILE: ""
+      BETTER_AUTH_SECRET_FILE: ""
+      DESKTOP_LOG_READ_TOKEN_FILE: ""
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-harness}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-local-development-secret-please-change}
+      DESKTOP_LOG_READ_TOKEN: local-desktop-log-read-token
+
+  web:
+    env_file:
+      - .env.local
+    ports:
+      - "8080:80"
+    volumes:
+      - ./Caddyfile.local:/etc/caddy/Caddyfile:ro,Z
+      - caddydata:/data
+      - caddyconfig:/config

@@ -1,0 +1,40 @@
+# Postgres for the harness stack. Reachable only from the `harness` network — no published port.
+#
+# Install: /etc/containers/systemd/harness-postgres.container
+# Secret:  printf '%s' "$(openssl rand -base64 24 | tr -d '/+=')" | podman secret create postgres_password -
+#
+# `type=env` delivers the secret as an environment variable instead of a file. Postgres itself
+# reads POSTGRES_PASSWORD, so no entrypoint translation is needed here; the api container gets the
+# same secret under the same name and its entrypoint assembles DATABASE_URL from it.
+
+[Unit]
+Description=harness postgres
+Wants=network-online.target
+After=network-online.target
+Requires=harness-network.service
+After=harness-network.service
+
+[Container]
+Image=docker.io/library/postgres:16-alpine
+ContainerName=harness-postgres
+Network=harness.network
+Environment=POSTGRES_USER=harness
+Environment=POSTGRES_DB=harness
+Secret=postgres_password,type=env,target=POSTGRES_PASSWORD
+Volume=harness-pgdata:/var/lib/postgresql/data:Z
+HealthCmd=pg_isready -U harness -d harness
+HealthInterval=10s
+HealthTimeout=5s
+HealthRetries=5
+HealthStartPeriod=10s
+# 1 GiB matches the compose limit; the dataset here is small (users, documents metadata, files index).
+PodmanArgs=--memory=1g
+LogDriver=journald
+
+[Service]
+Restart=always
+# Give Postgres time to finish recovery rather than being killed mid-checkpoint.
+TimeoutStopSec=120
+
+[Install]
+WantedBy=default.target

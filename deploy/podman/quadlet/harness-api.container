@@ -1,0 +1,55 @@
+# The Hono API + collab server.
+#
+# Install: /etc/containers/systemd/harness-api.container
+# Config:  /etc/harness/harness.env   (copy of deploy/podman/.env.production.example, non-secret keys)
+# Secrets: podman secret create postgres_password / better_auth_secret / desktop_log_read_token
+#
+# Startup ordering: `Requires=harness-migrate.service` is the schema gate. The migrate unit is a
+# `Type=oneshot` with `RemainAfterExit=yes`, so a failed migration leaves it inactive and this
+# container never starts — a schema mismatch can never serve traffic.
+
+[Unit]
+Description=harness api
+Wants=network-online.target
+After=network-online.target
+Requires=harness-network.service harness-postgres.service harness-migrate.service
+After=harness-network.service harness-postgres.service harness-migrate.service
+
+[Container]
+Image=localhost/harness-api:latest
+ContainerName=harness-api
+Network=harness.network
+EnvironmentFile=/etc/harness/harness.env
+Environment=HOST=0.0.0.0
+Environment=PORT=8000
+Environment=POSTGRES_HOST=postgres
+# Same three secrets the compose stack reads from /run/secrets, delivered as env vars instead.
+# entrypoint.sh sees POSTGRES_PASSWORD / BETTER_AUTH_SECRET already set and only has to assemble
+# DATABASE_URL, which is why quadlet needs no secret files on the host.
+Secret=postgres_password,type=env,target=POSTGRES_PASSWORD
+Secret=better_auth_secret,type=env,target=BETTER_AUTH_SECRET
+Secret=desktop_log_read_token,type=env,target=DESKTOP_LOG_READ_TOKEN
+Volume=harness-appdata:/data:Z
+# Read-only root filesystem: every write root lives under /data (created by entrypoint.sh).
+ReadOnly=true
+Tmpfs=/tmp
+DropCapability=ALL
+NoNewPrivileges=true
+# SSE streams and collab sockets never end on their own; the process needs its 5 s force-close
+# budget plus the ordered flush, so the stop timeout has to exceed it.
+StopTimeout=30
+HealthCmd=node -e "fetch('http://127.0.0.1:8000/api/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+HealthInterval=15s
+HealthTimeout=5s
+HealthRetries=5
+HealthStartPeriod=30s
+PodmanArgs=--memory=2g
+LogDriver=journald
+
+[Service]
+Restart=always
+# Slightly above StopTimeout so systemd does not SIGKILL what podman is still draining.
+TimeoutStopSec=45
+
+[Install]
+WantedBy=default.target
