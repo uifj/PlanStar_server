@@ -451,14 +451,9 @@ class ElectronMock {
 			return Promise.resolve({ success: true, path: "web-localStorage" });
 		});
 
-		handlers.set("getUpdateState", () =>
-			Promise.resolve({ kind: "idle", enabled: false }),
-		);
-
-		handlers.set("getAutoUpdatePreferences", () =>
-			Promise.resolve({ autoDownloadAndInstall: false, skippedVersions: [] }),
-		);
-		handlers.set("setAutoDownloadAndInstallUpdates", () => Promise.resolve());
+		handlers.set("getUpdateState", () => Promise.resolve({ kind: "idle" }));
+		// The browser has no manifest policy channel, so there is never a forced update to query.
+		handlers.set("getForceUpdateState", () => Promise.resolve(null));
 
 		handlers.set("setApplicationLocale", () => true);
 		handlers.set("getSystemLocale", () => Promise.resolve("en-US"));
@@ -471,13 +466,13 @@ class ElectronMock {
 		handlers.set("onUpdateStateChanged", (args) => {
 			const cb = args[0] as (state: unknown) => void;
 			if (typeof cb === "function") {
-				cb({ kind: "idle", enabled: false });
+				cb({ kind: "idle" });
 			}
 			return noopDisposer;
 		});
 		handlers.set("onUpdateCheckResult", () => noopDisposer);
-		handlers.set("onPostUpdateReleaseNotes", () => noopDisposer);
 		handlers.set("onForceUpdateRequired", () => noopDisposer);
+		handlers.set("onForceUpdateCleared", () => noopDisposer);
 		handlers.set("onApplicationLocaleChanged", () => noopDisposer);
 		handlers.set("onZoomLevelChanged", () => noopDisposer);
 		handlers.set("notifyRendererReady", () => true);
@@ -495,6 +490,7 @@ class ElectronMock {
 				autoUpdate: false,
 				crashReporter: false,
 				forceUpdate: false,
+				logUpload: false,
 			}),
 		);
 
@@ -593,7 +589,9 @@ class ElectronMock {
 			}
 		).Desktop;
 
-		return bridge?.isDesktop === true ? String(bridge.platform || "web") : "web";
+		return bridge?.isDesktop === true
+			? String(bridge.platform || "web")
+			: "web";
 	})();
 	arch = "web";
 	isPackaged = false;
@@ -841,14 +839,11 @@ class ElectronMock {
 			onOpenFeedbackDialog: (cb: any) => call("onOpenFeedbackDialog", [cb]),
 
 			getUpdateState: () => call("getUpdateState", []),
-			getAutoUpdatePreferences: () => call("getAutoUpdatePreferences", []),
-			setAutoDownloadAndInstallUpdates: (enabled: boolean) =>
-				call("setAutoDownloadAndInstallUpdates", [enabled]),
 			onUpdateStateChanged: (cb: any) => call("onUpdateStateChanged", [cb]),
 			onUpdateCheckResult: (cb: any) => call("onUpdateCheckResult", [cb]),
-			onPostUpdateReleaseNotes: (cb: any) =>
-				call("onPostUpdateReleaseNotes", [cb]),
 			onForceUpdateRequired: (cb: any) => call("onForceUpdateRequired", [cb]),
+			getForceUpdateState: () => call("getForceUpdateState", []),
+			onForceUpdateCleared: (cb: any) => call("onForceUpdateCleared", [cb]),
 
 			notifyRendererReady: () => call("notifyRendererReady", []),
 		};

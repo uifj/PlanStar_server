@@ -27,6 +27,14 @@ describe("electronMock desktop facade — web mode single bridge", () => {
 		expect(desktop.isShell()).toBe(false);
 	});
 
+	it("answers getUpdateState from the mock instead of degrading to null", async () => {
+		electronMock.installDesktopFacade();
+
+		// Before the facade was installed at the entry point this call resolved `null` in a browser:
+		// `window.Desktop` did not exist, so every shell query silently degraded.
+		expect(await desktop.getUpdateState()).toEqual({ kind: "idle" });
+	});
+
 	it("routes submitFeedback through the facade to the localStorage queue (was dead before C1)", async () => {
 		electronMock.installDesktopFacade();
 
@@ -88,6 +96,7 @@ describe("electronMock desktop facade — web mode single bridge", () => {
 			autoUpdate: false,
 			crashReporter: false,
 			forceUpdate: false,
+			logUpload: false,
 		});
 	});
 });

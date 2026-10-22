@@ -5,6 +5,9 @@ export interface PopupParam {
 	preventMenuClose?: boolean;
 	preventCloseByClick?: boolean;
 	preventCloseByEscape?: boolean;
+	// Owns its own lifetime (the forced-update guard): `closeAll()` — a page unmounting during
+	// boot, a route change, header navigation — must not dismiss it. Only its owner closes it.
+	preventCloseAll?: boolean;
 	onOpen?(context: any): void;
 	onClose?(): void;
 };

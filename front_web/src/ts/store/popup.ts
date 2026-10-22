@@ -229,7 +229,10 @@ class PopupStore {
 	 * @param {() => void} [callBack] - Optional callback after close.
 	 */
 	closeAll (ids?: string[], callBack?: () => void) {
-		const items = this.getItems(ids);
+		// A popup that owns its lifetime (the forced-update guard) survives page-level churn. The
+		// first page unmounts while the app is still booting — exactly when the guard's modal
+		// opens — so closing everything here used to wipe the block within a frame.
+		const items = this.getItems(ids).filter(it => !it.param.preventCloseAll);
 		const timeout = items.length ? J.Constant.delay.popup : 0;
 
 		items.forEach(it => this.close(it.id, null, true));

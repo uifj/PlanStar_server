@@ -7,10 +7,11 @@ import React, { forwardRef, useEffect, useState } from "react";
  * Blocking modal shown when main broadcasts `ForceUpdateRequired` (forceUpdateGuard, Stage 6).
  * The renderer owns the UI, main only decides *whether* an update is mandatory.
  *
- * Deliberately inescapable: no cancel button, no escape binding, and the open() call site passes
- * `preventCloseByClick: true` so the dimmer does not dismiss it either. The only way out is a
- * successful update — matching the guard's contract that the shell keeps broadcasting until the
- * app is updated or closed.
+ * Deliberately inescapable by the user: no cancel button, no escape binding, and the open() call
+ * site passes `preventCloseByClick: true` so the dimmer does not dismiss it either. The operator is
+ * the one who can release it — `app.tsx` closes this popup when main broadcasts
+ * `ForceUpdateCleared` (the server retracted `is_forced`), which is why this component subscribes
+ * only to update progress and never assumes it is the final state.
  *
  * Styled by reusing the `popupConfirm` class through `param.className` at the open() call site.
  */
@@ -59,7 +60,7 @@ const PopupForceUpdate = forwardRef<{}, I.Popup>((props, ref) => {
 		desktop.downloadUpdate().then((result) => {
 			// `null` means the shell could not run the download (flag off, updater missing, web
 			// mode). Surface it instead of leaving the user staring at a dead button.
-			if (result === null && !desktop.isShell()) {
+			if (result === null) {
 				setError(translate("popupForceUpdateErrorUnavailable"));
 			}
 		});
@@ -94,7 +95,9 @@ const PopupForceUpdate = forwardRef<{}, I.Popup>((props, ref) => {
 	}
 
 	return (
-		<div className="wrap">
+		// `data-testid` is the only stable handle for the packaged-app e2e (scripts/e2e/desktop-packaged.mjs):
+		// every class name here comes from the shared popup shell and is not unique to this dialog.
+		<div className="wrap" data-testid="force-update">
 			<div className="iconWrapper">
 				<Icon name="popup/header/update" size={56} />
 			</div>

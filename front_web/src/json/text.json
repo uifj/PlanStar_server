@@ -1701,6 +1701,24 @@
 	"popupSubmitReportPlaceholder": "Describe the issue you are facing…",
 	"popupSubmitReportButton": "Submit",
 
+	"popupFeedbackTitle": "Send feedback",
+	"popupFeedbackDescription": "Tell us what went wrong or what would make the app better. A screenshot of this window is attached unless you uncheck the box.",
+	"popupFeedbackPlaceholder": "How can we improve?",
+	"popupFeedbackAttachScreenshot": "Attach a screenshot of this window",
+	"popupFeedbackSending": "Sending…",
+	"popupFeedbackSubmit": "Send",
+	"popupFeedbackSuccess": "Feedback sent. Thank you!",
+	"popupFeedbackError": "Could not send feedback: %s",
+	"popupFeedbackErrorEmpty": "Please describe your issue before sending.",
+
+	"popupForceUpdateTitle": "Update required",
+	"popupForceUpdateText": "Version %s is mandatory and must be installed before you can keep using the app. It only takes a moment.",
+	"popupForceUpdateButton": "Update now",
+	"popupForceUpdateDownloading": "Downloading update… %s",
+	"popupForceUpdateInstalling": "Installing update… the app will restart by itself.",
+	"popupForceUpdateRestart": "Restart to finish",
+	"popupForceUpdateErrorUnavailable": "The update is not available right now. Please try again in a few minutes.",
+
 	"popupConfirmOpenExternalLinkTitle": "Are you sure?",
 	"popupConfirmOpenExternalLinkText": "You are trying to open an url that is potentially harmful. Are you sure you want to proceed?<br/>Url: %s",
 

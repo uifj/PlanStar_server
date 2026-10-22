@@ -19,18 +19,19 @@
  */
 
 import {
-	type AutoUpdatePreferences,
 	type CaptureWindowScreenshotResult,
 	type DesktopBridgeApi,
 	type DesktopCapabilities,
+	type DesktopCommandAck,
 	type DesktopCommandId,
 	DesktopCommandIds,
+	type DesktopCommandResult,
 	type DesktopZoomState,
 	type ExportLogsResult,
+	type ForceUpdateClearedPayload,
 	type ForceUpdateRequiredPayload,
 	type Locale,
 	type LogLevel,
-	type PostUpdateReleaseNotesPayload,
 	type SubmitFeedbackPayload,
 	type SubmitFeedbackResult,
 	type UpdateCheckResultPayload,
@@ -85,12 +86,8 @@ function invoke<T>(
  * rejected IPC with `null`, so both collapse to the same "unavailable" sentinel callers already
  * check (e.g. `forceUpdate.tsx`'s `result === null`).
  */
-function toVoidOrNull(result: unknown): void | null {
-	return result !== null &&
-		typeof result === "object" &&
-		(result as { ok?: unknown }).ok === true
-		? undefined
-		: null;
+function toVoidOrNull(result: DesktopCommandAck | null): void | null {
+	return result !== null && result.ok === true ? undefined : null;
 }
 
 function subscribe<T>(
@@ -150,10 +147,10 @@ export const desktop = {
 		}
 	},
 
-	executeCommand(
-		id: DesktopCommandId,
+	executeCommand<K extends DesktopCommandId>(
+		id: K,
 		payload?: unknown,
-	): Promise<unknown | null> {
+	): Promise<DesktopCommandResult<K> | null> {
 		return invoke((api) => api.executeCommand(id, payload));
 	},
 
@@ -162,15 +159,11 @@ export const desktop = {
 	},
 
 	exportLogs(): Promise<ExportLogsResult | null> {
-		return this.executeCommand(
-			DesktopCommandIds.ExportLogs,
-		) as Promise<ExportLogsResult | null>;
+		return this.executeCommand(DesktopCommandIds.ExportLogs);
 	},
 
 	captureScreenshot(): Promise<CaptureWindowScreenshotResult | null> {
-		return this.executeCommand(
-			DesktopCommandIds.CaptureScreenshot,
-		) as Promise<CaptureWindowScreenshotResult | null>;
+		return this.executeCommand(DesktopCommandIds.CaptureScreenshot);
 	},
 
 	submitFeedback(
@@ -191,6 +184,17 @@ export const desktop = {
 
 	getUpdateState(): Promise<UpdateStatePayload | null> {
 		return invoke((api) => api.getUpdateState());
+	},
+	/**
+	 * Forced-update state at mount time. A reload/window rebuild misses the push that was broadcast
+	 * before the renderer existed, so the blocking modal has to be re-derivable. `null` covers both
+	 * "nothing forced" and "no shell".
+	 */
+	getForceUpdateState(): Promise<ForceUpdateRequiredPayload | null> {
+		if (!bridge()) {
+			return Promise.resolve(null);
+		}
+		return invoke((api) => api.getForceUpdateState());
 	},
 	// `void | null` is intentional: `null` means "no shell / flag off / invoke rejected" and is
 	// checked by callers (e.g. forceUpdate popup), while `void` is the adapted success return
@@ -213,14 +217,6 @@ export const desktop = {
 			toVoidOrNull,
 		);
 	},
-	getAutoUpdatePreferences(): Promise<AutoUpdatePreferences | null> {
-		return invoke((api) => api.getAutoUpdatePreferences());
-	},
-	// biome-ignore lint/suspicious/noConfusingVoidType: same sentinel union as downloadUpdate
-	setAutoDownloadAndInstallUpdates(enabled: boolean): Promise<void | null> {
-		return invoke((api) => api.setAutoDownloadAndInstallUpdates(enabled));
-	},
-
 	// Subscriptions. Each returns an unsubscribe function; web mode returns a no-op.
 	onUpdateStateChanged(
 		callback: (state: UpdateStatePayload) => void,
@@ -232,11 +228,6 @@ export const desktop = {
 	): Unsubscribe {
 		return subscribe((api, cb) => api.onUpdateCheckResult(cb), callback);
 	},
-	onPostUpdateReleaseNotes(
-		callback: (payload: PostUpdateReleaseNotesPayload) => void,
-	): Unsubscribe {
-		return subscribe((api, cb) => api.onPostUpdateReleaseNotes(cb), callback);
-	},
 	onOpenFeedbackDialog(callback: () => void): Unsubscribe {
 		return subscribe<void>((api, cb) => api.onOpenFeedbackDialog(cb), callback);
 	},
@@ -244,6 +235,11 @@ export const desktop = {
 		callback: (payload: ForceUpdateRequiredPayload) => void,
 	): Unsubscribe {
 		return subscribe((api, cb) => api.onForceUpdateRequired(cb), callback);
+	},
+	onForceUpdateCleared(
+		callback: (payload: ForceUpdateClearedPayload) => void,
+	): Unsubscribe {
+		return subscribe((api, cb) => api.onForceUpdateCleared(cb), callback);
 	},
 	onApplicationLocaleChanged(callback: (locale: Locale) => void): Unsubscribe {
 		return subscribe((api, cb) => api.onApplicationLocaleChanged(cb), callback);
@@ -254,17 +250,17 @@ export const desktop = {
 };
 
 export type {
-	AutoUpdatePreferences,
 	CaptureWindowScreenshotResult,
 	DesktopBridgeApi,
 	DesktopCapabilities,
 	DesktopCommandId,
+	DesktopCommandResult,
 	DesktopZoomState,
 	ExportLogsResult,
+	ForceUpdateClearedPayload,
 	ForceUpdateRequiredPayload,
 	Locale,
 	LogLevel,
-	PostUpdateReleaseNotesPayload,
 	SubmitFeedbackPayload,
 	SubmitFeedbackResult,
 	UpdateCheckResultPayload,

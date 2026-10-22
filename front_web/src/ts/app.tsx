@@ -14,8 +14,10 @@ import {
 import * as I from "Interface";
 import Animation from "Lib/animation";
 import { getSession } from "Lib/api/better-auth";
+import type { ForceUpdateRequiredPayload } from "Lib/desktop";
 import { desktop } from "Lib/desktop";
 import Download from "Lib/download";
+import { watchForceUpdate } from "Lib/forceUpdateWatcher";
 import { approvalSpaces } from "Lib/linkApproval";
 import { membership } from "Lib/membership";
 import { powerState } from "Lib/powerState";
@@ -476,17 +478,30 @@ const App: FC = () => {
 			// Stage 6 guard: blocking modal, no dimmer/escape dismissal. S.Popup.open dedupes by id,
 			// so repeated broadcasts (and the bridge's replay-latest) never stack popups.
 			if (wantForceUpdate) {
+				const openForceUpdate = (payload: ForceUpdateRequiredPayload) => {
+					S.Popup.open("forceUpdate", {
+						data: {
+							version: payload.version,
+							releaseNotes: payload.releaseNotes,
+						},
+						className: "popupConfirm",
+						preventCloseByClick: true,
+						preventCloseByEscape: true,
+						// The guard owns this modal: a page unmounting while the app is still booting (and
+						// any later route change) closes everything else, not the block. Retraction still
+						// closes it explicitly through S.Popup.close below.
+						preventCloseAll: true,
+					});
+				};
+
+				// Subscribes first, then asks for the current state: a window rebuilt after the broadcast
+				// still gets the block, and a retraction that lands in between closes it. The wiring itself is
+				// tested in Lib/forceUpdateWatcher.test.ts.
 				unsubs.push(
-					desktop.onForceUpdateRequired((payload) => {
-						S.Popup.open("forceUpdate", {
-							data: {
-								version: payload.version,
-								releaseNotes: payload.releaseNotes,
-							},
-							className: "popupConfirm",
-							preventCloseByClick: true,
-							preventCloseByEscape: true,
-						});
+					watchForceUpdate(desktop, {
+						open: openForceUpdate,
+						close: () => S.Popup.close("forceUpdate"),
+						isCurrent: () => generation === desktopBridgeGeneration.current,
 					}),
 				);
 			}
@@ -503,16 +518,10 @@ const App: FC = () => {
 			}
 
 			// Menu locale switch → follow with the UI language, through the same path the settings
-			// picker uses. The first emission is the bridge replaying the persisted menu locale at
-			// subscribe time — not a user action — so it must not trigger a reload on every boot.
-			let localeReplaySkipped = false;
+			// picker uses. The bridge does not replay the persisted locale, so every emission is a
+			// real menu action and must apply immediately.
 			unsubs.push(
 				desktop.onApplicationLocaleChanged((locale) => {
-					if (!localeReplaySkipped) {
-						localeReplaySkipped = true;
-						return;
-					}
-
 					if (locale != S.Common.interfaceLang) {
 						Action.setInterfaceLang(locale);
 					}
@@ -527,30 +536,6 @@ const App: FC = () => {
 					sidebar.resizePage(true, null, null, false);
 				}),
 			);
-
-			// First launch after an update: show the release notes once (main only broadcasts when
-			// the stored "last seen version" changed, so this cannot resurface on every boot).
-			if (wantUpdate) {
-				unsubs.push(
-					desktop.onPostUpdateReleaseNotes((payload) => {
-						if (payload.acknowledged) {
-							return;
-						}
-
-						S.Popup.open("confirm", {
-							data: {
-								iconParam: { name: "popup/header/updated", color: "lime" },
-								title: U.String.sprintf(
-									translate("popupConfirmReleaseNotesTitle"),
-									payload.version,
-								),
-								text: payload.releaseNotes || "",
-								textConfirm: translate("commonOk"),
-							},
-						});
-					}),
-				);
-			}
 
 			desktopBridgeUnsubscribes.current = unsubs;
 		});
@@ -1124,6 +1109,9 @@ const App: FC = () => {
 	useEffect(() => {
 		if (desktop.isShell()) {
 			document.documentElement.setAttribute("data-harness-desktop", "");
+			// The served document is the web build (`dist/index.web.html`), whose <title> still says
+			// "Anytype Web". The shell is not the web app, so it re-titles its own window.
+			document.title = "Anytype Harness";
 		}
 	}, []);
 

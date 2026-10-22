@@ -47,7 +47,10 @@ describe("serverAddress", () => {
 
 	it("keeps an explicit API path in the ?server= form", () => {
 		vi.stubEnv("VITE_API_BASE_URL", "http://localhost:8000/api");
-		browser("?server=http://10.0.0.9:8000/gateway/api/", "http://localhost:8000/api");
+		browser(
+			"?server=http://10.0.0.9:8000/gateway/api/",
+			"http://localhost:8000/api",
+		);
 
 		expect(serverAddress()).toBe("http://10.0.0.9:8000/gateway/api");
 
@@ -74,7 +77,9 @@ describe("serverAddress", () => {
 });
 
 const browser = (search: string, stored: string | null) => {
-	vi.stubGlobal("window", { location: { search, origin: "http://localhost:3030" } });
+	vi.stubGlobal("window", {
+		location: { search, origin: "http://localhost:3030" },
+	});
 	vi.stubGlobal("localStorage", {
 		getItem: () => stored,
 		setItem: () => undefined,

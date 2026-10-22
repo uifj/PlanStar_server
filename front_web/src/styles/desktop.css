@@ -36,6 +36,15 @@
 @custom-variant fullscreen (&:where(html.isFullScreen, html.isFullScreen *));
 
 /*
+ * The shell serves the web build's HTML (`dist/index.web.html`), so its "Web Mode" badge ships
+ * into the desktop window as well. Hide it there. That file is the real web build input, so this
+ * is fixed in CSS rather than by editing the document; the window itself already names the app.
+ */
+html[data-harness-desktop] .web-mode-indicator {
+	display: none;
+}
+
+/*
  * Utility vocabulary over the anytype palette (the `--color-*` tokens defined in legacy.css for the
  * light theme and redefined under `html.theme-dark`), so migrated components write `bg-surface` /
  * `text-fg-subtle` instead of `bg-[var(--color-…)]`. `inline` emits a live var() reference rather
