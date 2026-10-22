@@ -87,21 +87,27 @@ export async function submitCrashReport(
 }
 
 /**
- * Render the release manifest as flat YAML, or `null` when no release is published. The shell's
- * `parseManifestYaml` requires `version` and `path`; everything else is optional. A `null` result
- * becomes a 404 at the route, which the manifest provider surfaces as update-not-available.
+ * Render the release manifest as flat YAML, or `null` when no version is published. The shell's
+ * `parseManifestYaml` requires `version` and treats `path` as optional; everything else is
+ * optional. A `null` result becomes a 404 at the route, which the manifest provider surfaces as
+ * update-not-available.
  */
 export function getReleaseManifest(
 	_query: ReleaseManifestQuery,
 ): string | null {
 	const version = env.DESKTOP_RELEASE_VERSION;
-	const artifactPath = env.DESKTOP_RELEASE_PATH;
-	if (!version || !artifactPath) {
+	if (!version) {
 		return null;
 	}
 
 	const forced = FORCED_TRUTHY.has(env.DESKTOP_RELEASE_FORCED.toLowerCase());
-	const lines: string[] = [`version: ${version}`, `path: ${artifactPath}`];
+	const lines: string[] = [`version: ${version}`];
+
+	// `path` only exists when an artifact was staged. The download URL comes from the builder feed,
+	// so a metadata-only release (policy entry without a binary) is valid.
+	if (env.DESKTOP_RELEASE_PATH) {
+		lines.push(`path: ${env.DESKTOP_RELEASE_PATH}`);
+	}
 
 	if (env.DESKTOP_RELEASE_DATE) {
 		lines.push(`releaseDate: '${env.DESKTOP_RELEASE_DATE}'`);
@@ -120,11 +126,16 @@ export function getReleaseManifest(
 	return `${lines.join("\n")}\n`;
 }
 
-/** Absolute path of a staged release artifact, or `null` when the filename escapes the root. */
+/**
+ * Absolute path of a staged release artifact, or `null` when the filename escapes the root.
+ *
+ * The feed route and the legacy `/releases/download/{filename}` route both funnel through here; the
+ * caller is responsible for deciding *whether* a name may be served (see `feed.ts`).
+ */
 export function resolveReleaseArtifactPath(filename: string): string | null {
 	const root = resolve(join(env.DESKTOP_DATA_ROOT, "releases"));
 	const candidate = resolve(join(root, filename));
-	if (candidate !== root && !candidate.startsWith(`${root}/`)) {
+	if (candidate === root || !candidate.startsWith(`${root}/`)) {
 		return null;
 	}
 	return candidate;

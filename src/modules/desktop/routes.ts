@@ -7,6 +7,7 @@ import {
 	FeedbackIntakeSchema,
 	IntakeAcceptedSchema,
 	ReleaseArtifactParamsSchema,
+	ReleaseFeedFileParamsSchema,
 	ReleaseManifestQuerySchema,
 } from "./schema.js";
 
@@ -69,8 +70,9 @@ export const downloadReleaseArtifactRoute = createRoute({
 	tags,
 	summary: "Download a release artifact",
 	description:
-		"Serves the binary referenced by the manifest's `path`, staged under DESKTOP_DATA_ROOT/releases. " +
-		"The filename is resolved inside that root only; any traversal attempt is rejected with 404.",
+		"Serves a release artifact staged under DESKTOP_DATA_ROOT/releases. The name must be " +
+		"referenced by a published feed (`latest-mac.yml`) so this can never act as a generic file " +
+		"reader; the bytes are streamed rather than buffered. Any traversal attempt is rejected with 404.",
 	request: { params: ReleaseArtifactParamsSchema },
 	responses: {
 		200: {
@@ -78,5 +80,26 @@ export const downloadReleaseArtifactRoute = createRoute({
 			content: { "application/octet-stream": { schema: z.any() } },
 		},
 		...notFoundResponse("Artifact not found."),
+	},
+});
+
+export const getReleaseFeedFileRoute = createRoute({
+	method: "get",
+	path: "/releases/feed/{filename}",
+	tags,
+	summary: "Release feed metadata",
+	description:
+		"electron-updater's single generic feed. The same path serves two shapes: builder metadata " +
+		"(`latest-mac.yml`, returned verbatim so its sha512 always matches the archive) and the archive " +
+		"that metadata names (`path` / `files[].url`, which electron-updater resolves relative to this " +
+		"feed URL). Metadata names keep a strict whitelist; archives must be referenced by a yml in the " +
+		"releases root. `/releases/manifest` stays the policy channel (`is_forced`, releaseNotes).",
+	request: { params: ReleaseFeedFileParamsSchema },
+	responses: {
+		200: {
+			description: "Update metadata (YAML).",
+			content: { "text/yaml": { schema: z.string() } },
+		},
+		...notFoundResponse("Feed metadata not found."),
 	},
 });

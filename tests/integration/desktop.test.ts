@@ -147,24 +147,138 @@ describe("GET /api/desktop/releases/manifest", () => {
 		expect(yaml).toContain("releaseNotes: |");
 		expect(yaml).toContain("  - fixed export");
 	});
+
+	it("serves a metadata-only release (no `path`) so a policy entry needs no artifact", async () => {
+		env.DESKTOP_RELEASE_VERSION = "9.9.9";
+		env.DESKTOP_RELEASE_PATH = undefined;
+		env.DESKTOP_RELEASE_FORCED = "true";
+
+		const response = await app.request(
+			`${desktopBase}/releases/manifest?platform=darwin-arm64&channel=stable`,
+		);
+
+		expect(response.status).toBe(200);
+		const yaml = await response.text();
+		expect(yaml).toContain("version: 9.9.9");
+		// A bare `path:` line would be an empty value, which the shell would read as "" instead of
+		// "absent", so the line is omitted entirely.
+		expect(yaml).not.toMatch(/^path:/m);
+		expect(yaml).toContain("is_forced: true");
+	});
 });
 
 describe("GET /api/desktop/releases/download/{filename}", () => {
-	it("serves a staged artifact and 404s for a missing one", async () => {
+	it("serves an artifact the feed references and 404s otherwise", async () => {
 		const releasesDir = join(workDir, "releases");
 		await mkdir(releasesDir, { recursive: true });
 		const artifact = new Uint8Array([9, 8, 7, 6]);
 		await writeFile(join(releasesDir, "Harness-9.9.9-arm64.dmg"), artifact);
+		await writeFile(
+			join(releasesDir, "latest-mac.yml"),
+			[
+				"version: 9.9.9",
+				"path: Harness-9.9.9-arm64.dmg",
+				"sha512: abc123",
+				"",
+			].join("\n"),
+		);
 
 		const found = await app.request(
 			`${desktopBase}/releases/download/Harness-9.9.9-arm64.dmg`,
 		);
 		expect(found.status).toBe(200);
+		expect(found.headers.get("content-type")).toContain("application/zip");
 		expect(new Uint8Array(await found.arrayBuffer())).toEqual(artifact);
+
+		// Staged but not named by any published feed: the route is not a file reader.
+		await writeFile(join(releasesDir, "stray.dmg"), artifact);
+		const stray = await app.request(
+			`${desktopBase}/releases/download/stray.dmg`,
+		);
+		expect(stray.status).toBe(404);
 
 		const missing = await app.request(
 			`${desktopBase}/releases/download/does-not-exist.dmg`,
 		);
 		expect(missing.status).toBe(404);
+	});
+});
+
+describe("GET /api/desktop/releases/feed/{filename}", () => {
+	it("serves electron-builder metadata verbatim", async () => {
+		const releasesDir = join(workDir, "releases");
+		await mkdir(releasesDir, { recursive: true });
+		const yaml = [
+			"version: 9.9.9",
+			"files:",
+			"  - url: Harness-9.9.9-arm64-mac.zip",
+			"    sha512: abc123",
+			"path: Harness-9.9.9-arm64-mac.zip",
+			"sha512: abc123",
+			"releaseDate: '2026-10-21T00:00:00.000Z'",
+			"",
+		].join("\n");
+		await writeFile(join(releasesDir, "latest-mac.yml"), yaml);
+
+		const response = await app.request(
+			`${desktopBase}/releases/feed/latest-mac.yml`,
+		);
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get("content-type")).toContain("text/yaml");
+		expect(await response.text()).toBe(yaml);
+	});
+
+	it("accepts only builder metadata names", async () => {
+		const traversal = await app.request(
+			`${desktopBase}/releases/feed/..%2F..%2Fetc%2Fpasswd`,
+		);
+		expect(traversal.status).toBe(404);
+
+		const missing = await app.request(
+			`${desktopBase}/releases/feed/latest.yml`,
+		);
+		expect(missing.status).toBe(404);
+	});
+
+	/**
+	 * The regression this suite exists for: electron-updater resolves `path` relative to the feed
+	 * URL, so the archive request lands on this same route. A yml-only route 400/404s every update.
+	 */
+	it("serves the archive the metadata names, including spaces", async () => {
+		const releasesDir = join(workDir, "releases");
+		const name = "Anytype Harness-9.9.9-arm64-mac.zip";
+		const artifact = new Uint8Array([1, 2, 3, 4, 5]);
+		await writeFile(join(releasesDir, name), artifact);
+		await writeFile(
+			join(releasesDir, "latest-mac.yml"),
+			[
+				"version: 9.9.9",
+				"files:",
+				`  - url: ${name}`,
+				"    sha512: abc123",
+				`path: ${name}`,
+				"sha512: abc123",
+				"",
+			].join("\n"),
+		);
+
+		const response = await app.request(
+			`${desktopBase}/releases/feed/${encodeURIComponent(name)}`,
+		);
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get("content-type")).toContain("application/zip");
+		expect(response.headers.get("content-length")).toBe(
+			String(artifact.byteLength),
+		);
+		expect(new Uint8Array(await response.arrayBuffer())).toEqual(artifact);
+	});
+
+	it("rejects an archive no feed references", async () => {
+		const response = await app.request(
+			`${desktopBase}/releases/feed/unreferenced.zip`,
+		);
+		expect(response.status).toBe(404);
 	});
 });

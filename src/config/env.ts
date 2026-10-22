@@ -12,6 +12,12 @@ const envSchema = z.object({
 
 	PORT: z.coerce.number().int().positive().default(8000),
 
+	/**
+	 * Interface the HTTP server binds to. Containers must bind `0.0.0.0` or the published port is
+	 * unreachable from outside the network namespace; a bare-metal install may prefer loopback.
+	 */
+	HOST: z.string().min(1).default("0.0.0.0"),
+
 	DATABASE_URL: z.url(),
 
 	BETTER_AUTH_SECRET: z.string().min(1),
@@ -82,6 +88,29 @@ const envSchema = z.object({
 	DESKTOP_RELEASE_FORCED: z
 		.enum(["1", "true", "yes", "on", "0", "false", "no", "off"])
 		.default("false"),
+
+	/**
+	 * Root of the uploaded desktop log tree. Defaults to `<DESKTOP_DATA_ROOT>/logs`, which keeps the
+	 * whole desktop surface under one volume. Each device gets its own directory of `<UTC day>.ndjson`
+	 * files (see src/modules/desktop-logs).
+	 */
+	DESKTOP_LOG_ROOT: z.string().min(1).optional(),
+
+	/** Days a day-file survives before the retention sweep deletes it. */
+	DESKTOP_LOG_RETENTION_DAYS: z.coerce.number().int().positive().default(14),
+
+	/** Per-device, per-UTC-day write budget; further uploads are rejected with 429. */
+	DESKTOP_LOG_DAILY_QUOTA_BYTES: z.coerce
+		.number()
+		.int()
+		.positive()
+		.default(50 * 1024 * 1024),
+
+	/**
+	 * Bearer token for the operator read endpoints (`GET /api/desktop/logs*`). Unset means the query
+	 * surface is closed (404) rather than open: the write side is anonymous, the read side must not be.
+	 */
+	DESKTOP_LOG_READ_TOKEN: z.string().min(16).optional(),
 });
 
 const result = envSchema.safeParse(process.env);

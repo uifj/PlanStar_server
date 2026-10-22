@@ -41,3 +41,16 @@ export type ReleaseManifestQuery = z.infer<typeof ReleaseManifestQuerySchema>;
 export const ReleaseArtifactParamsSchema = z.object({
 	filename: z.string().min(1),
 });
+
+/**
+ * Feed path segment. The updater requests both the metadata (`latest-mac.yml`) and the archive that
+ * metadata points at from this same route, so the value is no longer constrained to `*.yml` here:
+ * `readFeedFile` keeps the builder-name whitelist, and `resolveServableArtifact` only serves files a
+ * published yml actually references. The register only bounds the segment so traversal attempts
+ * fail closed as 404 instead of reaching the filesystem.
+ */
+export const ReleaseFeedFileParamsSchema = z.object({
+	filename: z.string().min(1).max(255),
+});
+
+export type ReleaseFeedFileParams = z.infer<typeof ReleaseFeedFileParamsSchema>;
